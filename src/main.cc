@@ -26,7 +26,13 @@
 #include <iostream>
 using namespace std;
 
-int main() {
+/**
+ * @brief
+ * @param argc
+ * @param argv
+ * @return
+ */
+int main(const int argc, const char * const * const argv) {
 
 	return 0;
 }
