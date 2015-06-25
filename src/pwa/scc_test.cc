@@ -7,6 +7,6 @@
 
 #include "scc.hh"
 
-namespace SURA {
+namespace sura {
 
 } /* namespace SURA */

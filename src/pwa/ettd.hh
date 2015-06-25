@@ -1,8 +1,7 @@
-/*
- * ettd.hh
- *
- *  Created on: Jun 21, 2015
- *      Author: lpzun
+/**
+ * @brief ettd.hh
+ * @date: Jun 21, 2015
+ * @author: lpzun
  */
 
 #ifndef ETTD_HH_
@@ -10,7 +9,7 @@
 
 #include "../util/refs.hh"
 
-namespace SURA {
+namespace sura {
 
 typedef enum Transition_Type {
 	NORM, THCR, BCST, EXPD

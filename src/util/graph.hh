@@ -8,28 +8,30 @@
 #ifndef GRAPH_HH_
 #define GRAPH_HH_
 
-#include "utilities.hh"
+#include "heads.hh"
 
-namespace SURA {
+namespace sura {
 
 typedef unsigned int vertex;
-typedef unordered_map<vertex, list<vertex> > adj_list;
+typedef unsigned int size_V;
+
+typedef vector<list<vertex>> adj_list;
 
 class Graph {
 public:
-	Graph();
+	Graph(const size_V& V, const adj_list& Adj);
 	virtual ~Graph();
 
-	void DFS();
-	void DFS(const list<vertex>& V);
-	void DFS(const adj_list& G, const vertex& u);
-
-	adj_list transpose();
-	void strongly_connected_component();
+	void build_SCC();
 
 private:
-	adj_list Adj;
-	list<vertex> V;
+	size_V V;        /// No. of vertices
+	adj_list Adj;    /// adjacency list
+
+	void DFS();
+	void DFS_visit(const vertex& u, vector<bool>& visited);
+	void sort(const vertex& u, vector<bool>& visited, stack<vertex>& sstack);
+	Graph transpose();
 };
 
 } /* namespace SURA */

@@ -8,9 +8,9 @@
 #ifndef STATE_HH_
 #define STATE_HH_
 
-#include "utilities.hh"
+#include "heads.hh"
 
-namespace SURA {
+namespace sura {
 
 /// define local state
 typedef unsigned short Local_State;

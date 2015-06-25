@@ -8,7 +8,7 @@
 #ifndef SCC_HH_
 #define SCC_HH_
 
-namespace SURA {
+namespace sura {
 
 /// component graph
 class GSCC {

@@ -1,13 +1,12 @@
-/*
- * ettd.cc
- *
- *  Created on: Jun 21, 2015
- *      Author: lpzun
+/**
+ * @brief: ettd.cc
+ * @date : Jun 21, 2015
+ * @author: Peizun Liu
  */
 
 #include "ettd.hh"
 
-namespace SURA {
+namespace sura {
 
 template<typename T>
 Transition<T>::Transition(const T& src, const T& dst) :
@@ -31,7 +30,7 @@ unique_ptr<ETTD> ETTD::m_instance = nullptr;
  * 		  Calling the constructor publicly is not allowed. The constructor
  * 		  is private and is only called by this instance function.
  *
- * @return
+ * @return the reference of ETTD
  */
 ETTD& ETTD::instance() {
 	if (!m_instance)

@@ -1,5 +1,5 @@
 /**===========================================================================================
- * @note        I am rewriting the ursula on this project. I am tring to use more generic
+ * @note        I am rewriting the URSULA on this project. I am trying to use more generic
  * 				programming techniques. This may spend some time. Not in a rush.
  *
  * @name       	: URSULA
@@ -16,7 +16,7 @@
  * 				Presburger arithmetic constraints. The constraints are defined over a
  * 				single-threaded abstract program and are satisfiable exactly if the original
  * 				unbounded-thread reachability problem has a solution. An advantage of
- * 				our approach is that the purely static analyses involved in building the
+ * 				our approach is that the purely static analysis involved in building the
  * 				Presburger formula can often reveal its (un-)satisfiability, practically in
  * 				zero time, before any kind of arithmetic has been performed.
  * 				We demonstrate the power of this technique for checking safety properties
@@ -24,15 +24,37 @@
  *==========================================================================================*/
 
 #include <iostream>
+
+#include "sura/fws/fws.hh"
+#include "util/cmd.hh"
+
+using namespace sura;
 using namespace std;
 
 /**
- * @brief
- * @param argc
- * @param argv
- * @return
+ * @brief: The main function
+ * @param: argc
+ * @param: argv
+ * @return int
+ * 		   exit code
  */
 int main(const int argc, const char * const * const argv) {
+	try {
+		Cmd_Line cmd = CMD::create_argument_list();
+		try {
+			cmd.get_command_line(argc, argv);
+		} catch (Cmd_Line::Help) {
+			return 0;
+		}
 
-	return 0;
+		return 0;
+	} catch (const sura_exception & e) {
+		e.what();
+	} catch (const z3::exception &e) {
+		std::cerr << e.msg() << endl;
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << endl;
+	} catch (...) {
+		std::cerr << sura_exception("main: unknown exception occurred").what() << endl;
+	}
 }

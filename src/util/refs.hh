@@ -10,7 +10,14 @@
 
 #include "graph.hh"
 
-namespace SURA {
+namespace sura {
+
+extern ushort TARGET_THR_NUM;
+
+extern const string VERSION;
+extern const string OPT_FWS;
+extern const string OPT_LDP;
+extern const string OPT_CON;
 
 extern adj_list original_TTD;
 

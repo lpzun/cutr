@@ -1,20 +1,22 @@
 /**
- * @brief scc.cc
+ * @brief : fws.cc
  *
- * @date: Jun 21, 2015
+ * @date  : Jun 25, 2015
  * @author: Peizun Liu
  */
 
-#include "scc.hh"
+#include "z3++.h"
+
+#include "fws.hh"
 
 namespace sura {
 
-SCC::SCC() {
+FWS::FWS() {
 	// TODO Auto-generated constructor stub
 
 }
 
-SCC::~SCC() {
+FWS::~FWS() {
 	// TODO Auto-generated destructor stub
 }
 
