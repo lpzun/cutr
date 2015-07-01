@@ -14,16 +14,19 @@ namespace sura {
 
 /// define local state
 typedef unsigned short Local_State;
-/// size of local states
+/// define the size of local states
 typedef unsigned short size_l;
 
 /// define shared state
 typedef unsigned short Shared_State;
-/// size of shared states
+/// define size of shared states
 typedef unsigned short size_s;
 
 /// define the counter of thread state
 typedef unsigned short size_p;
+
+/// define the thread state id
+typedef unsigned int thread_state_id;
 
 /// class thread state
 class Thread_State {
@@ -65,7 +68,7 @@ inline Thread_State::Thread_State(const Thread_State& t) :
  * @param local: local  state
  */
 inline Thread_State::Thread_State(const Shared_State& share, const Local_State& local) {
-	assert(share < S && local < L);
+	__SAFE_ASSERT__(share < S && local < L);
 	this->share = share;
 	this->local = local;
 }
@@ -86,8 +89,59 @@ inline ostream& Thread_State::to_stream(ostream& out) const {
  * @param ts
  * @return ostream
  */
-inline ostream& operator <<(ostream& out, const Thread_State& t) {
+inline ostream& operator<<(ostream& out, const Thread_State& t) {
 	return t.to_stream(out);
+}
+
+/**
+ * @brief overloading operator ==
+ * @param t1
+ * @param t2
+ * @return bool
+ * 		   true : if t1 == t2
+ * 		   false: otherwise
+ */
+inline bool operator==(const Thread_State& t1, const Thread_State& t2) {
+	return t1.share == t2.share && t1.local == t2.local;
+}
+
+/**
+ * @brief overloading operator !=
+ * @param t1
+ * @param t2
+ * @return bool
+ * 		   true : if t1 == t2
+ * 		   false: otherwise
+ */
+inline bool operator!=(const Thread_State& t1, const Thread_State& t2) {
+	return !(t1 == t2);
+}
+
+/**
+ * @brief overloading operator <
+ * @param t1
+ * @param t2
+ * @return bool
+ * 		   true : if t1 < t2
+ * 		   false: otherwise
+ */
+inline bool operator<(const Thread_State& t1, const Thread_State& t2) {
+	if (t1.share == t2.share)
+		return t1.local < t2.local;
+	else
+		return t1.share < t2.share;
+}
+
+/**
+ * @brief overloading operator >
+ * @param t1
+ * @param t2
+ * @return bool
+ * 		   true : if t1 > t2
+ * 		   false: otherwise
+ */
+inline bool operator>(const Thread_State& t1, const Thread_State& t2) {
+	return t2 < t1;
 }
 
 /// class global state
@@ -105,6 +159,11 @@ public:
 	inline Global_State(const Shared_State& share, const Locals& locals, shared_ptr<const Global_State> pi);
 	virtual ~Global_State() {
 	}
+
+	ostream& to_stream(ostream& out = cout, const string& sep = "|") const;
+
+private:
+	inline bool compare(const Locals& m1, const Locals& m2);
 };
 
 /**
@@ -140,11 +199,179 @@ inline Global_State::Global_State(const Shared_State& share, const Locals& local
  * @param locals: local states represented in counter abstraction form
  * @param pi	: the father of current global state
  */
-inline Global_State::Global_State(const Shared_State& share, const Locals& locals,
-		shared_ptr<const Global_State> pi) :
+inline Global_State::Global_State(const Shared_State& share, const Locals& locals, shared_ptr<const Global_State> pi) :
 		share(share), locals(locals), pi(pi) {
 }
 
+/**
+ * @brief call by <<
+ * @param out
+ * @param sep
+ * @return
+ */
+inline ostream& Global_State::to_stream(ostream& out, const string& sep) const {
+	out << "<" << this->share << "|";
+	for (auto iloc = this->locals.begin(); iloc != this->locals.end(); ++iloc) {
+		out << "(" << iloc->first << "," << iloc->second << ")";
+	}
+	out << ">";
+	return out;
+}
+
+/**
+ * @brief overloading operator <<
+ * @param out
+ * @param g
+ * @return
+ */
+inline ostream& operator<<(ostream& out, const Global_State& g) {
+	return g.to_stream(out);
+}
+
+///**
+// * @brief overloading operator ==
+// * @param g1
+// * @param g2
+// * @return bool
+// * 		   true : if g1 == g2
+// * 		   false: otherwise.
+// */
+//inline bool operator==(const Global_State& g1, const Global_State& g2) {
+//	if (g1.share == g2.share) {
+//		if (g1.locals.size() == g1.locals.size()) {
+//			for (auto iloc = g1.locals.begin(); iloc != g1.locals.end(); ++iloc) {
+//				auto ifind = g2.locals.find(iloc->first);
+//				if (iloc->second != ifind->second)
+//					return false;
+//			}
+//			return true;
+//		}
+//	}
+//	return false;
+//}
+//
+///**
+// * @brief overloading operator !=
+// * @param g1
+// * @param g2
+// * @return bool
+// * 		   true : if g1 != g2
+// * 		   false: otherwise.
+// */
+//inline bool operator!=(const Global_State& g1, const Global_State& g2) {
+//	return !(g1 == g2);
+//}
+//
+///**
+// * @brief overloading operator <
+// * @param g1
+// * @param g2
+// * @return bool
+// * 		   true : if g1 < g2
+// * 		   false: otherwise.
+// */
+//inline bool operator<(const Global_State& g1, const Global_State& g2) {
+//	if (g1.share == g2.share) {
+//		ushort th1 = 0, th2 = 0;
+//		for (const auto &l1 : g1.locals)
+//			th1 += l1.second;
+//		for (const auto &l2 : g2.locals)
+//			th2 += l2.second;
+//		return th1 < th2;
+//	}
+//	return g1.share < g2.share;
+//}
+//
+///**
+// * @brief overloading operator >
+// * @param g1
+// * @param g2
+// * @return bool
+// * 		   true : if g1 > g2
+// * 		   false: otherwise.
+// */
+//inline bool operator>(const Global_State& g1, const Global_State& g2) {
+//	return g2 < g1;
+//}
+
+/**
+ *
+ * @param s1
+ * @param s2
+ * @return bool
+ */
+inline bool operator<(const Global_State& s1, const Global_State& s2) {
+	if (s1.share == s2.share) {
+		auto s1_iter = s1.locals.begin(), s1_end = s1.locals.end();
+		auto s2_iter = s2.locals.begin(), s2_end = s2.locals.end();
+		while (true) {
+			if (s1_iter == s1_end && s2_iter == s2_end) {
+				return 0;
+			} else if (s1_iter == s1_end) {
+				return -1;
+			} else if (s2_iter == s2_end) {
+				return 1;
+			} else if (s1_iter->first < s2_iter->first) {
+				return -1;
+			} else if (s1_iter->first > s2_iter->first) {
+				return 1;
+			} else if (s1_iter->first == s2_iter->first) {
+				if (s1_iter->second < s2_iter->second) {
+					return -1;
+				} else if (s1_iter->second < s2_iter->second) {
+					return 1;
+				}
+			}
+			s1_iter++, s2_iter++;
+		}
+		throw;
+	} else {
+		return s1.share < s2.share;
+	}
+}
+
+/**
+ *
+ * @param s1
+ * @param s2
+ * @return
+ */
+inline bool operator>(const Global_State& s1, const Global_State& s2) {
+	return s2 < s1;
+}
+
+/**
+ * @brief overload comparator ==
+ * @param s1
+ * @param s2
+ * @return bool
+ */
+inline bool operator==(const Global_State& s1, const Global_State& s2) {
+	if (s1.share == s2.share) {
+		if (s1.locals.size() == s2.locals.size()) {
+			auto s1_iter = s1.locals.begin(), s1_end = s1.locals.end();
+			auto s2_iter = s2.locals.begin();
+			while (s1_iter != s1_end) {
+				if ((s1_iter->first != s2_iter->first) || (s1_iter->second != s2_iter->second)) {
+					return false;
+				}
+				s1_iter++, s2_iter++;
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ *
+ * @param s1
+ * @param s2
+ * @return bool
+ */
+inline bool operator!=(const Global_State& s1, const Global_State& s2) {
+	return !(s1 == s2);
+}
 } /* namespace SURA */
 
 #endif /* STATE_HH_ */

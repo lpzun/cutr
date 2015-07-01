@@ -199,7 +199,7 @@ Cmd_Line create_argument_list() {
 	/// exploration mode
 	cmd.add_option(EXP_MODE_OPTS, "-m", "--mode", (string("exploration mode:\n") //
 	///+ string(25, ' ') + " -" + '"' + OPT_FWS + '"' + ": forward search: oracle\n" //
-			+ string(25, ' ') + " -" + '"' + sura::OPT_LDP + '"' + ": logic decision problem\n" //
+			+ string(25, ' ') + " -" + '"' + sura::OPT_MODE_LDP + '"' + ": logic decision problem\n" //
 	///		+ string(25, ' ') + " -" + '"' + OPT_CON + '"' + ": concurrent forward/logic decision\n" //
 			).c_str(), "S");
 

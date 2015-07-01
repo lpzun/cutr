@@ -14,6 +14,7 @@
 
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <iostream>
 #include <istream>
 #include <ostream>
@@ -29,6 +30,8 @@
 #include <iterator>
 #include <algorithm>
 #include <memory>
+
+#include "excep.hh"
 
 using std::string;
 
@@ -62,5 +65,26 @@ typedef unsigned long ulong;
 typedef const unsigned short cushort;
 typedef const unsigned int cuint;
 typedef const unsigned long culong;
+
+//// some macro definition
+
+/// Evaluate assertion if __SAFE_COMPUTATION__ is defined.
+/// If not, __SAFE_ASSERT__ results in an empty statement ";".
+/// Careful: in macro definition, NO SPACE between macro name and formal arg list!
+#ifdef __SAFE_COMPUTATION__
+#define __SAFE_COMPUTE__(stmt) stmt
+#define __SAFE_ASSERT__(cond) assert(cond)  // an abbreviation for: __SAFE_COMPUTE__ (assert cond)
+#else
+#define __SAFE_COMPUTE__(stmt)
+#define __SAFE_ASSERT__(cond)
+#endif
+
+#ifdef __VERBOSE__
+#define __VERBOSE_COMPUTE__(stmt) stmt
+#define __CERR__(stuff) std::cerr << stuff  // print only in verbose mode. Use for debugging messages
+#else
+#define __VERBOSE_COMPUTE__(stmt)
+#define __CERR__(stuff)
+#endif
 
 #endif /* HEADS_HH_ */

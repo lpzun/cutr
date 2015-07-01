@@ -10,12 +10,12 @@
 
 namespace sura {
 
-Utilities::Utilities() {
+Util::Util() {
 	// TODO Auto-generated constructor stub
 
 }
 
-Utilities::~Utilities() {
+Util::~Util() {
 	// TODO Auto-generated destructor stub
 }
 
@@ -25,13 +25,12 @@ Utilities::~Utilities() {
  * @param delim
  * @return
  */
-Thread_State Utilities::create_thread_state_from_str(const string& s_ts, const char& delim) {
+Thread_State Util::create_thread_state_from_str(const string& s_ts, const char& delim) {
 	vector<string> vs_ts = Split::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
 		throw("The format of thread state is wrong.");
 	}
-	Thread_State ts(atol(vs_ts[0].c_str()), atol(vs_ts[1].c_str()));
-	return ts;
+	return Thread_State(atol(vs_ts[0].c_str()), atol(vs_ts[1].c_str()));
 }
 
 /**
@@ -40,31 +39,25 @@ Thread_State Utilities::create_thread_state_from_str(const string& s_ts, const c
  * @param delim
  * @return
  */
-Thread_State Utilities::create_thread_state_from_gs_str(const string& s_ts, const char& delim) {
-	vector<string> vs_ts = Split::split(s_ts, delim);
+Thread_State Util::create_thread_state_from_gs_str(const string& s_ts, const char& delim) {
+	auto vs_ts = Split::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
 		throw ural_rt_err("The format of global state is wrong.");
 	}
-	vector<string> vs_locals = Split::split(vs_ts[1], ',');
+	auto vs_locals = Split::split(vs_ts[1], ',');
 	TARGET_THR_NUM = vs_locals.size();
-	Thread_State ts(atol(vs_ts[0].c_str()), atol(vs_locals[0].c_str()));
-	return ts;
+	return Thread_State(atol(vs_ts[0].c_str()), atol(vs_locals[0].c_str()));
 }
 /**
  * @brief print all of the transitions in the thread-state transition diagram
  * @param adjacency_list
  * @param out
  */
-void Utilities::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list, ostream& out) {
+void Util::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list, ostream& out) {
 	out << Thread_State::L << " " << Thread_State::S << endl;
-	for (map<Thread_State, set<Thread_State> >::const_iterator pair = adj_list.begin(), end = adj_list.end();
-			pair != end; ++pair) {
-		const Thread_State& t = pair->first;
-		const set<Thread_State>& successors = pair->second;
-		for (set<Thread_State>::const_iterator succ = successors.begin(), end = successors.end(); succ != end; ++succ) {
-			out << t << " -> " << (*succ) << endl;
-		}
-	}
+	for (auto iu = adj_list.begin(); iu != adj_list.end(); ++iu)
+		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
+			out << iu->first << " -> " << (*iv) << endl;
 }
 
 /**
@@ -72,17 +65,11 @@ void Utilities::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_
  * @param adjacency_list
  * @param out
  */
-void Utilities::print_adj_list(const map<Thread_State, list<Thread_State> >& adj_list, ostream& out) {
+void Util::print_adj_list(const map<Thread_State, list<Thread_State> >& adj_list, ostream& out) {
 	out << Thread_State::L << " " << Thread_State::S << endl;
-	for (map<Thread_State, list<Thread_State> >::const_iterator pair = adj_list.begin(), end = adj_list.end();
-			pair != end; ++pair) {
-		const Thread_State& t = pair->first;
-		const list<Thread_State>& successors = pair->second;
-		for (list<Thread_State>::const_iterator succ = successors.begin(), end = successors.end(); succ != end;
-				++succ) {
-			out << t << " -> " << (*succ) << endl;
-		}
-	}
+	for (auto iu = adj_list.begin(); iu != adj_list.end(); ++iu)
+		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
+			out << iu->first << " -> " << (*iv) << endl;
 }
 
 /**
@@ -133,7 +120,6 @@ void Utilities::print_adj_list(const map<Thread_State, list<Thread_State> >& adj
 //		fout.close();
 //	}
 //}
-
 /**
  * @brief split a string into a vector of strings via a delimiter
  * @param s: object string
@@ -161,6 +147,49 @@ vector<string> Split::split(const string &s, char delim, vector<string> &elems) 
 	}
 	return elems;
 }
+
+//namespace PARSER {
+
+/**
+ * @brief remove the comments of .ttd files
+ * @param in
+ * @param filename
+ * @param comment
+ */
+void Parser::remove_comments(istream& in, const string& filename, const string& comment) {
+	ofstream out(filename.c_str());
+	remove_comments(in, out, comment);
+}
+
+/**
+ * @brief remove the comments of .ttd files
+ * @param in
+ * @param out
+ * @param comment
+ */
+void Parser::remove_comments(const string& in, string& out, const string& comment) {
+	std::istringstream instream(in);
+	std::ostringstream outstream;
+	remove_comments(instream, outstream, comment);
+	out = outstream.str();
+}
+
+void Parser::remove_comments(istream& in, ostream& out, const string& comment) {
+	string line;
+	while (this->getline(in, line = "")) {
+		const size_t comment_start = line.find(comment);
+		out << (comment_start == string::npos ? line : line.substr(0, comment_start)) << endl;
+	}
+}
+
+bool Parser::getline(istream& in, string& line, const char& eol) {
+	char c = 0;
+	while (in.get(c) ? c != eol : false)
+		line += c;
+	return c != 0;
+}
+
+/// end of PARSER
 
 namespace PPRINT {
 string tabularize(const string& s, const string& sep, const unsigned short& tab) {
@@ -195,5 +224,6 @@ string firstTimeOrNot(bool& firstTime, const string& connective, const string& c
 	firstTime = false;
 	return result;
 }
-}
+} /// end of PPRINT
+
 } /* namespace SURA */

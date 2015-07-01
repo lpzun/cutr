@@ -10,6 +10,8 @@
 
 #include "z3++.h"
 
+#include "../../util/state.hh"
+
 namespace sura {
 
 class FWS {

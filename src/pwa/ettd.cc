@@ -50,5 +50,9 @@ ETTD::~ETTD() {
 	// TODO Auto-generated destructor stub
 }
 
+void ETTD::build_ETTD(const adj_list& TTD){
+
+}
+
 }
 /* namespace SURA */

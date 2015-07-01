@@ -9,15 +9,14 @@
 #define UTILITIES_HH_
 
 #include "heads.hh"
-#include "state.hh"
 #include "refs.hh"
 
 namespace sura {
 
-class Utilities {
+class Util {
 public:
-	Utilities();
-	virtual ~Utilities();
+	Util();
+	virtual ~Util();
 	static Thread_State create_thread_state_from_str(const string& s_ts, const char& delim = '|');
 	static Thread_State create_thread_state_from_gs_str(const string& s_ts, const char& delim = '|');
 
@@ -35,6 +34,16 @@ public:
 	virtual ~Split() {
 	}
 	static vector<string> split(const string &s, const char& delim);
+};
+
+class Parser {
+public:
+	static void remove_comments(istream& in, const string& filename, const string& comment);
+	static void remove_comments(const string& in, string& out, const string& comment);
+
+private:
+	static void remove_comments(istream& in, ostream& out, const string& comment);
+	static bool getline(istream& in, string& line, const char& eol = '\n');
 };
 
 namespace PPRINT {
