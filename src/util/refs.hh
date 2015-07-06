@@ -1,8 +1,8 @@
-/*
- * refs.hh
+/**
+ * @brief refs.hh
  *
- *  Created on: Jun 21, 2015
- *      Author: lpzun
+ * @date: Jun 21, 2015
+ * @author: Peizun Liu
  */
 
 #ifndef REFS_HH_
@@ -27,11 +27,6 @@ extern bool OPT_SHARED;
 
 extern ushort TARGET_THR_NUM;
 
-extern const string VERSION;
-extern const string OPT_MODE_FWS;
-extern const string OPT_MODE_LDP;
-extern const string OPT_MODE_CON;
-
 extern string FILE_NAME_PREFIX;
 
 extern Thread_State INITL_TS;
@@ -39,6 +34,8 @@ extern Thread_State FINAL_TS;
 
 extern adj_list original_TTD;
 extern adj_list spawntra_TTD;
+
+extern vector<Thread_State> mapping_TS;
 
 } /* namespace SURA */
 

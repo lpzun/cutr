@@ -35,7 +35,7 @@ public:
 			message(""), code(-1) {
 
 	}
-	inline sura_exception(const string& message, cshort& code = -1) :
+	inline sura_exception(const string& message, const short& code = -1) :
 			message(message), code(code) {
 	}    // must provide some message
 

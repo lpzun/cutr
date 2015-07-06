@@ -70,7 +70,8 @@ typedef const unsigned long culong;
 
 /// Evaluate assertion if __SAFE_COMPUTATION__ is defined.
 /// If not, __SAFE_ASSERT__ results in an empty statement ";".
-/// Careful: in macro definition, NO SPACE between macro name and formal arg list!
+/// Careful: in macro definition, NO SPACE between macro name
+/// 		 and formal arg list!
 #ifdef __SAFE_COMPUTATION__
 #define __SAFE_COMPUTE__(stmt) stmt
 #define __SAFE_ASSERT__(cond) assert(cond)  // an abbreviation for: __SAFE_COMPUTE__ (assert cond)

@@ -1,12 +1,11 @@
-/*
- * utilities.cc
+/**
+ * @brief utilities.hh
  *
- *  Created on: Jun 23, 2015
- *      Author: lpzun
+ * @date: Jun 23, 2015
+ * @author: Peizun Liu
  */
 
 #include "utilities.hh"
-#include "excep.hh"
 
 namespace sura {
 
@@ -26,7 +25,7 @@ Util::~Util() {
  * @return
  */
 Thread_State Util::create_thread_state_from_str(const string& s_ts, const char& delim) {
-	vector<string> vs_ts = Split::split(s_ts, delim);
+	vector<string> vs_ts = PPRINT::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
 		throw("The format of thread state is wrong.");
 	}
@@ -40,11 +39,11 @@ Thread_State Util::create_thread_state_from_str(const string& s_ts, const char& 
  * @return
  */
 Thread_State Util::create_thread_state_from_gs_str(const string& s_ts, const char& delim) {
-	auto vs_ts = Split::split(s_ts, delim);
+	auto vs_ts = PPRINT::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
 		throw ural_rt_err("The format of global state is wrong.");
 	}
-	auto vs_locals = Split::split(vs_ts[1], ',');
+	auto vs_locals = PPRINT::split(vs_ts[1], ',');
 	TARGET_THR_NUM = vs_locals.size();
 	return Thread_State(atol(vs_ts[0].c_str()), atol(vs_locals[0].c_str()));
 }
@@ -71,6 +70,7 @@ void Util::print_adj_list(const map<Thread_State, list<Thread_State> >& adj_list
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
 			out << iu->first << " -> " << (*iv) << endl;
 }
+
 
 /**
  * @brief to generate the .dot file for TTD
@@ -120,35 +120,6 @@ void Util::print_adj_list(const map<Thread_State, list<Thread_State> >& adj_list
 //		fout.close();
 //	}
 //}
-/**
- * @brief split a string into a vector of strings via a delimiter
- * @param s: object string
- * @param delim: a delimiter
- * @return a vector of string
- */
-vector<string> Split::split(const string &s, const char& delim) {
-	vector<string> elems;
-	split(s, delim, elems);
-	return elems;
-}
-
-/**
- * @brief split a string into a vector of strings via a delimiter
- * @param s: object string
- * @param delim: a delimiter
- * @param elems
- * @return a vector of string
- */
-vector<string> Split::split(const string &s, char delim, vector<string> &elems) {
-	std::stringstream ss(s);
-	string item;
-	while (std::getline(ss, item, delim)) {
-		elems.push_back(item);
-	}
-	return elems;
-}
-
-//namespace PARSER {
 
 /**
  * @brief remove the comments of .ttd files
@@ -176,7 +147,7 @@ void Parser::remove_comments(const string& in, string& out, const string& commen
 
 void Parser::remove_comments(istream& in, ostream& out, const string& comment) {
 	string line;
-	while (this->getline(in, line = "")) {
+	while (getline(in, line = "")) {
 		const size_t comment_start = line.find(comment);
 		out << (comment_start == string::npos ? line : line.substr(0, comment_start)) << endl;
 	}
@@ -190,40 +161,4 @@ bool Parser::getline(istream& in, string& line, const char& eol) {
 }
 
 /// end of PARSER
-
-namespace PPRINT {
-string tabularize(const string& s, const string& sep, const unsigned short& tab) {
-	string result;
-	ushort n = s.size();
-	for (int i = 0; i < n; ++i) {
-		if (i > 0 && (n - i) % tab == 0)
-			result += (s[i - 1] == ' ' || s[i] == ' ' ? " " : sep);
-		result += s[i];
-	}
-	return result;
-}
-
-string hourize(culong& seconds) {
-	if (seconds < 60)
-		return widthify(seconds) + "s";
-	else if (seconds < 3600) { // 60 <= seconds < 3600
-		ushort m = seconds / 60;
-		ushort s = seconds % 60;
-		return widthify(m) + ":" + widthify(s, 2, RIGHTJUST, '0') + "m";
-	} else {                     // 3600 <= seconds < infty
-		ushort h = seconds / 3600;
-		ushort s = seconds % 3600;
-		ushort m = s / 60;
-		s = s % 60;
-		return widthify(h) + ":" + widthify(m, 2, RIGHTJUST, '0') + ":" + widthify(s, 2, RIGHTJUST, '0') + "h";
-	}
-}
-
-string firstTimeOrNot(bool& firstTime, const string& connective, const string& common) {
-	string result = (firstTime ? common : connective + common);
-	firstTime = false;
-	return result;
-}
-} /// end of PPRINT
-
 } /* namespace SURA */

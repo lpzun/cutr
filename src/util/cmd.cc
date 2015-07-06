@@ -6,7 +6,6 @@
  *****************************************************************************/
 
 #include "cmd.hh"
-#include "refs.hh"
 
 string v_info = "";
 
@@ -42,8 +41,8 @@ void Cmd_Line::get_command_line(const int argc, const char* const * const argv) 
  * @param args
  */
 void Cmd_Line::get_command_line(const string& prog, const vector<string>& args) {
-	for (auto iarg = args.begin(), iend = args.end(); iarg != iend; iarg++) {
-		const string arg = *iarg;
+	for (auto iarg = args.begin(), iend = args.end(); iarg != iend; ++iarg) {
+		const string& arg = *iarg;
 		if (arg == SHORT_HELP_OPT || arg == LONG_HELP_OPT) {
 			this->print_usage_info(prog);
 			throw Help();
@@ -52,21 +51,25 @@ void Cmd_Line::get_command_line(const string& prog, const vector<string>& args) 
 			throw Help();
 		} else {
 			bool flag = true;
-			for (ushort i = 0; i < types.size() && flag; i++) {
+			for (ushort i = 0; i < types.size() && flag; ++i) {
 				auto iopts = options.find(i);
 				if (iopts != options.end())
-					for (auto iopt = iopts->second.begin(), iend = iopts->second.end(); iopt != iend && flag; iopt++)
+					for (auto iopt = iopts->second.begin(); iopt != iopts->second.end() && flag; ++iopt) {
 						if (arg == iopt->get_short_name() || arg == iopt->get_long_name()) {
-							++iarg; // the next string is the value for arg
+							++iarg;   /// the next string is the value for arg
 							iopt->set_value(*iarg);
-							flag = false;
+							if (flag)
+								flag = false;
 						}
+					}
+
 				auto iswts = switches.find(i);
 				if (iswts != switches.end())
-					for (auto iswt = iswts->second.begin(), iend = iswts->second.end(); iswt != iend && flag; iswt++) {
+					for (auto iswt = iswts->second.begin(); iswt != iswts->second.end() && flag; ++iswt) {
 						if (arg == iswt->get_short_name() || arg == iswt->get_long_name()) {
 							iswt->set_value(true);
-							flag = false;
+							if (flag)
+								flag = false;
 						}
 					}
 
@@ -115,7 +118,7 @@ void Cmd_Line::add_switch(const short& type, const string& short_name, const str
  * @return bool
  */
 bool Cmd_Line::arg_bool(const short& type, const string& arg) {
-	list<Switch>::iterator ifind = std::find(switches[type].begin(), switches[type].end(), Switch(type, arg));
+	auto ifind = std::find(switches[type].begin(), switches[type].end(), Switch(type, arg));
 	if (ifind == switches[type].end())
 		throw ural_rt_err("Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
 	return ifind->is_value();
@@ -128,47 +131,51 @@ bool Cmd_Line::arg_bool(const short& type, const string& arg) {
  * @return string: the value of argument
  */
 string Cmd_Line::arg_value(const short& type, const string& arg) {
-	list<Options>::iterator ifind = std::find(options[type].begin(), options[type].end(), Options(type, arg));
+	auto ifind = std::find(options[type].begin(), options[type].end(), Options(type, arg));
 	if (ifind == options[type].end())
 		throw ural_rt_err("Cmd_Line:: argument " + arg + " does not exist!"); //TODO add
 	return ifind->get_value();
 }
 
+/**
+ * @brief print help information
+ * @param prog_name
+ * @param indent
+ * @param out
+ */
 void Cmd_Line::print_usage_info(const string& prog_name, cushort& indent, ostream& out) const {
 	out << "\n";
 	out << v_info << "\n";
 
-	out << sura::PPRINT::widthify("Usage:", this->name_width, sura::PPRINT::LEFTJUST)
-			<< sura::PPRINT::widthify("Purpose:", sura::PPRINT::LEFTJUST) << "\n";
+	out << PPRINT::widthify("Usage:", this->name_width, PPRINT::LEFTJUST)
+			<< PPRINT::widthify("Purpose:", PPRINT::LEFTJUST) << "\n";
 	out << " "
-			<< sura::PPRINT::widthify(prog_name + " " + SHORT_HELP_OPT + " [" + LONG_HELP_OPT + "]", this->name_width,
-					sura::PPRINT::LEFTJUST) << sura::PPRINT::widthify("show help message", sura::PPRINT::LEFTJUST)
-			<< "\n";
-	out << " " << sura::PPRINT::widthify(prog_name + " source.ttd ", this->name_width, sura::PPRINT::LEFTJUST)
-			<< sura::PPRINT::widthify("check given program", sura::PPRINT::LEFTJUST) << "\n";
+			<< PPRINT::widthify(prog_name + " " + SHORT_HELP_OPT + " [" + LONG_HELP_OPT + "]", this->name_width,
+					PPRINT::LEFTJUST) << PPRINT::widthify("show help message", PPRINT::LEFTJUST) << "\n";
+	out << " " << PPRINT::widthify(prog_name + " source.ttd ", this->name_width, PPRINT::LEFTJUST)
+			<< PPRINT::widthify("check given program", PPRINT::LEFTJUST) << "\n";
 
-	for (ushort i = 0; i < types.size(); i++) {
-		out << types[i] << endl;
-		map<short, list<Options>>::const_iterator iopts = options.find(i);
+	for (auto i = 0; i < types.size(); i++) {
+		out << types[i] << "\n";
+		auto iopts = options.find(i);
 		if (iopts != options.end())
-			for (list<Options>::const_iterator iopt = iopts->second.begin(), iend = iopts->second.end(); iopt != iend;
-					iopt++) {
+			for (auto iopt = iopts->second.begin(); iopt != iopts->second.end(); ++iopt) {
 				out << " "
-						<< sura::PPRINT::widthify(iopt->get_short_name() + " [" + iopt->get_long_name() + "] arg",
-								this->name_width, sura::PPRINT::LEFTJUST)
-						<< sura::PPRINT::widthify(sura::PPRINT::widthify(iopt->get_meaning(), this->name_width + 2),
-								sura::PPRINT::LEFTJUST) << endl;
+						<< PPRINT::widthify(iopt->get_short_name() + " [" + iopt->get_long_name() + "] arg",
+								this->name_width, PPRINT::LEFTJUST)
+						<< PPRINT::widthify(PPRINT::widthify(iopt->get_meaning(), this->name_width + 2),
+								PPRINT::LEFTJUST) << "\n";
 			}
 
-		map<short, list<Switch>>::const_iterator iswts = switches.find(i);
+		auto iswts = switches.find(i);
 		if (iswts != switches.end())
-			for (list<Switch>::const_iterator iswt = iswts->second.begin(), iend = iswts->second.end(); iswt != iend;
-					iswt++) {
+			for (auto iswt = iswts->second.begin(); iswt != iswts->second.end(); ++iswt) {
 				out << " "
-						<< sura::PPRINT::widthify(iswt->get_short_name() + " [" + iswt->get_long_name() + "]",
-								this->name_width, sura::PPRINT::LEFTJUST)
-						<< sura::PPRINT::widthify(iswt->get_meaning(), sura::PPRINT::LEFTJUST) << endl;
+						<< PPRINT::widthify(iswt->get_short_name() + " [" + iswt->get_long_name() + "]",
+								this->name_width, PPRINT::LEFTJUST)
+						<< PPRINT::widthify(iswt->get_meaning(), PPRINT::LEFTJUST) << "\n";
 			}
+
 		out << endl;
 	}
 }
@@ -199,7 +206,7 @@ Cmd_Line create_argument_list() {
 	/// exploration mode
 	cmd.add_option(EXP_MODE_OPTS, "-m", "--mode", (string("exploration mode:\n") //
 	///+ string(25, ' ') + " -" + '"' + OPT_FWS + '"' + ": forward search: oracle\n" //
-			+ string(25, ' ') + " -" + '"' + sura::OPT_MODE_LDP + '"' + ": logic decision problem\n" //
+			+ string(25, ' ') + " -" + '"' + OPT_MODE_LDP + '"' + ": logic decision problem\n" //
 	///		+ string(25, ' ') + " -" + '"' + OPT_CON + '"' + ": concurrent forward/logic decision\n" //
 			).c_str(), "S");
 
@@ -230,13 +237,14 @@ string create_version_info() {
 	.append("* *    _/    _/    _/    _/    _/          _/    _/    _/          _/    _/    * *\n") ///
 	.append("* *   _/    _/    _/_/_/       _/_/_/     _/    _/    _/          _/_/_/_/     * *\n") ///
 	.append("* *  _/    _/    _/  _/            _/    _/    _/    _/          _/    _/      * *\n") ///
-	.append("* * _/_/_/_/    _/     _/    _/_/_/     _/_/_/_/    _/_/_/_/    _/    _/  " + sura::VERSION + " * *\n") ///
+	.append("* * _/_/_/_/    _/     _/    _/_/_/     _/_/_/_/    _/_/_/_/    _/    _/  " + VERSION + " * *\n") ///
 	.append("----------------------------------------------------------------------------------\n") ///
 	.append("* *                      Unbounded-Thread Reachability via                     * *\n") ///
 	.append("* *                   Symbolic Execution and Loop Acceleration                 * *\n")	///
 	.append("* *                         Peizun Liu and Thomas Wahl                         * *\n") ///
 	.append("* *                    Northeastern University, United States                  * *\n") ///
-	.append("* *                                                   Build Date:  ").append( __DATE__).append(" * *\n") //.append(" @ ").append(__TIME__).append(" * *\n") //
+	.append("* *                                                   Build Date:  ").append( __DATE__).append(" * *\n").append(
+			" @ ").append(__TIME__).append(" * *\n") ///
 	.append("----------------------------------------------------------------------------------\n");
 	return info;
 }

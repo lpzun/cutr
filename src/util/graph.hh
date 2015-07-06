@@ -15,7 +15,7 @@ namespace sura {
 typedef unsigned int vertex;
 typedef unsigned int size_V;
 
-typedef vector<list<vertex>> adj_list;
+typedef unordered_map<vertex, list<vertex>> adj_list;
 
 class Graph {
 public:

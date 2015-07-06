@@ -16,8 +16,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-#include "utilities.hh"
-#include "excep.hh"
+#include "algs.hh"
 
 using std::ostream;
 using std::string;
@@ -28,8 +27,6 @@ using std::cout;
 using std::endl;
 
 extern string v_info;
-
-using namespace sura;
 
 class Arguments {
 protected:
@@ -150,12 +147,13 @@ inline bool operator<(const Switch& arg1, const Switch& arg2) {
 #define SHORT_VERSION_OPT "-v"
 #define LONG_VERSION_OPT "--version"
 
+const string VERSION = "v1.0";
+
+const string OPT_MODE_FWS = "F";
+const string OPT_MODE_LDP = "S";
+const string OPT_MODE_CON = "L";
+
 class Cmd_Line {
-	map<short, list<Options>> options;
-	map<short, list<Switch>> switches;
-	vector<string> types;
-	static ushort name_width;
-	static const string help_message;
 public:
 	Cmd_Line();
 	virtual ~Cmd_Line();
@@ -182,6 +180,13 @@ public:
 	void set_types(const vector<string>& types) {
 		this->types = types;
 	}
+
+private:
+	map<short, list<Options>> options;
+	map<short, list<Switch>> switches;
+	vector<string> types;
+	static ushort name_width;
+	static const string help_message;
 };
 
 namespace CMD {

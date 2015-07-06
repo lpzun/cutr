@@ -78,7 +78,7 @@ void Graph::sort(const vertex& u, vector<bool>& visited, stack<vertex>& sstack) 
 
 /**
  * @brief compute transpose
- * @return
+ * @return transpose of a graph
  */
 Graph Graph::transpose() {
 	adj_list trps_G; /// transpose of graph
