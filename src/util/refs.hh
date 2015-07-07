@@ -37,6 +37,17 @@ extern adj_list spawntra_TTD;
 
 extern vector<Thread_State> mapping_TS;
 
+/// store all incoming vertices to   same shared state
+/// key is the shared state, value is the set of incoming vertices
+extern map<vertex, set<vertex>> s_incoming;
+
+/// store all outgoing vertices from same shared state
+/// key is the shared state, value is the set of outgoing vertices
+extern map<vertex, set<vertex>> s_outgoing;
+
+/// global variable for elapsed time
+extern clock_t ELAPSED_TIME;
+
 } /* namespace SURA */
 
 #endif /* REFS_HH_ */

@@ -15,20 +15,96 @@ typedef enum Transition_Type {
 	NORM, THCR, BCST, EXPD
 } type_T;
 
-template<typename T> class Transition {
+class Transition {
 public:
-	T src; /// source      of transition
-	T dst; /// destination of transition
+	vertex src; /// source      of transition
+	vertex dst; /// destination of transition
 
 	type_T type; /// type of transition
 
-	Transition(const T& src, const T& dst);
-	Transition(const T& src, const T& dst, const type_T& type);
+	Transition(const vertex& src, const vertex& dst);
+	Transition(const vertex& src, const vertex& dst, const type_T& type);
 	virtual ~Transition();
+
+	ostream& to_stream(ostream& out = cout) const;
 };
 
-typedef list<Transition<ushort>> edge;
-typedef unsigned int vertex;
+ostream& Transition::to_stream(ostream& out) const {
+	out << mapping_TS[src] << " ";
+	switch (type) {
+	case EXPD:
+		out << ":>";
+		break;
+	case THCR:
+		out << "+>";
+		break;
+	case BCST:
+		out << "~>";
+		break;
+	default:
+		out << "->";
+		break;
+	}
+	out << " " << mapping_TS[dst];
+	out << "\n";
+	return out;
+}
+
+/**
+ * @brief overloading operator ==
+ * @param r1
+ * @param r2
+ * @return bool
+ * 		   true : if r1 == r2
+ * 		   false: otherwise
+ */
+inline bool operator==(const Transition& r1, const Transition& r2) {
+	return r1.src == r2.src && r1.dst == r2.dst;
+}
+
+/**
+ * @brief overloading operator !=
+ * @param r1
+ * @param r2
+ * @return bool
+ * 		   true : if r1 != r2
+ * 		   false: otherwise
+ */
+inline bool operator!=(const Transition& r1, const Transition& r2) {
+	return !(r1 == r2);
+}
+
+/**
+ * @brief overloading operator <
+ * @param r1
+ * @param r2
+ * @return bool
+ * 		   true : if r1 < r2
+ * 		   false: otherwise
+ */
+inline bool operator<(const Transition& r1, const Transition& r2) {
+	if (r1.src == r2.src)
+		return r1.dst < r2.dst;
+	return r1.src < r2.src;
+}
+
+/**
+ * @brief overloading operator >
+ * @param r1
+ * @param r2
+ * @return bool
+ * 		   true : if r1 > r2
+ * 		   false: otherwise
+ */
+inline bool operator>(const Transition& r1, const Transition& r2) {
+	if (r1.src == r2.src)
+		return r1.dst > r2.dst;
+	return r1.src > r2.src;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+typedef Transition edge; /// rename transition as edge
 
 class ETTD {
 public:
@@ -37,17 +113,24 @@ public:
 
 	adj_list get_expansion_TTD();
 	list<edge> get_transitions();
-	static unique_ptr<ETTD> m_instance;
+
+	void build_SCC(const size_V& V, const adj_list& Adj);
 
 private:
 	ETTD();
 	ETTD(const adj_list& TTD);
 
-	adj_list expansion_TTD;
+	static unique_ptr<ETTD> m_instance;
+
+	adj_list expanded_TTD;
 	list<edge> transitions;
 
 	void build_ETTD(const adj_list& TTD);
+	bool is_horizontal(const vertex& u, const vertex& v);
+	bool is_real_trans(const vertex& u, const vertex& v, const adj_list& TTD);
 
+	vector<bool> find_expansion_trans_dest(const vertex& v,
+			const adj_list& TTD);
 };
 } /* namespace SURA */
 

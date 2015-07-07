@@ -28,7 +28,13 @@ Sura::~Sura() {
 bool Sura::symbolic_reachability_analysis(const string& filename, const string& initl_ts, const string& final_ts) {
 	cout << "------------------------" << filename << "\n"; // delete -----------------
 	this->parse_input_ttd(filename);
-	return false;
+	cout << initl_ts << endl; // delete -----------------
+	cout << final_ts << endl; // delete -----------------
+
+	INITL_TS = this->parse_input_tss(initl_ts);
+	FINAL_TS = this->parse_input_tss(final_ts);
+
+	return this->reachability_as_logic_decision(original_TTD);
 }
 
 /**
@@ -45,7 +51,7 @@ void Sura::parse_input_ttd(const string& filename) {
 			throw ural_rt_err("File not found!");
 
 		id_thread_state ts_idx = 0;
-		map<Thread_State, id_thread_state> active_TS;
+		map<Thread_State, id_thread_state> activee_TS;
 
 		Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
 		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// new input file after removing comments
@@ -62,24 +68,24 @@ void Sura::parse_input_ttd(const string& filename) {
 			if (sep == "->" || sep == "+>") {
 				const Thread_State src_TS(s1, l1);
 				/// see if (s1, l1) is already found
-				auto ifind = active_TS.find(src_TS);
-				if (ifind != active_TS.end()) {
+				auto ifind = activee_TS.find(src_TS);
+				if (ifind != activee_TS.end()) {
 					src = ifind->second;
 				} else {
 					src = ts_idx++;
 					mapping_TS.push_back(src_TS);
-					active_TS[src_TS] = src;
+					activee_TS[src_TS] = src;
 				}
 
 				const Thread_State dst_TS(s2, l2);
 				/// see if (s2, l2) is already found
-				ifind = active_TS.find(dst_TS);
-				if (ifind != active_TS.end()) {
+				ifind = activee_TS.find(dst_TS);
+				if (ifind != activee_TS.end()) {
 					dst = ifind->second;
 				} else {
 					dst = ts_idx++;
 					mapping_TS.push_back(dst_TS);
-					active_TS[dst_TS] = dst;
+					activee_TS[dst_TS] = dst;
 				}
 
 				if (sep == "+>")
@@ -94,6 +100,7 @@ void Sura::parse_input_ttd(const string& filename) {
 		mapping_TS.shrink_to_fit();
 	}
 
+	cout << mapping_TS.size() << endl;
 	for (auto i = 0; i < mapping_TS.size(); i++)
 		cout << i << " " << mapping_TS[i] << endl;
 
@@ -113,7 +120,29 @@ void Sura::parse_input_ttd(const string& filename) {
  * @brief parse the input initial and final thread state
  * @param str_ts: the thread state represented by string
  */
-void Sura::parse_input_tss(const string& str_ts) {
+Thread_State Sura::parse_input_tss(const string& str_ts) {
+	Thread_State ts;
+	if (str_ts.find('|') != std::string::npos) {
+		ts = Util::create_thread_state_from_gs_str(str_ts);
+	} else { /// str_ts is store in a file
+		ifstream in(str_ts.c_str());
+		if (in.good()) {
+			string s_ts;
+			std::getline(in, s_ts);
+			ts = Util::create_thread_state_from_gs_str(s_ts);
+			in.close();
+		} else {
+			throw ural_rt_err("read_in_thread_state: unknown input file");
+		}
+	}
+	return ts;
+}
+
+bool Sura::reachability_as_logic_decision(const adj_list& TTD) {
+	ELAPSED_TIME = clock() - ELAPSED_TIME;
+
+	if (INITL_TS == FINAL_TS)
+		return true;
 
 }
 

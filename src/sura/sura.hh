@@ -23,7 +23,9 @@ public:
 
 private:
 	void parse_input_ttd(const string& filename);
-	void parse_input_tss(const string& str_ts);
+	Thread_State parse_input_tss(const string& str_ts);
+
+	bool reachability_as_logic_decision(const adj_list& TTD);
 };
 
 } /* namespace sura */
