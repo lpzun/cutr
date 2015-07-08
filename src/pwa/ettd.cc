@@ -8,19 +8,6 @@
 
 namespace sura {
 
-Transition::Transition(const vertex& src, const vertex& dst) :
-		src(src), dst(dst), type(NORM) {
-}
-
-Transition::Transition(const vertex& src, const vertex& dst, const type_T& type) :
-		src(src), dst(dst), type(type) {
-}
-
-Transition::~Transition() {
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 /// Global static pointer used to ensure a single instance of the class.
 unique_ptr<ETTD> ETTD::m_instance = nullptr;
 
@@ -56,9 +43,11 @@ ETTD::~ETTD() {
  */
 void ETTD::build_ETTD(const adj_list& TTD) {
 	this->expanded_TTD = TTD; /// copy the original TTD
+	auto vfind = s_incoming.begin();
+	auto wfind = s_outgoing.begin();
 	for (auto s = 0; s < Thread_State::S; ++s) {
-		auto vfind = s_incoming.find(s);
-		auto wfind = s_outgoing.find(s);
+		vfind = s_incoming.find(s);
+		wfind = s_outgoing.find(s);
 		if (vfind != s_incoming.end() && wfind != s_outgoing.end())
 			for (auto iv = vfind->second.begin(); iv != vfind->second.end();
 					++iv)
@@ -67,7 +56,7 @@ void ETTD::build_ETTD(const adj_list& TTD) {
 					if (*iv != *iw)
 						if (!this->is_real_trans(*iv, *iw, TTD)) {
 							expanded_TTD[*iv].push_back(*iw); /// add expansion edge
-							transitions.push_back(Transition(*iv, *iw, EXPD));
+							transitions.push_back(edge(*iv, *iw, EXPD));
 						}
 	}
 }
@@ -104,6 +93,41 @@ bool ETTD::is_real_trans(const vertex& u, const vertex& v,
  */
 bool ETTD::is_horizontal(const vertex& u, const vertex& v) {
 	return mapping_TS[u].share == mapping_TS[v].share;
+}
+
+void ETTD::build_SCC() {
+	this->build_SCC(mapping_TS.size(), this->expanded_TTD);
+}
+
+void ETTD::build_SCC(const size_V& V, const adj_list& Adj) {
+	Graph g(V, Adj);
+	g.build_SCC();
+
+	for (auto idlg = Graph::sccs.begin(); idlg !=  Graph::sccs.end(); ++idlg) {
+		cout << idlg->first << " size=" << idlg->second.size()<<" ";
+		for (auto iv = idlg->second.begin(); iv != idlg->second.end(); ++iv) {
+			cout << mapping_TS[*iv] << " ";
+		}
+		cout << endl;
+	}
+}
+
+/////////////////////////////////for test//////////////////////////////////////
+
+void ETTD::print_expansion_TTD() {
+	cout << "The expanded TTD:\n";
+	for (auto isrc = expanded_TTD.begin(); isrc != expanded_TTD.end(); ++isrc)
+		for (auto idst = isrc->second.begin(); idst != isrc->second.end();
+				++idst)
+			cout << mapping_TS[isrc->first] << " -> " << mapping_TS[*idst]
+					<< "\n";
+	cout << endl;
+}
+
+void ETTD::print_transitions() {
+	for (const auto& r : transitions)
+		cout << r << "\n";
+	cout << endl;
 }
 
 }

@@ -10,6 +10,7 @@
 
 #include "fws/fws.hh"
 
+#include "../pwa/ettd.hh"
 #include "../util/utilities.hh"
 
 namespace sura {
@@ -19,7 +20,8 @@ public:
 	Sura();
 	virtual ~Sura();
 
-	bool symbolic_reachability_analysis(const string& filename, const string& initl_ts, const string& final_ts);
+	bool symbolic_reachability_analysis(const string& filename,
+			const string& initl_ts, const string& final_ts);
 
 private:
 	void parse_input_ttd(const string& filename);

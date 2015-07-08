@@ -15,7 +15,7 @@
 # See an example in EXAMPLES/makefile-local-vars.                         #
 ###########################################################################
 # Override these variables (or add new ones) locally
-APP	     = sura # the name of application
+APP          = sura # the name of application
 
 ILIBS        = -L /usr/local/Z3/lib -lz3#                                   -lm # config your z3 lib     here
 IINCLUDE     = -I /usr/local/Z3/include/#                                       # config your z3 include here
@@ -41,7 +41,6 @@ IDIRS        =#                                   -I$(C)
 HEADERS      = $(wildcard *.$(HSUFF))#            may set to a single .h file if only one specific file is compiled
 
 # For linking:
-#BASE         = $(firstword $(BASES))#             executable (final compilation). If directory contains several .c files, redefine this
 BASE         = $(BINDIR)/$(APP)
 ROBJVARS     =
 LDIRS        =#

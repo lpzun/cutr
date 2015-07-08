@@ -19,11 +19,12 @@ typedef unordered_map<vertex, list<vertex>> adj_list;
 
 class Graph {
 public:
+	static vertex delegate;
+	static map<vertex, list<vertex>> sccs;
+
 	Graph(const size_V& V, const adj_list& Adj);
 	virtual ~Graph();
-
 	void build_SCC();
-
 private:
 	size_V V;        /// No. of vertices
 	adj_list Adj;    /// adjacency list

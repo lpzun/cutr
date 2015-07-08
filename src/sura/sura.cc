@@ -25,9 +25,11 @@ Sura::~Sura() {
  * @param final_ts: final   thread state
  * @return
  */
-bool Sura::symbolic_reachability_analysis(const string& filename, const string& initl_ts, const string& final_ts) {
+bool Sura::symbolic_reachability_analysis(const string& filename,
+		const string& initl_ts, const string& final_ts) {
 	cout << "------------------------" << filename << "\n"; // delete -----------------
 	this->parse_input_ttd(filename);
+
 	cout << initl_ts << endl; // delete -----------------
 	cout << final_ts << endl; // delete -----------------
 
@@ -54,7 +56,7 @@ void Sura::parse_input_ttd(const string& filename) {
 		map<Thread_State, id_thread_state> activee_TS;
 
 		Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
-		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// new input file after removing comments
+		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// remove comments
 		new_in >> Thread_State::S >> Thread_State::L;
 		mapping_TS.reserve(Thread_State::S * Thread_State::L);
 
@@ -62,7 +64,7 @@ void Sura::parse_input_ttd(const string& filename) {
 		Local_State l1, l2;  /// local  states
 		id_thread_state src = 0, dst = 0; /// the id of thread states
 		string sep;          /// separator
-		cout << "-------------11-----------" << filename << "\n"; // delete -----------------
+		cout << "-------------11-----------" << filename << "\n"; //TODO delete -----------------
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
 			cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n";
 			if (sep == "->" || sep == "+>") {
@@ -91,6 +93,11 @@ void Sura::parse_input_ttd(const string& filename) {
 				if (sep == "+>")
 					spawntra_TTD[src].push_back(dst);
 				original_TTD[src].push_back(dst);
+
+				if (s1 != s2) {
+					s_outgoing[s1].insert(src);
+					s_incoming[s2].insert(dst);
+				}
 			} else {
 				throw ural_rt_err("illegal transition");
 			}
@@ -100,15 +107,36 @@ void Sura::parse_input_ttd(const string& filename) {
 		mapping_TS.shrink_to_fit();
 	}
 
-	cout << mapping_TS.size() << endl;
+	cout << mapping_TS.size() << endl; //TODO delete----------
 	for (auto i = 0; i < mapping_TS.size(); i++)
 		cout << i << " " << mapping_TS[i] << endl;
 
+	cout << "Outgoing:\n";
+	for (auto is = s_outgoing.begin(); is != s_outgoing.end(); ++is) {
+		cout << "shared state: " << is->first << " ";
+		for (auto iv = is->second.begin(); iv != is->second.end(); ++iv) {
+			cout << mapping_TS[*iv] << " ";
+		}
+		cout << endl;
+	}
+
+	cout << "Incoming:\n";
+	for (auto is = s_incoming.begin(); is != s_incoming.end(); ++is) {
+		cout << "shared state: " << is->first << " ";
+		for (auto iv = is->second.begin(); iv != is->second.end(); ++iv) {
+			cout << mapping_TS[*iv] << " ";
+		}
+		cout << endl;
+	}
+
 	if (OPT_PRINT_ADJ || OPT_PRINT_ALL) {
 		cout << "The original TTD:" << endl;
-		for (auto isrc = original_TTD.begin(); isrc != original_TTD.end(); ++isrc) {
-			for (auto idst = isrc->second.begin(); idst != isrc->second.end(); ++idst) {
-				cout << mapping_TS[isrc->first] << " -> " << mapping_TS[*idst] << " ";
+		for (auto isrc = original_TTD.begin(); isrc != original_TTD.end();
+				++isrc) {
+			for (auto idst = isrc->second.begin(); idst != isrc->second.end();
+					++idst) {
+				cout << mapping_TS[isrc->first] << " -> " << mapping_TS[*idst]
+						<< " ";
 				cout << isrc->first << " -> " << *idst << "\n";
 			}
 		}
@@ -138,12 +166,22 @@ Thread_State Sura::parse_input_tss(const string& str_ts) {
 	return ts;
 }
 
+/**
+ * @brief reduce a reachability problem as a logic decision problem
+ * @param TTD
+ * @return bool
+ */
 bool Sura::reachability_as_logic_decision(const adj_list& TTD) {
 	ELAPSED_TIME = clock() - ELAPSED_TIME;
 
 	if (INITL_TS == FINAL_TS)
 		return true;
 
+	ETTD::instance().print_expansion_TTD();
+	ETTD::instance().print_transitions();
+
+	ETTD::instance().build_SCC();
+	return false;
 }
 
 } /* namespace sura */

@@ -68,7 +68,8 @@ inline Thread_State::Thread_State(const Thread_State& t) :
  * @param share: shared state
  * @param local: local  state
  */
-inline Thread_State::Thread_State(const Shared_State& share, const Local_State& local) {
+inline Thread_State::Thread_State(const Shared_State& share,
+		const Local_State& local) {
 	__SAFE_ASSERT__(share < S && local < L);
 	this->share = share;
 	this->local = local;
@@ -157,7 +158,8 @@ public:
 	inline Global_State();
 	inline Global_State(const Thread_State& t);
 	inline Global_State(const Shared_State& share, const Locals& locals);
-	inline Global_State(const Shared_State& share, const Locals& locals, shared_ptr<const Global_State> pi);
+	inline Global_State(const Shared_State& share, const Locals& locals,
+			shared_ptr<const Global_State> pi);
 	virtual ~Global_State() {
 	}
 
@@ -190,7 +192,8 @@ inline Global_State::Global_State(const Thread_State& t) :
  * @param share : shared state
  * @param locals: local states represented in counter abstraction form
  */
-inline Global_State::Global_State(const Shared_State& share, const Locals& locals) :
+inline Global_State::Global_State(const Shared_State& share,
+		const Locals& locals) :
 		share(share), locals(locals), pi(nullptr) {
 }
 
@@ -200,7 +203,8 @@ inline Global_State::Global_State(const Shared_State& share, const Locals& local
  * @param locals: local states represented in counter abstraction form
  * @param pi	: the father of current global state
  */
-inline Global_State::Global_State(const Shared_State& share, const Locals& locals, shared_ptr<const Global_State> pi) :
+inline Global_State::Global_State(const Shared_State& share,
+		const Locals& locals, shared_ptr<const Global_State> pi) :
 		share(share), locals(locals), pi(pi) {
 }
 

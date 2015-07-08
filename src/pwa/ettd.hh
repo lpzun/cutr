@@ -22,14 +22,23 @@ public:
 
 	type_T type; /// type of transition
 
-	Transition(const vertex& src, const vertex& dst);
-	Transition(const vertex& src, const vertex& dst, const type_T& type);
-	virtual ~Transition();
+	inline Transition(const vertex& src, const vertex& dst);
+	inline Transition(const vertex& src, const vertex& dst, const type_T& type);
+	virtual ~Transition(){
+	}
 
 	ostream& to_stream(ostream& out = cout) const;
 };
 
-ostream& Transition::to_stream(ostream& out) const {
+inline Transition::Transition(const vertex& src, const vertex& dst) :
+		src(src), dst(dst), type(NORM) {
+}
+
+inline Transition::Transition(const vertex& src, const vertex& dst, const type_T& type) :
+		src(src), dst(dst), type(type) {
+}
+
+inline ostream& Transition::to_stream(ostream& out) const {
 	out << mapping_TS[src] << " ";
 	switch (type) {
 	case EXPD:
@@ -48,6 +57,16 @@ ostream& Transition::to_stream(ostream& out) const {
 	out << " " << mapping_TS[dst];
 	out << "\n";
 	return out;
+}
+
+/**
+ * @brief overloading operator <<: print transition
+ * @param out
+ * @param ts
+ * @return ostream
+ */
+inline ostream& operator<<(ostream& out, const Transition& r) {
+	return r.to_stream(out);
 }
 
 /**
@@ -109,12 +128,16 @@ typedef Transition edge; /// rename transition as edge
 class ETTD {
 public:
 	static ETTD& instance();
+
 	virtual ~ETTD();
 
 	adj_list get_expansion_TTD();
 	list<edge> get_transitions();
 
-	void build_SCC(const size_V& V, const adj_list& Adj);
+	void build_SCC();
+
+	void print_expansion_TTD();
+	void print_transitions();
 
 private:
 	ETTD();
@@ -131,6 +154,7 @@ private:
 
 	vector<bool> find_expansion_trans_dest(const vertex& v,
 			const adj_list& TTD);
+	void build_SCC(const size_V& V, const adj_list& Adj);
 };
 } /* namespace SURA */
 

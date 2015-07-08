@@ -34,8 +34,8 @@ adj_list original_TTD;
 adj_list spawntra_TTD;
 
 vector<Thread_State> mapping_TS;
-map<vertex, set<vertex>> s_incoming;
-map<vertex, set<vertex>> s_outgoing;
+map<Shared_State, set<vertex>> s_incoming;
+map<Shared_State, set<vertex>> s_outgoing;
 
 clock_t ELAPSED_TIME = clock();
 } /* namespace SURA */
