@@ -1,7 +1,7 @@
 /**
- * @brief ettd.hh
- * @date: Jun 21, 2015
- * @author: lpzun
+ * @name ettd.hh
+ * @date  : Jun 21, 2015
+ * @author: Peizun Liu
  */
 
 #ifndef ETTD_HH_
@@ -11,43 +11,79 @@
 
 namespace sura {
 
-typedef enum Transition_Type {
+typedef enum class Transition_Type {
 	NORM, THCR, BCST, EXPD
 } type_T;
 
+typedef unsigned int id_tran;
+
 class Transition {
 public:
-	vertex src; /// source      of transition
-	vertex dst; /// destination of transition
-
-	type_T type; /// type of transition
+	static id_tran ID;
 
 	inline Transition(const vertex& src, const vertex& dst);
+	inline Transition(const vertex& src, const vertex& dst, const id_tran& id);
 	inline Transition(const vertex& src, const vertex& dst, const type_T& type);
-	virtual ~Transition(){
+	inline Transition(const vertex& src, const vertex& dst, const id_tran& id,
+			const type_T& type);
+	virtual ~Transition() {
 	}
 
 	ostream& to_stream(ostream& out = cout) const;
+
+	inline vertex get_src() const {
+		return src;
+	}
+
+	inline vertex get_dst() const {
+		return dst;
+	}
+
+	inline id_tran get_id() const {
+		return id;
+	}
+
+	inline type_T get_type() const {
+		return type;
+	}
+
+private:
+	vertex src; /// source      of transition
+	vertex dst; /// destination of transition
+	id_tran id;
+	type_T type; /// type of transition
 };
 
 inline Transition::Transition(const vertex& src, const vertex& dst) :
-		src(src), dst(dst), type(NORM) {
+		src(src), dst(dst), id(0), type(type_T::NORM) {
 }
 
-inline Transition::Transition(const vertex& src, const vertex& dst, const type_T& type) :
-		src(src), dst(dst), type(type) {
+inline Transition::Transition(const vertex& src, const vertex& dst,
+		const id_tran& id) :
+		src(src), dst(dst), id(id), type(type_T::NORM) {
+
+}
+
+inline Transition::Transition(const vertex& src, const vertex& dst,
+		const type_T& type) :
+		src(src), dst(dst), id(0), type(type) {
+}
+
+inline Transition::Transition(const vertex& src, const vertex& dst,
+		const id_tran& id, const type_T& type) :
+		src(src), dst(dst), id(id), type(type) {
 }
 
 inline ostream& Transition::to_stream(ostream& out) const {
 	out << mapping_TS[src] << " ";
 	switch (type) {
-	case EXPD:
+	case type_T::EXPD:
 		out << ":>";
 		break;
-	case THCR:
+	case type_T::THCR:
 		out << "+>";
 		break;
-	case BCST:
+	case type_T::BCST:
 		out << "~>";
 		break;
 	default:
@@ -78,7 +114,7 @@ inline ostream& operator<<(ostream& out, const Transition& r) {
  * 		   false: otherwise
  */
 inline bool operator==(const Transition& r1, const Transition& r2) {
-	return r1.src == r2.src && r1.dst == r2.dst;
+	return r1.get_src() == r2.get_src() && r1.get_dst() == r2.get_dst();
 }
 
 /**
@@ -102,9 +138,9 @@ inline bool operator!=(const Transition& r1, const Transition& r2) {
  * 		   false: otherwise
  */
 inline bool operator<(const Transition& r1, const Transition& r2) {
-	if (r1.src == r2.src)
-		return r1.dst < r2.dst;
-	return r1.src < r2.src;
+	if (r1.get_src() == r2.get_src())
+		return r1.get_dst() < r2.get_dst();
+	return r1.get_src() < r2.get_src();
 }
 
 /**
@@ -116,46 +152,42 @@ inline bool operator<(const Transition& r1, const Transition& r2) {
  * 		   false: otherwise
  */
 inline bool operator>(const Transition& r1, const Transition& r2) {
-	if (r1.src == r2.src)
-		return r1.dst > r2.dst;
-	return r1.src > r2.src;
+	if (r1.get_src() == r2.get_src())
+		return r1.get_dst() > r2.get_dst();
+	return r1.get_src() > r2.get_src();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef Transition edge; /// rename transition as edge
+typedef vector<vector<bool>> matrix;
+typedef pair<set<vertex>, set<vertex>> inout;
 
 class ETTD {
 public:
-	static ETTD& instance();
+	static matrix real_R;
+	static matrix spaw_R;
+	static matrix expd_R;
 
+	ETTD(const adj_list& TTD, const vector<inout>& s_in_out);
 	virtual ~ETTD();
 
-	adj_list get_expansion_TTD();
-	list<edge> get_transitions();
-
-	void build_SCC();
-
-	void print_expansion_TTD();
+	void print_expanded_TTD();
 	void print_transitions();
 
+	size_V get_V() const;
+	const adj_list& get_expanded_TTD() const;
+
 private:
-	ETTD();
-	ETTD(const adj_list& TTD);
-
-	static unique_ptr<ETTD> m_instance;
-
+	size_V V;
 	adj_list expanded_TTD;
-	list<edge> transitions;
 
-	void build_ETTD(const adj_list& TTD);
+	void build_ETTD(const adj_list& TTD, const vector<inout>& s_in_out);
+	void build_real_R();
 	bool is_horizontal(const vertex& u, const vertex& v);
-	bool is_real_trans(const vertex& u, const vertex& v, const adj_list& TTD);
-
-	vector<bool> find_expansion_trans_dest(const vertex& v,
-			const adj_list& TTD);
-	void build_SCC(const size_V& V, const adj_list& Adj);
+	bool is_real_trans(const vertex& u, const vertex& v);
 };
-} /* namespace SURA */
+}
+/* namespace SURA */
 
 #endif /* ETTD_HH_ */

@@ -78,7 +78,8 @@ int main(const int argc, const char * const * const argv) {
 		const string mode = cmd.arg_value(EXP_MODE_OPTS, "--mode");
 		if (mode.compare(OPT_MODE_LDP) == 0) { /// logic decision alg.
 			Sura ursula;
-			is_reachable = ursula.symbolic_reachability_analysis(filename, s_initial, s_target);
+			is_reachable = ursula.symbolic_reachability_analysis(filename,
+					s_initial, s_target);
 			cout << "logical decision analysis is done!" << endl;
 		} else if (mode.compare(OPT_MODE_FWS) == 0) { /// forward search alg.
 			cout << "forward search is done!" << endl;
@@ -89,15 +90,15 @@ int main(const int argc, const char * const * const argv) {
 			throw ural_rt_err("main: unknown mode");
 		}
 
-		cout << "======================================================" << endl;
+		cout << "======================================================\n";
 		cout << " " << FINAL_TS;
 		if (is_reachable) {
-			cout << " is reachable: verification failed!" << endl;
+			cout << " is reachable: verification failed!\n";
 		} else {
-			cout << " is unreachable: verification successful!" << endl;
+			cout << " is unreachable: verification successful!\n";
 		}
-		cout << "======================================================" << endl;
-
+		cout << "======================================================"
+				<< endl;
 		return 0;
 	} catch (const sura_exception & e) {
 		e.what();
@@ -106,6 +107,7 @@ int main(const int argc, const char * const * const argv) {
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << endl;
 	} catch (...) {
-		std::cerr << sura_exception("main: unknown exception occurred").what() << endl;
+		std::cerr << sura_exception("main: unknown exception occurred").what()
+				<< endl;
 	}
 }

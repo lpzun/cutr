@@ -27,23 +27,18 @@ Sura::~Sura() {
  */
 bool Sura::symbolic_reachability_analysis(const string& filename,
 		const string& initl_ts, const string& final_ts) {
-	cout << "------------------------" << filename << "\n"; // delete -----------------
-	this->parse_input_ttd(filename);
-
-	cout << initl_ts << endl; // delete -----------------
-	cout << final_ts << endl; // delete -----------------
-
 	INITL_TS = this->parse_input_tss(initl_ts);
 	FINAL_TS = this->parse_input_tss(final_ts);
-
-	return this->reachability_as_logic_decision(original_TTD);
+	return this->reachability_as_logic_decision(original_TTD,
+			parse_input_ttd(filename));
 }
 
 /**
  * @brief parse the input TTD
  * @param filename: the name of input ttd file
  */
-void Sura::parse_input_ttd(const string& filename) {
+vector<inout> Sura::parse_input_ttd(const string& filename) {
+	vector<inout> s_in_out;
 	if (filename == "X") { // make random structure
 		throw ural_rt_err("Please assign input file");
 	} else {
@@ -51,22 +46,27 @@ void Sura::parse_input_ttd(const string& filename) {
 		ifstream org_in(filename.c_str());
 		if (!org_in.good())
 			throw ural_rt_err("File not found!");
-
-		id_thread_state ts_idx = 0;
-		map<Thread_State, id_thread_state> activee_TS;
-
 		Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
 		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// remove comments
+
+		id_thread_state idx = 0;
+		map<Thread_State, id_thread_state> activee_TS;
+
 		new_in >> Thread_State::S >> Thread_State::L;
 		mapping_TS.reserve(Thread_State::S * Thread_State::L);
+
+		/// store all outgoing vertices from same shared state
+		/// key is the shared state,
+		///        first  value is the set of incoming vertices
+		///        second value is the set of outgoing vertices
+		s_in_out = vector<inout>(Thread_State::S);
 
 		Shared_State s1, s2; /// shared states
 		Local_State l1, l2;  /// local  states
 		id_thread_state src = 0, dst = 0; /// the id of thread states
 		string sep;          /// separator
-		cout << "-------------11-----------" << filename << "\n"; //TODO delete -----------------
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
-			cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n";
+			cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n"; //TODO delete -----------------
 			if (sep == "->" || sep == "+>") {
 				const Thread_State src_TS(s1, l1);
 				/// see if (s1, l1) is already found
@@ -74,29 +74,30 @@ void Sura::parse_input_ttd(const string& filename) {
 				if (ifind != activee_TS.end()) {
 					src = ifind->second;
 				} else {
-					src = ts_idx++;
-					mapping_TS.push_back(src_TS);
+					src = idx++;
+					mapping_TS.emplace_back(src_TS);
 					activee_TS[src_TS] = src;
 				}
 
 				const Thread_State dst_TS(s2, l2);
+
 				/// see if (s2, l2) is already found
 				ifind = activee_TS.find(dst_TS);
 				if (ifind != activee_TS.end()) {
 					dst = ifind->second;
 				} else {
-					dst = ts_idx++;
-					mapping_TS.push_back(dst_TS);
+					dst = idx++;
+					mapping_TS.emplace_back(dst_TS);
 					activee_TS[dst_TS] = dst;
 				}
 
 				if (sep == "+>")
-					spawntra_TTD[src].push_back(dst);
-				original_TTD[src].push_back(dst);
+					spawntra_TTD[src].emplace_back(dst);
+				original_TTD[src].emplace_back(dst);
 
 				if (s1 != s2) {
-					s_outgoing[s1].insert(src);
-					s_incoming[s2].insert(dst);
+					s_in_out[s1].second.emplace(src);
+					s_in_out[s2].first.emplace(dst);
 				}
 			} else {
 				throw ural_rt_err("illegal transition");
@@ -105,29 +106,47 @@ void Sura::parse_input_ttd(const string& filename) {
 		new_in.close();
 		org_in.close();
 		mapping_TS.shrink_to_fit();
+
+		/// setting initial vertex
+		auto ifind = activee_TS.find(INITL_TS);
+		if (ifind != activee_TS.end())
+			INITL_V = ifind->second;
+
+		/// setting final vertex
+		ifind = activee_TS.find(FINAL_TS);
+		if (ifind != activee_TS.end())
+			FINAL_V = ifind->second;
+
+#ifndef NDEBUG
+		cout << INITL_TS << " $$$$$$$$$ " << FINAL_TS << endl;
+		cout << INITL_V << " $$$$$$$$$ " << FINAL_V << endl;
+
+		cout << "Incoming:\n";
+		for (auto is = 0; is < s_in_out.size(); ++is) {
+			cout << "shared state: " << is << " ";
+			for (auto iv = s_in_out[is].first.begin();
+					iv != s_in_out[is].first.end(); ++iv) {
+				cout << mapping_TS[*iv] << " ";
+			}
+			cout << endl;
+		}
+
+		cout << "Outgoing:\n";
+		for (auto is = 0; is < s_in_out.size(); ++is) {
+			cout << "shared state: " << is << " ";
+			for (auto iv = s_in_out[is].second.begin();
+					iv != s_in_out[is].second.end(); ++iv) {
+				cout << mapping_TS[*iv] << " ";
+			}
+			cout << endl;
+		}
+
 	}
 
-	cout << mapping_TS.size() << endl; //TODO delete----------
+	cout << mapping_TS.size() << endl;
 	for (auto i = 0; i < mapping_TS.size(); i++)
 		cout << i << " " << mapping_TS[i] << endl;
-
-	cout << "Outgoing:\n";
-	for (auto is = s_outgoing.begin(); is != s_outgoing.end(); ++is) {
-		cout << "shared state: " << is->first << " ";
-		for (auto iv = is->second.begin(); iv != is->second.end(); ++iv) {
-			cout << mapping_TS[*iv] << " ";
-		}
-		cout << endl;
-	}
-
-	cout << "Incoming:\n";
-	for (auto is = s_incoming.begin(); is != s_incoming.end(); ++is) {
-		cout << "shared state: " << is->first << " ";
-		for (auto iv = is->second.begin(); iv != is->second.end(); ++iv) {
-			cout << mapping_TS[*iv] << " ";
-		}
-		cout << endl;
-	}
+#endif
 
 	if (OPT_PRINT_ADJ || OPT_PRINT_ALL) {
 		cout << "The original TTD:" << endl;
@@ -142,6 +161,7 @@ void Sura::parse_input_ttd(const string& filename) {
 		}
 		cout << endl;
 	}
+	return s_in_out;
 }
 
 /**
@@ -171,16 +191,31 @@ Thread_State Sura::parse_input_tss(const string& str_ts) {
  * @param TTD
  * @return bool
  */
-bool Sura::reachability_as_logic_decision(const adj_list& TTD) {
+bool Sura::reachability_as_logic_decision(const adj_list& TTD,
+		const vector<inout>& s_in_out) {
 	ELAPSED_TIME = clock() - ELAPSED_TIME;
 
 	if (INITL_TS == FINAL_TS)
 		return true;
 
-	ETTD::instance().print_expansion_TTD();
-	ETTD::instance().print_transitions();
+	ETTD ettd(TTD, s_in_out);
+	ettd.print_expanded_TTD();
+	ettd.print_transitions();
 
-	ETTD::instance().build_SCC();
+	GSCC sccq;
+	sccq.build_GSCC(sccq.build_SCC(ettd.get_V(), ettd.get_expanded_TTD()));
+
+	return this->path_wise_analysis(sccq.find_all_paths());
+}
+
+/**
+ * @brief pathwise analysis
+ * @param paths
+ * @return bool
+ * 		true : if the final thread state is reachable
+ * 		false: otherwise
+ */
+bool Sura::path_wise_analysis(const vector<_path>& paths) {
 	return false;
 }
 

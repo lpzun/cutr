@@ -1,8 +1,8 @@
-/*
- * algs.hh
+/**
+ * @name algs.hh
  *
- *  Created on: Jul 1, 2015
- *      Author: lpzun
+ * @date  : Jul 1, 2015
+ * @author: Peizun Liu
  */
 
 #ifndef ALGS_HH_

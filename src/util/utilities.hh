@@ -1,7 +1,7 @@
 /**
- * @brief utilities.hh
+ * @name utilities.hh
  *
- * @date: Jun 23, 2015
+ * @date  : Jun 23, 2015
  * @author: Peizun Liu
  */
 

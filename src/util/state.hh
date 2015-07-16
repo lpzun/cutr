@@ -1,8 +1,8 @@
-/*
- * state.hh
+/**
+ * @name state.hh
  *
- *  Created on: Jun 21, 2015
- *      Author: lpzun
+ * @date  : Jun 21, 2015
+ * @author: Peizun liu
  */
 
 #ifndef STATE_HH_
@@ -69,10 +69,9 @@ inline Thread_State::Thread_State(const Thread_State& t) :
  * @param local: local  state
  */
 inline Thread_State::Thread_State(const Shared_State& share,
-		const Local_State& local) {
+		const Local_State& local) :
+		share(share), local(local) {
 	__SAFE_ASSERT__(share < S && local < L);
-	this->share = share;
-	this->local = local;
 }
 
 /**
@@ -157,6 +156,7 @@ public:
 
 	inline Global_State();
 	inline Global_State(const Thread_State& t);
+	inline Global_State(const Thread_State& t, const size_p& n);
 	inline Global_State(const Shared_State& share, const Locals& locals);
 	inline Global_State(const Shared_State& share, const Locals& locals,
 			shared_ptr<const Global_State> pi);
@@ -164,9 +164,6 @@ public:
 	}
 
 	ostream& to_stream(ostream& out = cout, const string& sep = "|") const;
-
-private:
-	inline bool compare(const Locals& m1, const Locals& m2);
 };
 
 /**
@@ -183,8 +180,18 @@ inline Global_State::Global_State() :
  * @param t
  */
 inline Global_State::Global_State(const Thread_State& t) :
-		share(t.share), pi(nullptr) {
-	locals[t.local] = 1;
+		share(t.share), locals(Locals()), pi(nullptr) {
+	locals.emplace(t.local, 1);
+}
+
+/**
+ * @brief constructor with a thread state and n threads
+ * @param t
+ * @param n
+ */
+inline Global_State::Global_State(const Thread_State& t, const size_p& n) :
+		share(t.share), locals(Locals()), pi(nullptr) {
+	locals.emplace(t.local, n);
 }
 
 /**

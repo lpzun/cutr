@@ -2,8 +2,9 @@
  * @brief using it for debugging
  *
  * @name debug.hh
- * @date Oct 2, 2013
- * @author Peizun Liu
+ *
+ * @date  : Oct 2, 2013
+ * @author: Peizun Liu
  */
 
 #ifndef DEBUG_HH_

@@ -1,9 +1,10 @@
-/*
- * state.cc
+/**
+ * @name state.cc
  *
- *  Created on: Jun 21, 2015
- *      Author: lpzun
+ * @date  : Jun 21, 2015
+ * @author: Peizun liu
  */
+
 
 #include "state.hh"
 

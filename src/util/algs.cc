@@ -1,8 +1,8 @@
-/*
- * algs.cc
+/**
+ * @name algs.cc
  *
- *  Created on: Jul 1, 2015
- *      Author: lpzun
+ * @date  : Jul 1, 2015
+ * @author: Peizun Liu
  */
 
 #include "algs.hh"

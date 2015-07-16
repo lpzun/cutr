@@ -1,7 +1,7 @@
 /******************************************************************************
- * cmd.cc
+ *  @name cmd.cc
  *
- *  @date: Nov 18, 2014
+ *  @date  : Nov 18, 2014
  *  @author: Peizun Liu
  *****************************************************************************/
 
@@ -29,14 +29,11 @@ using std::endl;
 extern string v_info;
 
 class Arguments {
-protected:
-	const short type;
-	const string short_name; /// the argument's long name
-	const string long_name;  /// the argument's short name
-	const string meaning;    /// the meaning of the argument
 public:
-	inline Arguments(const short& type, const string& short_name, const string& long_name, const string& meaning) :
-			type(type), short_name(short_name), long_name(long_name), meaning(meaning) {
+	inline Arguments(const short& type, const string& short_name,
+			const string& long_name, const string& meaning) :
+			type(type), short_name(short_name), long_name(long_name), meaning(
+					meaning) {
 	}
 
 	inline ~Arguments() {
@@ -57,6 +54,12 @@ public:
 	inline const string& get_short_name() const {
 		return short_name;
 	}
+
+protected:
+	const short type;
+	const string short_name; /// the argument's long name
+	const string long_name;  /// the argument's short name
+	const string meaning;    /// the meaning of the argument
 };
 
 inline bool operator==(const Arguments& arg1, const Arguments& arg2) {
@@ -68,12 +71,12 @@ inline bool operator<(const Arguments& arg1, const Arguments& arg2) {
 }
 
 class Options: public Arguments {
-private:
-	string value; // the value of this argument
 public:
-	inline Options(const short& type, const string& short_name, const string& long_name, const string& meaning,
+	inline Options(const short& type, const string& short_name,
+			const string& long_name, const string& meaning,
 			const string& default_value) :
-			Arguments(type, short_name, long_name, meaning), value(default_value) {
+			Arguments(type, short_name, long_name, meaning), value(
+					default_value) {
 	}
 
 	inline Options(const short& type = 0, const string& long_name = "") :
@@ -91,6 +94,8 @@ public:
 		this->value = value;
 	}
 
+private:
+	string value; /// the value of this argument
 };
 
 inline bool operator==(const Options& arg1, const Options& arg2) {
@@ -102,10 +107,9 @@ inline bool operator<(const Options& arg1, const Options& arg2) {
 }
 
 class Switch: public Arguments {
-private:
-	bool value;
 public:
-	inline Switch(const short& type, const string& short_name, const string& long_name, const string& meaning) :
+	inline Switch(const short& type, const string& short_name,
+			const string& long_name, const string& meaning) :
 			Arguments(type, short_name, long_name, meaning), value(false) {
 	}
 
@@ -124,6 +128,9 @@ public:
 	void set_value(bool value) {
 		this->value = value;
 	}
+
+private:
+	bool value; /// the value of this switch
 };
 
 inline bool operator==(const Switch& arg1, const Switch& arg2) {
@@ -161,9 +168,11 @@ public:
 	struct Help {
 	};
 
-	void add_option(const short& type, const string& short_name, const string& long_name, const string& meaning,
+	void add_option(const short& type, const string& short_name,
+			const string& long_name, const string& meaning,
 			const string& default_value);
-	void add_switch(const short& type, const string& short_name, const string& long_name, const string& meaning);
+	void add_switch(const short& type, const string& short_name,
+			const string& long_name, const string& meaning);
 
 	void get_command_line(const int argc, const char* const * const argv); // args supplied as by main
 	void get_command_line(const string& prog, const vector<string>& args);
@@ -171,7 +180,8 @@ public:
 	bool arg_bool(const short& type, const string& arg);
 	string arg_value(const short& type, const string& arg);
 
-	void print_usage_info(const string& prog_name, cushort& indent = 1, ostream& out = cout) const;
+	void print_usage_info(const string& prog_name, cushort& indent = 1,
+			ostream& out = cout) const;
 
 	const vector<string>& get_types() const {
 		return types;

@@ -9,6 +9,12 @@
 
 namespace sura {
 
+vertex INITL_V = 0;
+vertex FINAL_V = 0;
+
+vertex INITL_SCC = 0;
+vertex FINAL_SCC = 0;
+
 vertex Graph::delegate = 0;
 map<vertex, list<vertex>> Graph::sccs;
 
@@ -47,11 +53,10 @@ void Graph::build_SCC() {
 		/// print strongly connected component of the popped vertex
 		if (!visited[u]) {
 			delegate = u;
-			cout << "------------" << delegate << endl;
+			cout << "------------" << delegate << endl; // delete ------------
 			sccs.insert(
 					std::pair<vertex, list<vertex>>(delegate, list<vertex>()));
 			trsp_G.DFS_visit(u, visited);
-			cout << endl; // delete ------------
 		}
 	}
 }
@@ -71,7 +76,11 @@ void Graph::DFS() {
  */
 void Graph::DFS_visit(const vertex& u, vector<bool>& visited) {
 	visited[u] = true;
-	cout << u << " "; // delete this -------
+	cout << u << " "; // delete ------------
+	if (INITL_V == u)
+		INITL_SCC = delegate;
+	if (FINAL_V == u)
+		FINAL_SCC = delegate;
 	sccs[delegate].push_back(u);
 	for (auto iv = Adj[u].begin(); iv != Adj[u].end(); iv++) {
 		if (!visited[*iv])
@@ -111,6 +120,74 @@ Graph Graph::transpose() {
 		}
 	}
 	return Graph(V, trps_G);
+}
+
+/**
+ * @brief recursive version
+ * @param final  : ending   point
+ * @param visited:
+ * @param paths  : the list of paths
+ * @return all paths
+ */
+void Graph::find_all_paths(const vertex& final, _path& visited,
+		list<_path>& paths) {
+	auto ifind = this->Adj.find(visited.back());
+	if (ifind != Adj.end()) {
+		for (auto inhb = ifind->second.begin(); inhb != ifind->second.end();
+				++inhb) {
+			if (std::find(visited.begin(), visited.end(), *inhb)
+					!= visited.end())
+				continue;
+
+			if (*inhb == final) {
+				cout << *inhb << endl;
+				visited.push_back(*inhb);
+				paths.push_back(visited);
+				visited.pop_back();
+				break;
+			}
+		}
+
+		for (auto inhb = ifind->second.begin(); inhb != ifind->second.end();
+				++inhb) {
+			if (*inhb == final
+					|| std::find(visited.begin(), visited.end(), *inhb)
+							!= visited.end())
+				continue;
+
+			visited.push_back(*inhb);
+			find_all_paths(final, visited, paths);
+			visited.pop_back();
+		}
+	}
+}
+
+/**
+ * @brief compute all paths from start to final
+ * @param start: starting point
+ * @param final: ending   point
+ * @return all paths
+ */
+list<_path> Graph::find_all_paths(const vertex& start, const vertex& final) {
+	list<_path> paths;
+
+	_path visited;
+	visited.push_back(start);
+
+	this->find_all_paths(final, visited, paths);
+
+	// delete ----------------------
+	for (const auto& path : paths)
+		this->print_path(path);
+
+	return paths;
+}
+
+void Graph::print_path(const _path& path) {
+	for (auto iv = path.begin(); iv != path.end(); ++iv) {
+		cout << *iv << " ";
+	}
+	cout << endl;
 }
 
 } /* namespace SURA */
