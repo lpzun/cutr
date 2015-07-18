@@ -30,7 +30,6 @@ void Cmd_Line::get_command_line(const int argc, const char* const * const argv) 
 	vector<string> args(argc - 1);
 	for (int i = 0; i < argc - 1; i++) {
 		args[i] = argv[i + 1];
-//		cout << "Cmd_Line::get_command_line:: " << args[i] << endl;
 	}
 	this->get_command_line(argv[0], args);
 }

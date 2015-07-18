@@ -9,7 +9,12 @@
 
 namespace sura {
 
-GSCC::GSCC() {
+GSCC::GSCC(const size_V& V, const adj_list& Adj) :
+		sccs(), trans_btwn_sccs(), paths() {
+	const auto& sscc = this->build_SCC(V, Adj);
+	this->sccs = vector<shared_ptr<SCC>>(sscc.size(), nullptr);
+	this->trans_btwn_sccs = vector<vector<shared_ptr<list<edge>>> >(sscc.size(), vector<shared_ptr<list<edge>>>(sscc.size(), nullptr));
+	this->build_GSCC(sscc);
 }
 
 GSCC::~GSCC() {
@@ -20,51 +25,49 @@ GSCC::~GSCC() {
  * @param V  : the set of vertices
  * @param Adj: adjacent list to represent expanded TTD
  */
-map<vertex, list<vertex>> GSCC::build_SCC(const size_V& V,
-		const adj_list& Adj) {
+vector<list<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
 	Graph g(V, Adj);
 	g.build_SCC();
 
 	// delete ---------------------------------------------------------------
-	for (auto idlg = Graph::sccs.begin(); idlg != Graph::sccs.end(); ++idlg) {
-		cout << idlg->first << " size=" << idlg->second.size() << " ";
-		for (auto iv = idlg->second.begin(); iv != idlg->second.end(); ++iv) {
+	for (auto idx = 0; idx < g.get_sccs().size(); ++idx) {
+		cout << idx << " size=" << g.get_sccs()[idx].size() << " "; // delete---------
+		for (auto iv = g.get_sccs()[idx].begin(); iv != g.get_sccs()[idx].end();
+				++iv) {
 			cout << mapping_TS[*iv] << " ";
 		}
 		cout << endl;
 	}
+	// delete ---------------------------------------------------------------
 
-	return Graph::sccs;
+	return g.get_sccs();
 }
 
 /**
  * @brief build a GSCC graph
  * @param sccs
  */
-void GSCC::build_GSCC(const map<vertex, list<vertex>>& sccs) {
-	map<vertex, SCC> map_V_SCC;
-	for (auto iscc = sccs.begin(); iscc != sccs.end(); ++iscc) {
-		if (iscc->second.size() > 1)
-			map_V_SCC.insert(
-					std::pair<vertex, SCC>(iscc->first, SCC(iscc->first)));
+void GSCC::build_GSCC(const vector<list<vertex>>& sccs) {
+	/// construct SCCs: vertices of SCC quotient graph
+	for (auto idx = 0; idx < sccs.size(); ++idx) {
+		if (sccs[idx].size() > 1)
+			this->sccs[idx] = std::make_shared<SCC>(sccs[idx].front(),
+					sccs[idx]);
 		else
-			map_V_SCC.insert(
-					std::pair<vertex, SCC>(iscc->first,
-							SCC(iscc->first, iscc->second)));
+			this->sccs[idx] = std::make_shared<SCC>(sccs[idx].front());
 	}
 
+	/// construct adjacency list of SCC quotient graph
 	adj_list Adj;
-	auto iu = sccs.begin();
-	while (iu != sccs.end() && std::next(iu) != sccs.end()) {
-		for (auto iv = std::next(iu); iv != sccs.end(); ++iv) {
+	for (auto iu = 0; iu < sccs.size(); ++iu) {
+		for (auto iv = iu + 1; iv < sccs.size(); ++iv) {
 			bool is_uv = false, is_vu = false;
-			this->build_E_in_GSCC(iu->second, iv->second, is_uv, is_vu);
+			this->build_E_in_GSCC(sccs[iu], iu, sccs[iv], iv, is_uv, is_vu);
 			if (is_uv)
-				Adj[iu->first].push_back(iv->first);
+				Adj[iu].emplace_back(iv);
 			else if (is_uv)
-				Adj[iv->first].push_back(iu->first);
+				Adj[iv].emplace_back(iu);
 		}
-		++iu;
 	}
 
 #ifndef NDEBUG
@@ -77,11 +80,21 @@ void GSCC::build_GSCC(const map<vertex, list<vertex>>& sccs) {
 			cout << isrc->first << " -> " << *idst << "\n";
 		}
 	}
+
+	cout << "Transitions between SCCs\n";
+	for (auto i = 0; i < this->trans_btwn_sccs.size(); ++i) {
+		for (auto j = 0; j < this->trans_btwn_sccs[0].size(); ++j) {
+			if (trans_btwn_sccs[i][j] != nullptr) {
+				for (const auto &t : *(trans_btwn_sccs[i][j]))
+					cout << t << endl;
+			}
+		}
+	}
 #endif
 
 	Graph g(mapping_TS.size(), Adj);
 	cout << INITL_V << " $$$$ " << FINAL_V << endl;
-	auto paths = g.find_all_paths(INITL_SCC, FINAL_SCC);
+	paths = g.find_all_paths(INITL_SCC, FINAL_SCC);
 	cout << endl;
 }
 
@@ -89,85 +102,56 @@ void GSCC::build_GSCC(const map<vertex, list<vertex>>& sccs) {
  * @brief  compute all SCC quotient paths in SCC quotient graph
  * @return a list of quotient paths
  */
-vector<_path> GSCC::find_all_paths() {
-	vector<_path> paths;
-	return paths;
+const vector<_path>& GSCC::find_all_paths() const {
+	return this->paths;
 }
 
 /**
- * @brief pass by reference version
+ * @brief pass reference version
  * @param scc1
+ * @param u
  * @param scc2
+ * @param v
+ * @param is_uv
+ * @param is_vu
  */
-void GSCC::build_E_in_GSCC(const list<vertex>& scc1, const list<vertex>& scc2,
-		bool& is_uv, bool& is_vu) {
+void GSCC::build_E_in_GSCC(const list<vertex>& scc1, const size_t& u,
+		const list<vertex>& scc2, const size_t& v, bool& is_uv, bool& is_vu) {
 	list<edge> UV, VU;
 	for (auto iu = scc1.begin(); iu != scc1.end(); ++iu) {
 		for (auto iv = scc2.begin(); iv != scc2.end(); ++iv) {
 			if (ETTD::real_R[*iu][*iv]) {
 				is_uv = true;
-				UV.push_back(edge(*iu, *iv, type_T::NORM));
+				UV.emplace_back(*iu, *iv, type_T::NORM);
 			} else if (ETTD::expd_R[*iu][*iv]) {
 				is_uv = true;
-				UV.push_back(edge(*iu, *iv, type_T::EXPD));
+				UV.emplace_back(*iu, *iv, type_T::EXPD);
 			}
 
 			if (ETTD::real_R[*iv][*iu]) {
 				is_vu = true;
-				VU.push_back(edge(*iv, *iu, type_T::NORM));
+				VU.emplace_back(*iv, *iu, type_T::NORM);
 			} else if (ETTD::expd_R[*iv][*iu]) {
 				is_vu = true;
-				VU.push_back(edge(*iv, *iu, type_T::EXPD));
+				VU.emplace_back(*iv, *iu, type_T::EXPD);
 			}
 		}
 	}
 
 	if (is_uv && is_vu)
 		throw ural_rt_err("SCC computation is wrong!");
-}
-
-/**
- * @brief pass by iterator version
- * @param scc1
- * @param scc2
- */
-void GSCC::build_E_in_GSCC(map<vertex, list<vertex>>::const_iterator scc1,
-		map<vertex, list<vertex>>::const_iterator scc2) {
-	bool is_uv = false, is_vu = false;
-	list<edge> UV, VU;
-	for (auto iu = scc1->second.begin(); iu != scc1->second.end(); ++iu) {
-		for (auto iv = scc2->second.begin(); iv != scc2->second.end(); ++iv) {
-			if (ETTD::real_R[*iu][*iv]) {
-				is_uv = true;
-				UV.push_back(edge(*iu, *iv, type_T::NORM));
-			} else if (ETTD::expd_R[*iu][*iv]) {
-				is_uv = true;
-				UV.push_back(edge(*iu, *iv, type_T::EXPD));
-			}
-
-			if (ETTD::real_R[*iv][*iu]) {
-				is_vu = true;
-				VU.push_back(edge(*iv, *iu, type_T::NORM));
-			} else if (ETTD::expd_R[*iv][*iu]) {
-				is_vu = true;
-				VU.push_back(edge(*iv, *iu, type_T::EXPD));
-			}
-		}
-	}
-
-	if (is_uv && is_vu)
-		throw ural_rt_err("SCC computation is wrong!");
-
 	if (is_uv)
-		for (const auto& r : UV)
-			cout << r << endl;
-	else if (is_uv)
-		for (const auto& r : VU)
-			cout << r << endl;
+		this->trans_btwn_sccs[u][v] = std::make_shared<list<edge>>(UV);
+	else if (is_vu)
+		this->trans_btwn_sccs[v][u] = std::make_shared<list<edge>>(VU);
 }
 
 /////////////////////////// SCC class /////////////////////////////////////////
 
+/**
+ * @brief constructor
+ * @param v
+ */
 SCC::SCC(const vertex& v) :
 		v(v), is_TRIVIAL(true), is_NESTED(false), V_size(0) {
 }
@@ -216,20 +200,20 @@ void SCC::build_E(const list<vertex>& V) {
 		for (auto iu = V.begin(); iu != V.end(); ++iu) {
 			for (auto iv = V.begin(); iv != V.end(); ++iv) {
 				if (*iu != *iv && ETTD::real_R[*iu][*iv])
-					E.push_back(edge(*iu, *iv));
+					E.emplace_back(*iu, *iv);
 				/// TODO: create edges with id
-				/// E.push_back(edge(*iu, *iv, Transition::ID++));
+				/// E.emplace_back(*iu, *iv, Transition::ID++);
 			}
 		}
 	} else { /// for a simple loop, we includes expansion edges
 		for (auto iu = V.begin(); iu != V.end(); ++iu) {
 			for (auto iv = V.begin(); iv != V.end(); ++iv) {
 				if (*iu != *iv && ETTD::real_R[*iu][*iv])
-					E.push_back(edge(*iu, *iv));
+					E.emplace_back(*iu, *iv);
 				else if (*iu != *iv && ETTD::real_R[*iu][*iv])
-					E.push_back(edge(*iu, *iv, type_T::EXPD));
+					E.emplace_back(*iu, *iv, type_T::EXPD);
 				/// TODO: create edges with id
-				/// E.push_back(edge(*iu, *iv, Transition::ID++));
+				/// E.emplace_back(*iu, *iv, Transition::ID++);
 			}
 		}
 	}

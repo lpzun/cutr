@@ -35,9 +35,6 @@ public:
 	static size_s S; /// the size of shared state
 	static size_l L; /// the size of local  state
 
-	Shared_State share;
-	Local_State local;
-
 	inline Thread_State();
 	inline Thread_State(const Thread_State& t);
 	inline Thread_State(const Shared_State& share, const Local_State& local);
@@ -45,6 +42,18 @@ public:
 	}
 
 	ostream& to_stream(ostream& out = cout) const;
+
+	inline Local_State get_local() const {
+		return local;
+	}
+
+	inline Shared_State get_share() const {
+		return share;
+	}
+
+private:
+	Shared_State share;
+	Local_State local;
 };
 
 /**
@@ -103,7 +112,7 @@ inline ostream& operator<<(ostream& out, const Thread_State& t) {
  * 		   false: otherwise
  */
 inline bool operator==(const Thread_State& t1, const Thread_State& t2) {
-	return t1.share == t2.share && t1.local == t2.local;
+	return t1.get_share() == t2.get_share() && t1.get_local() == t2.get_local();
 }
 
 /**
@@ -127,10 +136,10 @@ inline bool operator!=(const Thread_State& t1, const Thread_State& t2) {
  * 		   false: otherwise
  */
 inline bool operator<(const Thread_State& t1, const Thread_State& t2) {
-	if (t1.share == t2.share)
-		return t1.local < t2.local;
+	if (t1.get_share() == t2.get_share())
+		return t1.get_local() < t2.get_local();
 	else
-		return t1.share < t2.share;
+		return t1.get_share() < t2.get_share();
 }
 
 /**
@@ -150,20 +159,38 @@ typedef map<Local_State, size_p> Locals;
 
 class Global_State {
 public:
-	Shared_State share;
-	Locals locals;
-	shared_ptr<const Global_State> pi;
-
 	inline Global_State();
 	inline Global_State(const Thread_State& t);
 	inline Global_State(const Thread_State& t, const size_p& n);
 	inline Global_State(const Shared_State& share, const Locals& locals);
 	inline Global_State(const Shared_State& share, const Locals& locals,
 			shared_ptr<const Global_State> pi);
+
 	virtual ~Global_State() {
 	}
 
 	ostream& to_stream(ostream& out = cout, const string& sep = "|") const;
+
+	inline const Locals& get_locals() const {
+		return locals;
+	}
+
+	inline const shared_ptr<const Global_State>& get_pi() const {
+		return pi;
+	}
+
+	inline Shared_State get_share() const {
+		return share;
+	}
+
+	inline void set_pi(const shared_ptr<const Global_State>& pi) {
+		this->pi = pi;
+	}
+
+private:
+	Shared_State share;
+	Locals locals;
+	shared_ptr<const Global_State> pi;
 };
 
 /**
@@ -180,8 +207,8 @@ inline Global_State::Global_State() :
  * @param t
  */
 inline Global_State::Global_State(const Thread_State& t) :
-		share(t.share), locals(Locals()), pi(nullptr) {
-	locals.emplace(t.local, 1);
+		share(t.get_share()), locals(Locals()), pi(nullptr) {
+	locals.emplace(t.get_local(), 1);
 }
 
 /**
@@ -190,8 +217,8 @@ inline Global_State::Global_State(const Thread_State& t) :
  * @param n
  */
 inline Global_State::Global_State(const Thread_State& t, const size_p& n) :
-		share(t.share), locals(Locals()), pi(nullptr) {
-	locals.emplace(t.local, n);
+		share(t.get_share()), locals(Locals()), pi(nullptr) {
+	locals.emplace(t.get_local(), n);
 }
 
 /**
@@ -249,10 +276,10 @@ inline ostream& operator<<(ostream& out, const Global_State& g) {
  * 		   false: otherwise
  */
 inline bool operator<(const Global_State& s1, const Global_State& s2) {
-	if (s1.share == s2.share) {
-		return COMPARE::compare_map(s1.locals, s2.locals) == -1;
+	if (s1.get_share() == s2.get_share()) {
+		return COMPARE::compare_map(s1.get_locals(), s2.get_locals()) == -1;
 	} else {
-		return s1.share < s2.share;
+		return s1.get_share() < s2.get_share();
 	}
 }
 
@@ -277,10 +304,10 @@ inline bool operator>(const Global_State& s1, const Global_State& s2) {
  * 		   false: otherwise
  */
 inline bool operator==(const Global_State& s1, const Global_State& s2) {
-	if (s1.share == s2.share) {
-		if (s1.locals.size() == s2.locals.size()) {
-			auto is1 = s1.locals.begin(), is2 = s2.locals.begin();
-			while (is1 != s1.locals.end()) {
+	if (s1.get_share() == s2.get_share()) {
+		if (s1.get_locals().size() == s2.get_locals().size()) {
+			auto is1 = s1.get_locals().begin(), is2 = s2.get_locals().begin();
+			while (is1 != s1.get_locals().end()) {
 				if ((is1->first != is2->first) || (is1->second != is2->second))
 					return false;
 				is1++, is2++;

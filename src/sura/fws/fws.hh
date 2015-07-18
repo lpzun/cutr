@@ -34,10 +34,10 @@ typedef list<sigma_v> sigma;
 
 class FWS {
 public:
-	FWS(const size_t& size_P);
+	FWS(const size_t& size_P, const shared_ptr<GSCC>& p_gscc);
 	virtual ~FWS();
 
-	bool fws_as_logic_decision(const vector<sigma>& paths);
+	bool fws_as_logic_decision(const vector<_path>& paths);
 
 private:
 	/// All expressions, func_decl, etc., appearing in the class must be
@@ -59,6 +59,8 @@ private:
 	static uint con_z;  /// the sum of constant spawn transitions in max path
 	static expr sum_z;  /// expression of summarizing fired spawns in max path
 
+	shared_ptr<GSCC> p_gscc;
+
 	/// mark which path is satisfiable
 	vector<bool> sat_P;
 	/// the vector of solvers of for all paths
@@ -66,10 +68,10 @@ private:
 	/// store the IDs of spawn transitions
 	set<id_tran> spaw_vars;
 
-	bool path_reachability(const sigma& P, const ushort& id_P);
+	bool path_reachability(const _path& P, const ushort& id_P);
 
 	/// build path constraint
-	vec_expr path_summary(const sigma& P);
+	vec_expr path_summary(const _path& P);
 
 	bool check_sat_via_smt_solver(solver& s);
 	void parse_sat_solution(const model& m);

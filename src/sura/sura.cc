@@ -40,12 +40,13 @@ bool Sura::symbolic_reachability_analysis(const string& filename,
 vector<inout> Sura::parse_input_ttd(const string& filename) {
 	vector<inout> s_in_out;
 	if (filename == "X") { // make random structure
-		throw ural_rt_err("Please assign input file");
+		throw ural_rt_err("Please assign the input file!");
 	} else {
 		/// original input file before removing comments
 		ifstream org_in(filename.c_str());
 		if (!org_in.good())
-			throw ural_rt_err("File not found!");
+			throw ural_rt_err("Input file does not find!");
+
 		Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
 		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// remove comments
 
@@ -202,10 +203,16 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
 	ettd.print_expanded_TTD();
 	ettd.print_transitions();
 
-	GSCC sccq;
-	sccq.build_GSCC(sccq.build_SCC(ettd.get_V(), ettd.get_expanded_TTD()));
+	shared_ptr<GSCC> p_gscc = std::make_shared<GSCC>(ettd.get_V(),
+			ettd.get_expanded_TTD());
 
-	return this->path_wise_analysis(sccq.find_all_paths());
+	for (auto i = p_gscc->get_sccs().begin(); i != p_gscc->get_sccs().end();
+			++i) {
+		if (*i != nullptr)
+			cout << **i << endl;
+	} // testing delete----------------
+
+	return this->path_wise_analysis(p_gscc);
 }
 
 /**
@@ -215,7 +222,11 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
  * 		true : if the final thread state is reachable
  * 		false: otherwise
  */
-bool Sura::path_wise_analysis(const vector<_path>& paths) {
+bool Sura::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
+	const auto& list_P = p_gscc->find_all_paths();
+	auto size_P = list_P.size();
+	FWS fws(size_P, p_gscc);
+//	return fws.fws_as_logic_decision(list_P);
 	return false;
 }
 

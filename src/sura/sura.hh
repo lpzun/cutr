@@ -30,7 +30,7 @@ private:
 	bool reachability_as_logic_decision(const adj_list& TTD,
 			const vector<inout>& s_in_out);
 
-	bool path_wise_analysis(const vector<_path>& paths);
+	bool path_wise_analysis(const shared_ptr<GSCC>& p_gscc);
 };
 
 } /* namespace sura */

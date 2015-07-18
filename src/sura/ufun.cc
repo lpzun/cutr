@@ -52,8 +52,8 @@ delta Ufun::compute_delta(const edge& ifx) {
  */
 void Ufun::update_counter(delta &d, const edge &e) {
 	if (e.get_type() != type_T::THCR)
-		d[mapping_TS[e.get_src()].local]--;
-	d[mapping_TS[e.get_dst()].local]++;
+		d[mapping_TS[e.get_src()].get_local()]--;
+	d[mapping_TS[e.get_dst()].get_local()]++;
 }
 
 /**

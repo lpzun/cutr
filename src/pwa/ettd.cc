@@ -33,30 +33,29 @@ const adj_list& ETTD::get_expanded_TTD() const {
 }
 
 /**
- * @brief return the number of vertices
- * @return
+ * @brief get the size of vertices
+ * @return the size of vertices
  */
 size_V ETTD::get_V() const {
 	return V;
 }
+
 /**
  * @TODO do this at the beginning
- * @brief mark real transitions
+ * @brief set real and spawn transitions
  */
 void ETTD::build_real_R() {
+	/// setting real  transition mark
 	real_R = vector<vector<bool>>(V, vector<bool>(V, false));
-	for (auto iu = original_TTD.begin(); iu != original_TTD.end(); ++iu) {
-		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv) {
+	for (auto iu = original_TTD.begin(); iu != original_TTD.end(); ++iu)
+		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
 			real_R[iu->first][*iv] = true;
-		}
-	}
 
+	/// setting spawn transition mark
 	spaw_R = vector<vector<bool>>(V, vector<bool>(V, false));
-	for (auto iu = spawntra_TTD.begin(); iu != spawntra_TTD.end(); ++iu) {
-		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv) {
-			real_R[iu->first][*iv] = true;
-		}
-	}
+	for (auto iu = spawntra_TTD.begin(); iu != spawntra_TTD.end(); ++iu)
+		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
+			spaw_R[iu->first][*iv] = true;
 }
 
 /**
@@ -72,7 +71,7 @@ void ETTD::build_ETTD(const adj_list& TTD, const vector<inout>& s_in_out) {
 					++iw)
 				if (*iv != *iw)
 					if (!this->is_real_trans(*iv, *iw)) {
-						expanded_TTD[*iv].push_back(*iw); /// add expansion edge
+						expanded_TTD[*iv].emplace_back(*iw); /// add expansion edge
 						expd_R[*iv][*iw] = true;
 					}
 	}
@@ -99,7 +98,7 @@ bool ETTD::is_real_trans(const vertex& u, const vertex& v) {
  * 			false: otherwise
  */
 bool ETTD::is_horizontal(const vertex& u, const vertex& v) {
-	return mapping_TS[u].share == mapping_TS[v].share;
+	return mapping_TS[u].get_share() == mapping_TS[v].get_share();
 }
 
 /////////////////////////////////for test//////////////////////////////////////

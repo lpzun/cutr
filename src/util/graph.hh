@@ -23,28 +23,34 @@ extern vertex FINAL_SCC;
 
 typedef unordered_map<vertex, list<vertex>> adj_list;
 typedef list<vertex> _path;
+typedef unsigned int id_scc;
 
 class Graph {
 public:
-	static vertex delegate;
-	static map<vertex, list<vertex>> sccs;
 
 	Graph(const size_V& V, const adj_list& Adj);
 	virtual ~Graph();
 	void build_SCC();
 
-	list<_path> find_all_paths(const vertex& start, const vertex& final);
+	vertex get_sccs_size() const;
+	const vector<list<vertex> >& get_sccs() const;
+	vector<_path> find_all_paths(const vertex& start, const vertex& final);
+
 private:
 	size_V V;        /// No. of vertices
 	adj_list Adj;    /// adjacency list
 
-	void DFS();
-	void DFS_visit(const vertex& u, vector<bool>& visited);
-	void sort(const vertex& u, vector<bool>& visited, stack<vertex>& sstack);
-	Graph transpose();
+	id_scc scc_id;
+	vector<list<vertex>> sccs;
 
+	void DFS();
+	void DFS_visit(const vertex& u, vector<bool>& visited, const adj_list& Adj);
+	void sort(const vertex& u, vector<bool>& visited, stack<vertex>& sstack);
+	adj_list transpose();
+
+	/// find all paths
 	void find_all_paths(const vertex& final, _path& visited,
-			list<_path>& paths);
+			vector<_path>& paths);
 	void print_path(const _path& path);
 };
 

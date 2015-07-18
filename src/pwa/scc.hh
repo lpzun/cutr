@@ -11,22 +11,6 @@
 #include "ettd.hh"
 
 namespace sura {
-/// define SCC quotient graph
-class GSCC {
-public:
-	GSCC();
-	virtual ~GSCC();
-	map<vertex, list<vertex>> build_SCC(const size_V& V, const adj_list& Adj);
-	void build_GSCC(const map<vertex, list<vertex>>& sccs);
-
-	vector<_path> find_all_paths();
-private:
-	void build_E_in_GSCC(const list<vertex>& scc1, const list<vertex>& scc2,
-			bool& is_uv, bool& is_vu);
-	void build_E_in_GSCC(map<vertex, list<vertex>>::const_iterator scc1,
-			map<vertex, list<vertex>>::const_iterator scc2);
-};
-
 /// define SCC
 class SCC {
 public:
@@ -117,6 +101,37 @@ inline bool operator>(const SCC& s1, const SCC& s2) {
 	return s1 > s2;
 }
 
-} /* namespace SURA */
+/// define SCC quotient graph
+class GSCC {
+public:
+	GSCC(const size_V& V, const adj_list& Adj);
+	virtual ~GSCC();
+
+	const vector<_path>& find_all_paths() const;
+
+	vector<shared_ptr<SCC>>& get_sccs() {
+		return sccs;
+	}
+
+	vector<vector<shared_ptr<list<edge>>> >&get_trans_btwn_sccs() {
+		return trans_btwn_sccs;
+	}
+
+private:
+	vector<shared_ptr<SCC>> sccs; /// store SCCs
+
+	/// store transitions between SCCs
+	vector<vector<shared_ptr<list<edge>>> > trans_btwn_sccs;
+
+	vector<_path> paths;/// all scc quotient paths
+
+	vector<list<vertex>> build_SCC(const size_V& V, const adj_list& Adj);
+	void build_GSCC(const vector<list<vertex>>& sccs);
+	void build_E_in_GSCC(const list<vertex>& scc1, const size_t& u,
+			const list<vertex>& scc2, const size_t& v, bool& is_uv, bool& is_vu);
+};
+
+}
+/* namespace SURA */
 
 #endif /* SCC_HH_ */

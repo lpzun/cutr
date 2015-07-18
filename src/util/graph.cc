@@ -15,11 +15,9 @@ vertex FINAL_V = 0;
 vertex INITL_SCC = 0;
 vertex FINAL_SCC = 0;
 
-vertex Graph::delegate = 0;
-map<vertex, list<vertex>> Graph::sccs;
-
 Graph::Graph(const size_V& V, const adj_list& Adj) :
-		V(V), Adj(Adj) {
+		V(V), Adj(Adj), scc_id(0), sccs() {
+	this->sccs.reserve(V);
 }
 
 Graph::~Graph() {
@@ -52,11 +50,10 @@ void Graph::build_SCC() {
 
 		/// print strongly connected component of the popped vertex
 		if (!visited[u]) {
-			delegate = u;
-			cout << "------------" << delegate << endl; // delete ------------
-			sccs.insert(
-					std::pair<vertex, list<vertex>>(delegate, list<vertex>()));
-			trsp_G.DFS_visit(u, visited);
+			sccs.emplace_back(list<vertex>());
+			DFS_visit(u, visited, trsp_G);
+			scc_id++;
+			cout << __func__ << "------------" << scc_id << endl; // delete ------------
 		}
 	}
 }
@@ -65,7 +62,7 @@ void Graph::DFS() {
 	vector<bool> visited(V, false);
 	for (auto u = 0; u < V; u++) {
 		if (!visited[u])
-			DFS_visit(u, visited);
+			DFS_visit(u, visited, Adj);
 	}
 }
 
@@ -74,18 +71,21 @@ void Graph::DFS() {
  * @param u: starting point and the root of a DFS tree
  * @param visited: to mark if a node is visited or not
  */
-void Graph::DFS_visit(const vertex& u, vector<bool>& visited) {
+void Graph::DFS_visit(const vertex& u, vector<bool>& visited,
+		const adj_list& Adj) {
 	visited[u] = true;
 	cout << u << " "; // delete ------------
 	if (INITL_V == u)
-		INITL_SCC = delegate;
+		INITL_SCC = scc_id;
 	if (FINAL_V == u)
-		FINAL_SCC = delegate;
-	sccs[delegate].push_back(u);
-	for (auto iv = Adj[u].begin(); iv != Adj[u].end(); iv++) {
-		if (!visited[*iv])
-			DFS_visit(*iv, visited);
-	}
+		FINAL_SCC = scc_id;
+	sccs[scc_id].emplace_back(u);
+	auto ifind = Adj.find(u);
+	if (ifind != Adj.end())
+		for (auto iv = ifind->second.begin(); iv != ifind->second.end(); ++iv) {
+			if (!visited[*iv])
+				DFS_visit(*iv, visited, Adj);
+		}
 }
 
 /**
@@ -105,21 +105,38 @@ void Graph::sort(const vertex& u, vector<bool>& visited,
 			sort(*iv, visited, sstack);
 	}
 	/// all vertices reachable from u are processed by now
-	sstack.push(u);
+	sstack.emplace(u);
 }
 
 /**
  * @brief compute transpose
  * @return transpose of a graph
  */
-Graph Graph::transpose() {
+adj_list Graph::transpose() {
 	adj_list trps_G; /// transpose of graph
 	for (auto u = 0; u < V; u++) {
 		for (auto iv = Adj[u].begin(); iv != Adj[u].end(); iv++) {
-			trps_G[*iv].push_back(u);
+			trps_G[*iv].emplace_back(u);
 		}
 	}
-	return Graph(V, trps_G);
+	return trps_G;
+}
+
+/**
+ * @brief compute all paths from start to final
+ * @param start: starting point
+ * @param final: ending   point
+ * @return all paths
+ */
+vector<_path> Graph::find_all_paths(const vertex& start, const vertex& final) {
+	vector<_path> paths;
+	_path visited;
+	visited.emplace_back(start);
+	this->find_all_paths(final, visited, paths);
+	// testing print delete ----------------------
+	for (const auto& path : paths)
+		this->print_path(path);
+	return paths;
 }
 
 /**
@@ -130,7 +147,7 @@ Graph Graph::transpose() {
  * @return all paths
  */
 void Graph::find_all_paths(const vertex& final, _path& visited,
-		list<_path>& paths) {
+		vector<_path>& paths) {
 	auto ifind = this->Adj.find(visited.back());
 	if (ifind != Adj.end()) {
 		for (auto inhb = ifind->second.begin(); inhb != ifind->second.end();
@@ -141,8 +158,8 @@ void Graph::find_all_paths(const vertex& final, _path& visited,
 
 			if (*inhb == final) {
 				cout << *inhb << endl;
-				visited.push_back(*inhb);
-				paths.push_back(visited);
+				visited.emplace_back(*inhb);
+				paths.emplace_back(visited);
 				visited.pop_back();
 				break;
 			}
@@ -155,32 +172,11 @@ void Graph::find_all_paths(const vertex& final, _path& visited,
 							!= visited.end())
 				continue;
 
-			visited.push_back(*inhb);
+			visited.emplace_back(*inhb);
 			find_all_paths(final, visited, paths);
 			visited.pop_back();
 		}
 	}
-}
-
-/**
- * @brief compute all paths from start to final
- * @param start: starting point
- * @param final: ending   point
- * @return all paths
- */
-list<_path> Graph::find_all_paths(const vertex& start, const vertex& final) {
-	list<_path> paths;
-
-	_path visited;
-	visited.push_back(start);
-
-	this->find_all_paths(final, visited, paths);
-
-	// delete ----------------------
-	for (const auto& path : paths)
-		this->print_path(path);
-
-	return paths;
 }
 
 void Graph::print_path(const _path& path) {
@@ -188,6 +184,14 @@ void Graph::print_path(const _path& path) {
 		cout << *iv << " ";
 	}
 	cout << endl;
+}
+
+vertex Graph::get_sccs_size() const {
+	return scc_id - 1;
+}
+
+const vector<list<vertex> >& Graph::get_sccs() const {
+	return sccs;
 }
 
 } /* namespace SURA */
