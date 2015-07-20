@@ -54,6 +54,7 @@ FWS::~FWS() {
 /**
  * @brief forward-based symbolic reachability analysis
  * @param paths
+ * 			NOTE: a path is a sequence of id_scc
  * @return bool
  * 		true : if final is reachable
  * 		false: otherwise
@@ -62,12 +63,11 @@ bool FWS::fws_as_logic_decision(const vector<_path>& paths) {
 	bool is_existing_sat_P = false;
 	for (auto idx = 0; idx < paths.size(); ++idx) {
 		if (this->path_reachability(paths[idx], idx)) {
-			sat_P[idx] = true;
+			this->sat_P[idx] = true;
 			if (!is_existing_sat_P)
 				is_existing_sat_P = true;
 		}
 	}
-
 	if (!is_existing_sat_P)
 		return false;
 	return this->solicit_for_CEGAR();
@@ -146,6 +146,8 @@ vec_expr FWS::path_summary(const _path& P) {
 			if (p_scc->is_nested() == false) { /// simple loop
 				cout << "I am here: simple loop\n";
 			} else {                        /// nested loop
+				auto is_append = this->append_marking_equation(pfx, *p_scc);
+
 			}
 		} else {
 			cout << "I am here: trivial SCC\n";
@@ -157,6 +159,141 @@ vec_expr FWS::path_summary(const _path& P) {
 
 	cout << "I am at the end of path_summary" << endl;
 	return phi;
+}
+
+/**
+ * @brief assemble infix formula to prefix arithmetic <pfx> and <phi>
+ * 			NOTE: this method computes the sum of constant spawns
+ * @param pfx  : formula to summarize thread counters for each local state
+ * 				 in the prefix of current quotient path
+ * @param phi  : constraint for each local state in the prefix  of current
+ * 				 quotient path
+ * @param delta: the delta for prefix path
+ */
+void FWS::assemble(vec_expr &pfx, vec_expr &phi, const delta &delta) {
+	auto sum = 0;
+	for (auto id = delta.begin(); id != delta.end(); id++) {
+		phi[id->first] = phi[id->first] && (pfx[id->first] + id->second >= 0);
+		pfx[id->first] = pfx[id->first] + id->second;
+		sum += id->second;
+	}
+	if (sum > 0)
+		con_z = con_z + sum;
+}
+
+/**
+ * @brief assemble to <pfx> and <phi> the arithmetic for simple loop
+ * 			NOTE: this method computes the sum of constant spawns
+ * @param pfx  : formula to summarize thread counters for each local state
+ * 				 in the prefix of current quotient path
+ * @param phi  : constraint for each local state in the prefix  of current
+ * 				 quotient path
+ * @param delta: the delta for prefix path
+ * @param k    : the simple loop iterator kappa
+ */
+void FWS::assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
+		const expr &k) {
+	/// the intermediate variable used in <forall> quantifier
+	expr i = ctx.int_const("i");
+	expr r = 0 <= i && i <= k;
+	auto sum = 0;
+	for (auto id = delta.begin(); id != delta.end(); id++) {
+		expr f = implies(r, pfx[id->first] + id->second * i >= 0);
+		phi[id->first] = phi[id->first] && forall(i, f);
+		pfx[id->first] = pfx[id->first] + id->second * k;
+		sum += id->second;
+	}
+	if (sum > 0)
+		sum_z = sum_z + sum * k;
+}
+
+/**
+ * @brief assemble to <pfx> and <phi> the marking equation for loop nests:
+ * 		  assemble local constraints to phi
+ * @param pfx  : formula to summarize thread counters for each local state
+ * 				 in the prefix of current quotient path
+ * @param phi  : constraint for each local state in the prefix  of current
+ * 				 quotient path
+ * @param is_append:
+ */
+void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
+		const vector<bool> &is_append) {
+	for (auto i = 0; i < Thread_State::L; ++i)
+		if (is_append[i])
+			phi[i] = phi[i] && pfx[i] >= 0;
+}
+
+/**
+ *
+ * @brief assemble to <pfx> and <phi> the marking equation for loop nests:
+ * 		  assemble shared constraints to phi
+ * @param pfx   : formula to summarize thread counters for each local state
+ * 				 in the prefix of current quotient path
+ * @param phi   : constraint for each local state in the prefix  of current
+ * 				 quotient path
+ * @param s_entr: shared state of entry point
+ * @param s_exit: shared state of exit  point
+ * @param is_append
+ */
+void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
+		const Shared_State &s_entr, const Shared_State &s_exit,
+		const vector<bool> &is_append) {
+	for (auto i = Thread_State::L; i < Thread_State::L + Thread_State::S; ++i)
+		if (is_append[i]) {
+			if (s_entr != s_exit && i == Thread_State::S + s_entr)
+				phi[i] = phi[i] && pfx[i] == -1;
+			else if (s_entr != s_exit && i == Thread_State::S + s_exit)
+				phi[i] = phi[i] && pfx[i] == 1;
+			else
+				phi[i] = phi[i] && pfx[i] == 0;
+		}
+}
+
+/**
+ * @brief append marking equations of a SCC to the pre SCC formula
+ * @param pfx: a vector of formulae:
+ * 		  we use it to return formulae to which after appending marking equation
+ * @param scc: loop nests
+ * @return vector<bool>
+ * 		  to mark to which is appended marking equations
+ */
+vector<bool> FWS::append_marking_equation(vec_expr &pfx, const SCC &scc) {
+	vector<bool> is_append(Thread_State::L + Thread_State::S, false);
+
+	/// reset prefix for shared constraints
+	for (auto i = Thread_State::L; i < Thread_State::L + Thread_State::S; ++i)
+		pfx[i] = ctx.int_const(0);
+
+	const auto& transitions = scc.get_E();
+	for (auto itran = transitions.begin(); itran != transitions.end();
+			++itran) {
+		/// declare C_L variables for marking equation
+		expr x = ctx.int_const(
+				(x_affix + std::to_string(itran->get_id())).c_str());
+		if (ETTD::spaw_R[itran->get_src()][itran->get_dst()]) {
+			spaw_vars.emplace(itran->get_id());
+		}
+
+		/// define C_L constraints
+		auto delta = Ufun::compute_delta(*itran);
+		for (auto il = delta.begin(); il != delta.end(); ++il) {
+			pfx[il->first] = pfx[il->first] + x * il->second;
+			if (!is_append[il->first])
+				is_append[il->first] = true;
+		}
+
+		/// define C_S constraints
+		const auto& s_src = mapping_TS[itran->get_src()].get_share(); /// shared state of source TS
+		const auto& s_dst = mapping_TS[itran->get_dst()].get_share(); /// shared state of destination TS
+		if (s_src != s_dst) {
+			pfx[Thread_State::L + s_src] = pfx[Thread_State::L + s_src] - x; /// incoming - 1
+			is_append[Thread_State::L + s_src] = true;
+			pfx[Thread_State::L + s_dst] = pfx[Thread_State::L + s_dst] + x; /// outgoing + 1
+			is_append[Thread_State::L + s_dst] = true;
+		}
+	}
+
+	return is_append;
 }
 
 /**

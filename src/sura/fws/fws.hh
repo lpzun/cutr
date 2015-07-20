@@ -73,6 +73,17 @@ private:
 	/// build path constraint
 	vec_expr path_summary(const _path& P);
 
+	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta);
+	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
+			const expr &k);
+	void assemble(const vec_expr &pfx, vec_expr &phi,
+			const vector<bool> &is_append);
+	void assemble(const vec_expr &pfx, vec_expr &phi,
+			const Shared_State &s_entr, const Shared_State &s_exit,
+			const vector<bool> &is_append);
+
+	vector<bool> append_marking_equation(vec_expr &pfx, const SCC &scc);
+
 	bool check_sat_via_smt_solver(solver& s);
 	void parse_sat_solution(const model& m);
 	bool is_spawn_variable(const string& v);

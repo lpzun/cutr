@@ -11,10 +11,6 @@
 
 namespace sura {
 
-typedef enum class Transition_Type {
-	NORM, THCR, BCST, EXPD
-} type_T;
-
 typedef unsigned int id_tran;
 
 class Transition {
@@ -23,9 +19,6 @@ public:
 
 	inline Transition(const vertex& src, const vertex& dst);
 	inline Transition(const vertex& src, const vertex& dst, const id_tran& id);
-	inline Transition(const vertex& src, const vertex& dst, const type_T& type);
-	inline Transition(const vertex& src, const vertex& dst, const id_tran& id,
-			const type_T& type);
 	virtual ~Transition() {
 	}
 
@@ -43,53 +36,39 @@ public:
 		return id;
 	}
 
-	inline type_T get_type() const {
-		return type;
-	}
-
 private:
 	vertex src; /// source      of transition
 	vertex dst; /// destination of transition
 	id_tran id;
-	type_T type; /// type of transition
 };
 
 inline Transition::Transition(const vertex& src, const vertex& dst) :
-		src(src), dst(dst), id(0), type(type_T::NORM) {
+		src(src), dst(dst), id(0) {
 }
 
 inline Transition::Transition(const vertex& src, const vertex& dst,
 		const id_tran& id) :
-		src(src), dst(dst), id(id), type(type_T::NORM) {
+		src(src), dst(dst), id(id) {
 
-}
-
-inline Transition::Transition(const vertex& src, const vertex& dst,
-		const type_T& type) :
-		src(src), dst(dst), id(0), type(type) {
-}
-
-inline Transition::Transition(const vertex& src, const vertex& dst,
-		const id_tran& id, const type_T& type) :
-		src(src), dst(dst), id(id), type(type) {
 }
 
 inline ostream& Transition::to_stream(ostream& out) const {
 	out << mapping_TS[src] << " ";
-	switch (type) {
-	case type_T::EXPD:
-		out << ":>";
-		break;
-	case type_T::THCR:
-		out << "+>";
-		break;
-	case type_T::BCST:
-		out << "~>";
-		break;
-	default:
-		out << "->";
-		break;
-	}
+//	switch (type) {
+//	case type_T::EXPD:
+//		out << ":>";
+//		break;
+//	case type_T::THCR:
+//		out << "+>";
+//		break;
+//	case type_T::BCST:
+//		out << "~>";
+//		break;
+//	default:
+//		out << "->";
+//		break;
+//	}
+	out << "->";
 	out << " " << mapping_TS[dst];
 	out << "\n";
 	return out;

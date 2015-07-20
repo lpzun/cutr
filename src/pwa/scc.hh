@@ -26,13 +26,13 @@ public:
 
 	ostream& to_stream(ostream& out = cout) const;
 private:
-	vertex v;       /// delegate
-	list<edge> E;   /// edges in SCC
-
 	bool is_TRIVIAL;
 	bool is_NESTED;
 
 	size_V V_size;
+
+	vertex v;       /// delegate
+	list<edge> E;   /// edges in SCC
 
 	void build_E(const list<vertex>& V);
 	bool is_loop_nests(const size_V& size);

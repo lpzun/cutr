@@ -27,7 +27,7 @@ Ufun::~Ufun() {
 delta Ufun::compute_delta(const list<edge>& ifx) {
 	delta d;
 	for (auto itran = ifx.begin(); itran != ifx.end(); ++itran) {
-		if (itran->get_type() != type_T::EXPD)
+		if (ETTD::expd_R[itran->get_src()][itran->get_dst()])
 			update_counter(d, *itran);
 	}
 	return d;
@@ -51,7 +51,7 @@ delta Ufun::compute_delta(const edge& ifx) {
  * @param e: an edge
  */
 void Ufun::update_counter(delta &d, const edge &e) {
-	if (e.get_type() != type_T::THCR)
+	if (ETTD::spaw_R[e.get_src()][e.get_dst()])
 		d[mapping_TS[e.get_src()].get_local()]--;
 	d[mapping_TS[e.get_dst()].get_local()]++;
 }

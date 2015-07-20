@@ -62,10 +62,10 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		///        second value is the set of outgoing vertices
 		s_in_out = vector<inout>(Thread_State::S);
 
-		Shared_State s1, s2; /// shared states
-		Local_State l1, l2;  /// local  states
-		id_thread_state src = 0, dst = 0; /// the id of thread states
-		string sep;          /// separator
+		Shared_State s1, s2;              /// shared states
+		Local_State l1, l2;               /// local  states
+		id_thread_state src = 0, dst = 0; /// the id of thread state
+		string sep;                       /// separator
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
 			cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n"; //TODO delete -----------------
 			if (sep == "->" || sep == "+>") {
