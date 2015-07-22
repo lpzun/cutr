@@ -63,16 +63,18 @@ void Ufun::update_counter(delta &d, const edge &e) {
  * @return list<edge>
  * 		all real edges from <en> to <ex>
  */
-deque<edge> Ufun::extract_trans_enter_to_exit(const SCC& scc, const vertex& en,
+deque<edge> Ufun::extract_trans_enter_to_exit(const size_t& size, const deque<edge>& E, const vertex& en,
 		const vertex& ex) {
 	deque<edge> en_to_ex;
 
-	vector<vertex> Adj(scc.size());
-	for (auto itran = scc.get_E().begin(); itran != scc.get_E().end();
-			++itran) {
-		cout << *itran << "\n";
-		Adj[itran->get_src()] = itran->get_dst();
+	map<vertex, vertex> Adj;
+	for (auto itran = E.begin(); itran != E.end(); ++itran) {
+		Adj.emplace(itran->get_src(), itran->get_dst());
 	}
+//	cout << ":) " << Adj.size() << endl;
+//	for (auto iu = Adj.begin(); iu != Adj.end(); ++iu) {
+//		cout << ":) " << iu->first << " " << iu->second << "\n";
+//	}
 
 	auto next = en;
 	while (next != ex) {
@@ -80,6 +82,10 @@ deque<edge> Ufun::extract_trans_enter_to_exit(const SCC& scc, const vertex& en,
 			en_to_ex.push_back(edge(next, Adj[next]));
 		next = Adj[next];
 	}
+
+	cout << __func__ << "\n";
+	for (auto &t : en_to_ex)
+		cout << t << "\n";
 
 	return en_to_ex;
 }

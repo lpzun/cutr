@@ -66,7 +66,7 @@ FWS::~FWS() {
  */
 bool FWS::fws_as_logic_decision(const vector<_path>& paths) {
 	bool is_exists_sat_P = false;
-	for (auto idx = 0; idx < paths.size(); ++idx) {
+	for (size_t idx = 0; idx < paths.size(); ++idx) {
 		if (this->path_reachability(paths[idx], idx)) {
 			this->sat_P[idx] = true;
 			if (!is_exists_sat_P)
@@ -100,7 +100,7 @@ bool FWS::path_reachability(const _path& P, const ushort& id_P) {
 				ctx.int_const((k_affix + std::to_string(idx)).c_str()) >= 0);
 
 	/// add x_i >= 0
-	for (auto idx = 0; idx < x_index; ++idx)
+	for (size_t idx = 0; idx < x_index; ++idx)
 		solver_P[id_P]->add(
 				ctx.int_const((x_affix + std::to_string(idx)).c_str()) >= 0);
 
@@ -131,7 +131,7 @@ vec_expr FWS::path_summary(const _path& P) {
 			for (auto p = las_level.begin(); p != las_level.end(); ++p)
 				p->emplace_back(0);
 		} else {
-			for (auto i = 0; i < p_outgoing->size(); ++i) {
+			for (size_t i = 0; i < p_outgoing->size(); ++i) {
 				for (auto p = las_level.begin(); p != las_level.end(); ++p) {
 					p->emplace_back(i);
 					cur_level.push_back(*p);
@@ -189,11 +189,11 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 
 	deque<edge> infix;
 	/// transitions from last SCC to current SCC: incoming
-	shared_ptr<deque<edge>> p_incoming = nullptr;
+	shared_ptr<deque<edge>> p_incoming(nullptr);
 	auto ipos = permu.begin();
 	for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc) { /// iterate over P
 		/// pointer to current SCC
-		const auto p_scc = p_gscc->get_sccs()[*iscc];
+		auto p_scc = p_gscc->get_sccs()[*iscc];
 		/// transitions from current SCC to the next SCC: outgoing
 		auto p_outgoing =
 				p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))];
@@ -215,8 +215,9 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 
 			if (p_scc->is_nested() == false) { /// simple loop
 				/// extract the "half" cycle from entry point to exit point
-				auto en_to_ex = Ufun::extract_trans_enter_to_exit(*p_scc, en,
+				auto en_to_ex = Ufun::extract_trans_enter_to_exit(p_scc->size(), p_scc->get_E(), en,
 						ex);
+				cout<<":)------------------------\n";
 				infix.insert(infix.end(), en_to_ex.begin(), en_to_ex.end());
 
 				/// CASE 2: assemble to <pfx> and <phi> the arithmetic for
@@ -251,6 +252,7 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 	phi[FINAL_TS.get_local()] = phi[FINAL_TS.get_local()]
 			&& (pfx[FINAL_TS.get_local()] + ifx_d[FINAL_TS.get_local()] >= 1);
 
+//	phi[2]=ctx.bool_val(false);
 	/// build spawn expression to summarize spawn transitions
 	sum_z = sum_z + ctx.int_val(con_z);
 	return phi;
@@ -423,7 +425,7 @@ bool FWS::check_sat_via_smt_solver(shared_ptr<solver>& s) {
 void FWS::parse_sat_solution(const model& m) {
 	cout << __func__ << "\n" << m << "\n";
 	uint n = 0;
-	for (auto i = 0; i < m.size(); i++) {
+	for (size_t i = 0; i < m.size(); i++) {
 		func_decl v = m[i];
 		assert(v.arity() == 0); /// check if contains only constants
 		if (v.name() == n_0.decl().name())
@@ -478,7 +480,7 @@ bool FWS::solicit_for_CEGAR() {
 		return true;
 	}
 	bool is_exists_sat_P = true;
-	for (auto idx = 0; idx < sat_P.size(); ++idx) {
+	for (size_t idx = 0; idx < sat_P.size(); ++idx) {
 		if (sat_P[idx] == true) {
 			if (!is_exists_sat_P)
 				is_exists_sat_P = true;
@@ -645,5 +647,4 @@ bool FWS::is_initial_state(const Global_State &tau) {
 	}
 	return false;
 }
-
 } /* namespace SURA */
