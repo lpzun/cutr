@@ -80,6 +80,7 @@ int main(const int argc, const char * const * const argv) {
 			Sura ursula;
 			is_reachable = ursula.symbolic_reachability_analysis(filename,
 					s_initial, s_target);
+			cout<<"I am here ========================\n";
 			cout << "logical decision analysis is done!" << endl;
 		} else if (mode.compare(OPT_MODE_FWS) == 0) { /// forward search alg.
 			cout << "forward search is done!" << endl;

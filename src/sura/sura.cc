@@ -35,7 +35,7 @@ bool Sura::symbolic_reachability_analysis(const string& filename,
 
 /**
  * @brief parse the input TTD
- * @param filename: the name of input ttd file
+ * @param filename: the name of input .ttd file
  */
 vector<inout> Sura::parse_input_ttd(const string& filename) {
 	vector<inout> s_in_out;
@@ -50,11 +50,16 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
 		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// remove comments
 
-		id_thread_state idx = 0;
-		map<Thread_State, id_thread_state> activee_TS;
-
 		new_in >> Thread_State::S >> Thread_State::L;
 		mapping_TS.reserve(Thread_State::S * Thread_State::L);
+
+		id_thread_state idx = 0;
+
+		/// setting the initial vertex
+		mapping_TS.emplace_back(INITL_TS);
+		activee_TS.emplace(INITL_TS, idx);
+		INITL_V = idx++;
+		cout << idx << "################################\n";
 
 		/// store all outgoing vertices from same shared state
 		/// key is the shared state,
@@ -77,7 +82,7 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 				} else {
 					src = idx++;
 					mapping_TS.emplace_back(src_TS);
-					activee_TS[src_TS] = src;
+					activee_TS.emplace(src_TS, src);
 				}
 
 				const Thread_State dst_TS(s2, l2);
@@ -89,7 +94,7 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 				} else {
 					dst = idx++;
 					mapping_TS.emplace_back(dst_TS);
-					activee_TS[dst_TS] = dst;
+					activee_TS.emplace(dst_TS, dst);
 				}
 
 				if (sep == "+>")
@@ -108,15 +113,24 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		org_in.close();
 		mapping_TS.shrink_to_fit();
 
-		/// setting initial vertex
-		auto ifind = activee_TS.find(INITL_TS);
-		if (ifind != activee_TS.end())
-			INITL_V = ifind->second;
+		cout << idx << "################################\n";
 
-		/// setting final vertex
-		ifind = activee_TS.find(FINAL_TS);
-		if (ifind != activee_TS.end())
+		/// setting the final vertex
+		auto ifind = activee_TS.find(FINAL_TS);
+		if (ifind != activee_TS.end()) {
 			FINAL_V = ifind->second;
+		} else {
+			mapping_TS.emplace_back(FINAL_TS);
+			activee_TS.emplace(FINAL_TS, idx);
+			FINAL_V = idx;
+		}
+
+		s_in_out[FINAL_TS.get_share()].second.emplace(FINAL_V);
+
+		for (auto i = 0; i < mapping_TS.size(); ++i) {
+			cout << i << ": " << mapping_TS[i] << "\n";
+		}
+		cout << endl;
 
 #ifndef NDEBUG
 		cout << INITL_TS << " $$$$$$$$$ " << FINAL_TS << endl;
@@ -194,6 +208,7 @@ Thread_State Sura::parse_input_tss(const string& str_ts) {
  */
 bool Sura::reachability_as_logic_decision(const adj_list& TTD,
 		const vector<inout>& s_in_out) {
+
 	ELAPSED_TIME = clock() - ELAPSED_TIME;
 
 	if (INITL_TS == FINAL_TS)
@@ -206,11 +221,13 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
 	shared_ptr<GSCC> p_gscc = std::make_shared<GSCC>(ettd.get_V(),
 			ettd.get_expanded_TTD());
 
+	// testing delete------------------------------------------------------
 	for (auto i = p_gscc->get_sccs().begin(); i != p_gscc->get_sccs().end();
 			++i) {
 		if (*i != nullptr)
 			cout << **i << endl;
-	} // testing delete----------------
+	}
+	// testing delete------------------------------------------------------
 
 	return this->path_wise_analysis(p_gscc);
 }
@@ -226,8 +243,7 @@ bool Sura::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
 	const auto& list_P = p_gscc->find_all_paths();
 	auto size_P = list_P.size();
 	FWS fws(size_P, p_gscc);
-//	return fws.fws_as_logic_decision(list_P);
-	return false;
+	return fws.fws_as_logic_decision(list_P);
 }
 
 } /* namespace sura */

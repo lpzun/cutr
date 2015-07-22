@@ -13,7 +13,8 @@ GSCC::GSCC(const size_V& V, const adj_list& Adj) :
 		sccs(), trans_btwn_sccs(), paths() {
 	const auto& sscc = this->build_SCC(V, Adj);
 	this->sccs = vector<shared_ptr<SCC>>(sscc.size(), nullptr);
-	this->trans_btwn_sccs = vector<vector<shared_ptr<list<edge>>> >(sscc.size(), vector<shared_ptr<list<edge>>>(sscc.size(), nullptr));
+	this->trans_btwn_sccs = vector<vector<shared_ptr<deque<edge>>> >(sscc.size(),
+			vector<shared_ptr<deque<edge>>>(sscc.size(), nullptr));
 	this->build_GSCC(sscc);
 }
 
@@ -118,7 +119,7 @@ const vector<_path>& GSCC::find_all_paths() const {
  */
 void GSCC::build_E_in_GSCC(const list<vertex>& scc1, const size_t& u,
 		const list<vertex>& scc2, const size_t& v, bool& is_uv, bool& is_vu) {
-	list<edge> UV, VU;
+	deque<edge> UV, VU;
 	for (auto iu = scc1.begin(); iu != scc1.end(); ++iu) {
 		for (auto iv = scc2.begin(); iv != scc2.end(); ++iv) {
 			if (ETTD::real_R[*iu][*iv]) {
@@ -142,9 +143,9 @@ void GSCC::build_E_in_GSCC(const list<vertex>& scc1, const size_t& u,
 	if (is_uv && is_vu)
 		throw ural_rt_err("SCC computation is wrong!");
 	if (is_uv)
-		this->trans_btwn_sccs[u][v] = std::make_shared<list<edge>>(UV);
+		this->trans_btwn_sccs[u][v] = std::make_shared<deque<edge>>(UV);
 	else if (is_vu)
-		this->trans_btwn_sccs[v][u] = std::make_shared<list<edge>>(VU);
+		this->trans_btwn_sccs[v][u] = std::make_shared<deque<edge>>(VU);
 }
 
 /////////////////////////// SCC class /////////////////////////////////////////
@@ -183,7 +184,7 @@ const vertex& SCC::get_v() const {
 	return v;
 }
 
-const list<edge>& SCC::get_E() const {
+const deque<edge>& SCC::get_E() const {
 	return E;
 }
 
@@ -208,10 +209,10 @@ void SCC::build_E(const list<vertex>& V) {
 		for (auto iu = V.begin(); iu != V.end(); ++iu) {
 			for (auto iv = V.begin(); iv != V.end(); ++iv) {
 				if (*iu != *iv && ETTD::real_R[*iu][*iv])
-					E.emplace_back(*iu, *iv);
-				else if (*iu != *iv && ETTD::real_R[*iu][*iv])
-					/// TODO: create edges with id
 					E.emplace_back(*iu, *iv, Transition::ID++);
+				else if (*iu != *iv && ETTD::expd_R[*iu][*iv])
+					/// TODO: create edges with id
+					E.emplace_back(*iu, *iv);
 			}
 		}
 	}

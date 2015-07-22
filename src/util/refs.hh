@@ -36,14 +36,7 @@ extern adj_list original_TTD;
 extern adj_list spawntra_TTD;
 
 extern vector<Thread_State> mapping_TS;
-
-///// store all incoming vertices to   same shared state
-///// key is the shared state, value is the set of incoming vertices
-//extern map<Shared_State, set<vertex>> s_incoming;
-//
-///// store all outgoing vertices from same shared state
-///// key is the shared state, value is the set of outgoing vertices
-//extern map<Shared_State, set<vertex>> s_outgoing;
+extern map<Thread_State, id_thread_state> activee_TS;
 
 /// global variable for elapsed time
 extern clock_t ELAPSED_TIME;

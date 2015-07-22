@@ -24,13 +24,10 @@ public:
 	static Locals update_counter(const Locals &Z, const Local_State &dec,
 			const Local_State &inc);
 
-	static delta compute_delta(const list<edge>& ifx);
+	static delta compute_delta(const deque<edge>& ifx);
 	static delta compute_delta(const edge& ifx);
 
-	static bool is_spawn_transition(const Thread_State& src,
-			const Thread_State& dst);
-
-	static list<edge> extract_trans_enter_to_exit(const SCC& scc,
+	static deque<edge> extract_trans_enter_to_exit(const SCC& scc,
 			const vertex& en, const vertex& ex);
 
 private:

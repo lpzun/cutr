@@ -21,7 +21,7 @@ public:
 	bool is_trivial() const;
 	bool is_nested() const;
 	const vertex& get_v() const;
-	const list<edge>& get_E() const;
+	const deque<edge>& get_E() const;
 	const size_V size() const;
 
 	ostream& to_stream(ostream& out = cout) const;
@@ -32,7 +32,7 @@ private:
 	size_V V_size;
 
 	vertex v;       /// delegate
-	list<edge> E;   /// edges in SCC
+	deque<edge> E;   /// edges in SCC
 
 	void build_E(const list<vertex>& V);
 	bool is_loop_nests(const size_V& size);
@@ -113,7 +113,7 @@ public:
 		return sccs;
 	}
 
-	vector<vector<shared_ptr<list<edge>>> >&get_trans_btwn_sccs() {
+	vector<vector<shared_ptr<deque<edge>>> >&get_trans_btwn_sccs() {
 		return trans_btwn_sccs;
 	}
 
@@ -121,7 +121,7 @@ private:
 	vector<shared_ptr<SCC>> sccs; /// store SCCs
 
 	/// store transitions between SCCs
-	vector<vector<shared_ptr<list<edge>>> > trans_btwn_sccs;
+	vector<vector<shared_ptr<deque<edge>>> > trans_btwn_sccs;
 
 	vector<_path> paths;/// all scc quotient paths
 

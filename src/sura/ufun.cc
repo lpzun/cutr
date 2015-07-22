@@ -24,10 +24,10 @@ Ufun::~Ufun() {
  * @return delta:
  * 		the distance for a linear path or a simple loop
  */
-delta Ufun::compute_delta(const list<edge>& ifx) {
+delta Ufun::compute_delta(const deque<edge>& ifx) {
 	delta d;
 	for (auto itran = ifx.begin(); itran != ifx.end(); ++itran) {
-		if (ETTD::expd_R[itran->get_src()][itran->get_dst()])
+		if (ETTD::real_R[itran->get_src()][itran->get_dst()])
 			update_counter(d, *itran);
 	}
 	return d;
@@ -51,23 +51,8 @@ delta Ufun::compute_delta(const edge& ifx) {
  * @param e: an edge
  */
 void Ufun::update_counter(delta &d, const edge &e) {
-	if (ETTD::spaw_R[e.get_src()][e.get_dst()])
-		d[mapping_TS[e.get_src()].get_local()]--;
+	d[mapping_TS[e.get_src()].get_local()]--;
 	d[mapping_TS[e.get_dst()].get_local()]++;
-}
-
-/**
- * @brief determine if (src, dst) corresponds to a spawn transition
- * @param src
- * @param dst
- * @return bool
- * 			true : if src +> dst
- * 			false: otherwise
- */
-bool Ufun::is_spawn_transition(const Thread_State& src,
-		const Thread_State& dst) {
-	// TODO: determine if src +> dst is true
-	return false;
 }
 
 /**
@@ -78,13 +63,14 @@ bool Ufun::is_spawn_transition(const Thread_State& src,
  * @return list<edge>
  * 		all real edges from <en> to <ex>
  */
-list<edge> Ufun::extract_trans_enter_to_exit(const SCC& scc, const vertex& en,
+deque<edge> Ufun::extract_trans_enter_to_exit(const SCC& scc, const vertex& en,
 		const vertex& ex) {
-	list<edge> en_to_ex;
+	deque<edge> en_to_ex;
 
 	vector<vertex> Adj(scc.size());
 	for (auto itran = scc.get_E().begin(); itran != scc.get_E().end();
 			++itran) {
+		cout << *itran << "\n";
 		Adj[itran->get_src()] = itran->get_dst();
 	}
 

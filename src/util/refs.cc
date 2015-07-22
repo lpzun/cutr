@@ -34,6 +34,7 @@ adj_list original_TTD;
 adj_list spawntra_TTD;
 
 vector<Thread_State> mapping_TS;
+map<Thread_State, id_thread_state> activee_TS;
 
 clock_t ELAPSED_TIME = clock();
 } /* namespace SURA */

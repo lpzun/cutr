@@ -44,12 +44,10 @@ private:
 	/// defined in same context; otherwise, segmentation fault happens
 	static context ctx;
 
-	/// global variables used in the class to build the path constraint
+	////// static variables used in the class to build the path constraint
 	static string n_affix;
 	static string k_affix;
-	static ushort k_index;
 	static string x_affix;
-	static uint x_index;
 
 	static expr n_0;
 
@@ -59,19 +57,20 @@ private:
 	static uint con_z;  /// the sum of constant spawn transitions in max path
 	static expr sum_z;  /// expression of summarizing fired spawns in max path
 
-	shared_ptr<GSCC> p_gscc;
+	////// class member
+	ushort k_index; /// index for loop iteration variables
+	uint x_index;   /// index for marking equation variables
 
-	/// mark which path is satisfiable
-	vector<bool> sat_P;
-	/// the vector of solvers of for all paths
-	vector<solver> solver_P;
-	/// store the IDs of spawn transitions
-	set<id_tran> spaw_vars;
+	shared_ptr<GSCC> p_gscc; /// pointer to GSCC: scc quotient graph
+	vector<shared_ptr<solver>> solver_P; /// the vector of solvers for all paths
+	vector<bool> sat_P;      /// mark which path is satisfiable
+	set<id_tran> spaw_vars;  /// store the IDs of spawn transitions
 
 	bool path_reachability(const _path& P, const ushort& id_P);
 
-	/// build path constraint
+	////// build path constraint
 	vec_expr path_summary(const _path& P);
+	vec_expr path_summary(const _path& path, const deque<size_t>& permu);
 
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta);
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
@@ -84,7 +83,7 @@ private:
 
 	vector<bool> append_marking_equation(vec_expr &pfx, const SCC &scc);
 
-	bool check_sat_via_smt_solver(solver& s);
+	bool check_sat_via_smt_solver(shared_ptr<solver>& s);
 	void parse_sat_solution(const model& m);
 	bool is_spawn_variable(const string& v);
 	uint get_z3_const_uint(const expr& e);
@@ -96,8 +95,9 @@ private:
 	Locals update_counter(const Locals &Z, const Local_State &dec,
 			const Local_State &inc);
 
-//	void reset_spawn_expr();
-//	void build_spawn_expr();
+	void reproduce_witness_path(const shared_ptr<Global_State>& pi,
+			const set<Global_State> &R);
+	bool is_initial_state(const Global_State &tau);
 };
 
 } /* namespace SURA */
