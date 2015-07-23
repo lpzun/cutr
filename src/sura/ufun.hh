@@ -21,13 +21,14 @@ public:
 	Ufun();
 	virtual ~Ufun();
 
-	static Locals update_counter(const Locals &Z, const Local_State &dec, const Local_State &inc);
+	static Locals update_counter(const Locals &Z, const Local_State &dec,
+			const Local_State &inc);
 
 	static delta compute_delta(const deque<edge>& ifx);
 	static delta compute_delta(const edge& ifx);
 
-	static deque<edge> extract_trans_enter_to_exit(const size_t& size, const deque<edge>& E, const vertex& en,
-			const vertex& ex);
+	static deque<edge> extract_trans_enter_to_exit(const deque<edge>& E,
+			const vertex& en, const vertex& ex);
 
 private:
 	static void update_counter(delta &delta, const edge &e);

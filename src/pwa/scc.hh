@@ -34,8 +34,8 @@ private:
 	vertex v;       /// delegate
 	deque<edge> E;   /// edges in SCC
 
-	void build_E(const list<vertex>& V);
-	bool is_loop_nests(const size_V& size);
+	uint build_E(const list<vertex>& V);
+	bool is_loop_nests(const size_V& size, const uint& size_E);
 };
 
 inline ostream& SCC::to_stream(ostream& out) const {
@@ -112,11 +112,9 @@ public:
 	vector<shared_ptr<SCC>>& get_sccs() {
 		return sccs;
 	}
-
 	vector<vector<shared_ptr<deque<edge>>> >&get_trans_btwn_sccs() {
 		return trans_btwn_sccs;
 	}
-
 private:
 	vector<shared_ptr<SCC>> sccs; /// store SCCs
 

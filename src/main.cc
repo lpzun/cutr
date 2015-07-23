@@ -72,7 +72,7 @@ int main(const int argc, const char * const * const argv) {
 		const string s_initial = cmd.arg_value(PROB_INST_OPTS, "--initial");
 		const string s_target = cmd.arg_value(PROB_INST_OPTS, "--target");
 
-		//		SMT_SOLVER = cmd.arg_value(PROB_INST_OPTS, "--smt-solver");
+		// SMT_SOLVER = cmd.arg_value(PROB_INST_OPTS, "--smt-solver");
 
 		bool is_reachable = false;
 		const string mode = cmd.arg_value(EXP_MODE_OPTS, "--mode");
@@ -80,11 +80,10 @@ int main(const int argc, const char * const * const argv) {
 			Sura ursula;
 			is_reachable = ursula.symbolic_reachability_analysis(filename,
 					s_initial, s_target);
-			cout<<"I am here ========================\n";
 			cout << "logical decision analysis is done!" << endl;
 		} else if (mode.compare(OPT_MODE_FWS) == 0) { /// forward search alg.
 			cout << "forward search is done!" << endl;
-		} else if (mode.compare(OPT_MODE_CON) == 0) { /// concurrent LDP & FWS
+		} else if (mode.compare(OPT_MODE_CON) == 0) { /// concurrent LDP&FWS
 			cout << "forward search join ... " << endl;
 			cout << "logical decision analysis join ... " << endl;
 		} else {

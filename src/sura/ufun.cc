@@ -63,29 +63,36 @@ void Ufun::update_counter(delta &d, const edge &e) {
  * @return list<edge>
  * 		all real edges from <en> to <ex>
  */
-deque<edge> Ufun::extract_trans_enter_to_exit(const size_t& size, const deque<edge>& E, const vertex& en,
-		const vertex& ex) {
+deque<edge> Ufun::extract_trans_enter_to_exit(const deque<edge>& E,
+		const vertex& en, const vertex& ex) {
 	deque<edge> en_to_ex;
 
-	map<vertex, vertex> Adj;
+	set<vertex> V;
 	for (auto itran = E.begin(); itran != E.end(); ++itran) {
-		Adj.emplace(itran->get_src(), itran->get_dst());
+		V.emplace(itran->get_src());
+		V.emplace(itran->get_dst());
 	}
-//	cout << ":) " << Adj.size() << endl;
-//	for (auto iu = Adj.begin(); iu != Adj.end(); ++iu) {
-//		cout << ":) " << iu->first << " " << iu->second << "\n";
-//	}
+
+	map<vertex, vertex> Adj;
+	for (auto iu = V.begin(); iu != V.end(); ++iu) {
+		for (auto iv = V.begin(); iv != V.end(); ++iv) {
+			if (ETTD::real_R[*iu][*iv] || ETTD::expd_R[*iu][*iv])
+				Adj.emplace(*iu, *iv);
+		}
+	}
 
 	auto next = en;
 	while (next != ex) {
 		if (ETTD::real_R[next][Adj[next]])
-			en_to_ex.push_back(edge(next, Adj[next]));
+			en_to_ex.emplace_back(edge(next, Adj[next]));
 		next = Adj[next];
 	}
 
+#ifndef NDEBUG
 	cout << __func__ << "\n";
 	for (auto &t : en_to_ex)
-		cout << t << "\n";
+	cout << t << "\n";
+#endif
 
 	return en_to_ex;
 }

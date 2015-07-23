@@ -48,12 +48,11 @@ void Graph::build_SCC() {
 		auto u = sstack.top();
 		sstack.pop();
 
-		/// print strongly connected component of the popped vertex
+		/// print strongly connected component of popped vertex
 		if (!visited[u]) {
 			sccs.emplace_back(list<vertex>());
 			DFS_visit(u, visited, trsp_G);
-			scc_id++;
-			cout << __func__ << "------------" << scc_id << endl; // delete ------------
+			this->scc_id++;
 		}
 	}
 }
@@ -74,7 +73,6 @@ void Graph::DFS() {
 void Graph::DFS_visit(const vertex& u, vector<bool>& visited,
 		const adj_list& Adj) {
 	visited[u] = true;
-	cout << u << " "; // delete ------------
 	if (INITL_V == u)
 		INITL_SCC = scc_id;
 	if (FINAL_V == u)
@@ -133,9 +131,11 @@ vector<_path> Graph::find_all_paths(const vertex& start, const vertex& final) {
 	_path visited;
 	visited.emplace_back(start);
 	this->find_all_paths(final, visited, paths);
-	// testing print delete ----------------------
+#ifndef NDEBUG
+	cout<<__func__<<" print out all scc quotient paths:\n";
 	for (const auto& path : paths)
-		this->print_path(path);
+	this->print_path(path);
+#endif
 	return paths;
 }
 
@@ -151,13 +151,12 @@ void Graph::find_all_paths(const vertex& final, _path& visited,
 	auto ifind = this->Adj.find(visited.back());
 	if (ifind != Adj.end()) {
 		for (auto inhb = ifind->second.begin(); inhb != ifind->second.end();
-				++inhb) {
+				++inhb) { /// neighbor
 			if (std::find(visited.begin(), visited.end(), *inhb)
 					!= visited.end())
 				continue;
 
 			if (*inhb == final) {
-				cout << *inhb << endl;
 				visited.emplace_back(*inhb);
 				paths.emplace_back(visited);
 				visited.pop_back();
@@ -166,7 +165,7 @@ void Graph::find_all_paths(const vertex& final, _path& visited,
 		}
 
 		for (auto inhb = ifind->second.begin(); inhb != ifind->second.end();
-				++inhb) {
+				++inhb) { /// neighbor
 			if (*inhb == final
 					|| std::find(visited.begin(), visited.end(), *inhb)
 							!= visited.end())
@@ -179,6 +178,10 @@ void Graph::find_all_paths(const vertex& final, _path& visited,
 	}
 }
 
+/**
+ * @brief print out a path
+ * @param path
+ */
 void Graph::print_path(const _path& path) {
 	for (auto iv = path.begin(); iv != path.end(); ++iv) {
 		cout << *iv << " ";
@@ -186,6 +189,10 @@ void Graph::print_path(const _path& path) {
 	cout << endl;
 }
 
+/**
+ * @brief return the number of SCCs
+ * @return
+ */
 vertex Graph::get_sccs_size() const {
 	return scc_id - 1;
 }

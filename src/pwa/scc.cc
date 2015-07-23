@@ -14,7 +14,7 @@ GSCC::GSCC(const size_V& V, const adj_list& Adj) :
 	const auto& sscc = this->build_SCC(V, Adj);
 	this->sccs = vector<shared_ptr<SCC>>(sscc.size(), nullptr);
 	this->trans_btwn_sccs = vector<vector<shared_ptr<deque<edge>>> >(sscc.size(),
-			vector<shared_ptr<deque<edge>>>(sscc.size(), nullptr));
+	vector<shared_ptr<deque<edge>>>(sscc.size(), nullptr));
 	this->build_GSCC(sscc);
 }
 
@@ -31,6 +31,7 @@ vector<list<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
 	g.build_SCC();
 
 #ifndef NDEBUG
+	cout << __func__ << "\n";
 	for (auto idx = 0; idx < g.get_sccs().size(); ++idx) {
 		cout << idx << " size= " << g.get_sccs()[idx].size() << " ";
 		for (auto iv = g.get_sccs()[idx].begin(); iv != g.get_sccs()[idx].end();
@@ -38,7 +39,7 @@ vector<list<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
 			cout << mapping_TS[*iv] << " ";
 		cout << endl;
 	}
-#endif 	// TODO delete --------------------------------------------------------
+#endif
 
 	return g.get_sccs();
 }
@@ -93,11 +94,8 @@ void GSCC::build_GSCC(const vector<list<vertex>>& sccs) {
 	}
 	cout << endl;
 #endif
-
 	Graph g(sccs.size(), Adj);
-	cout << INITL_V << " $$$$ " << FINAL_V << endl;
 	paths = g.find_all_paths(INITL_SCC, FINAL_SCC);
-	cout << endl;
 }
 
 /**
@@ -165,8 +163,7 @@ SCC::SCC(const vertex& v) :
  */
 SCC::SCC(const vertex& v, const list<vertex>& V) :
 		is_TRIVIAL(false), is_NESTED(false), V_size(V.size()), v(v), E() {
-	this->build_E(V);
-	this->is_NESTED = this->is_loop_nests(this->V_size);
+	this->is_NESTED = this->is_loop_nests(this->V_size, this->build_E(V));
 }
 
 SCC::~SCC() {
@@ -196,39 +193,31 @@ const size_V SCC::size() const {
  * @brief build the set of egdes E
  * @param V
  */
-void SCC::build_E(const list<vertex>& V) {
-	if (this->is_NESTED) {
-		for (auto iu = V.begin(); iu != V.end(); ++iu) {
-			for (auto iv = V.begin(); iv != V.end(); ++iv) {
-				if (*iu != *iv && ETTD::real_R[*iu][*iv])
-					/// TODO: create edges with id
-					E.emplace_back(*iu, *iv, Transition::ID++);
-			}
-		}
-	} else { /// for a simple loop, we includes expansion edges
-		for (auto iu = V.begin(); iu != V.end(); ++iu) {
-			for (auto iv = V.begin(); iv != V.end(); ++iv) {
-				if (*iu != *iv && ETTD::real_R[*iu][*iv])
-					E.emplace_back(*iu, *iv, Transition::ID++);
-				else if (*iu != *iv && ETTD::expd_R[*iu][*iv])
-					/// TODO: create edges with id
-					E.emplace_back(*iu, *iv);
+uint SCC::build_E(const list<vertex>& V) {
+	uint size = 0;
+	for (auto iu = V.begin(); iu != V.end(); ++iu) {
+		for (auto iv = V.begin(); iv != V.end(); ++iv) {
+			if (*iu != *iv && ETTD::real_R[*iu][*iv]) {
+				E.emplace_back(*iu, *iv, Transition::ID++);
+				size++;
+			} else if (*iu != *iv && ETTD::expd_R[*iu][*iv]) {
+				size++;
 			}
 		}
 	}
+	return size;
 }
 
 /**
  * @brief determine if SCC is loop nests
  * @param size
+ * @param size
  * @return bool
  * 			true : if SCC is loop nests
  * 			false: otherwise
  */
-bool SCC::is_loop_nests(const size_V& size) {
-	if (E.size() > size)
-		return true;
-	return false;
+bool SCC::is_loop_nests(const size_V& size, const uint& size_E) {
+	return size_E > size;
 }
 
 } /* namespace SURA */

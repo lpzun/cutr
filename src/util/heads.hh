@@ -33,6 +33,7 @@
 #include <memory>
 
 #include "excep.hh"
+#include "debug.hh"
 
 using std::string;
 

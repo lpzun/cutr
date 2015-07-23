@@ -15,12 +15,12 @@
 # See an example in EXAMPLES/makefile-local-vars.                         #
 ###########################################################################
 # Override these variables (or add new ones) locally
-APP          = sura # the name of application
+APP	     = ursula # the name of application
+Z3DIR        = /usr/local/Z3#          
+ILIBS        = -L $(Z3DIR)/lib -lz3#                                   -lm # config your z3 lib     here
+IINCLUDE     = -I $(Z3DIR)/include/#                                       # config your z3 include here
 
-ILIBS        = -L /usr/local/Z3/lib -lz3#                                   -lm # config your z3 lib     here
-IINCLUDE     = -I /usr/local/Z3/include/#                                       # config your z3 include here
-
-#ISTD	      = -std=c++0x # This is for server
+#ISTD	      = -std=c++0x                                                 # for old cpp standard
 ISTD	     = -std=c++11
 
 BINDIR       = bin
@@ -41,6 +41,7 @@ IDIRS        =#                                   -I$(C)
 HEADERS      = $(wildcard *.$(HSUFF))#            may set to a single .h file if only one specific file is compiled
 
 # For linking:
+#BASE         = $(firstword $(BASES))#             executable (final compilation). If directory contains several .c files, redefine this
 BASE         = $(BINDIR)/$(APP)
 ROBJVARS     =
 LDIRS        =#
@@ -111,12 +112,12 @@ robjects:
 ############################
 
 clean: 	CLEANOBJS
-	#$(RM) -f $(BASES)
-	$(RM) -f *.o test a.out
+	#rm -f $(BASES)
+	rm -f *.o test a.out
 
 distclean: clean CLEANOBJS
-	$(RM) -rf $(BINDIR)
-	$(RM) -f *~
+	rm -rf $(BINDIR)
+	rm -f *~
 	$(foreach DIR,$(RDIRS),$(MAKE) -C $(DIR) $(EXPORT) distclean || $(DERROR);)
 	$(DISTCLEAN)
 
