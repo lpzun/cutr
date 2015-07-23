@@ -34,6 +34,8 @@ public:
 
 	vertex get_sccs_size() const;
 	const vector<list<vertex> >& get_sccs() const;
+
+	bool is_reachable(const vertex &src, const vertex &dst);
 	vector<_path> find_all_paths(const vertex& start, const vertex& final);
 
 private:

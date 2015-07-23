@@ -24,6 +24,9 @@ Graph::~Graph() {
 	// TODO Auto-generated destructor stub
 }
 
+/**
+ * @brief compute strongly connected components
+ */
 void Graph::build_SCC() {
 	stack<vertex> sstack;
 
@@ -57,6 +60,9 @@ void Graph::build_SCC() {
 	}
 }
 
+/**
+ * @brief Depth-First Search
+ */
 void Graph::DFS() {
 	vector<bool> visited(V, false);
 	for (size_t u = 0; u < V; u++) {
@@ -199,6 +205,52 @@ vertex Graph::get_sccs_size() const {
 
 const vector<list<vertex> >& Graph::get_sccs() const {
 	return sccs;
+}
+
+/**
+ * @brief determine if dst is reachable from src:
+ * 		  this implementation is BFS-based
+ * @param src: source vertex
+ * @param dst: destination vertex
+ * @return bool
+ * 		true : if dst is reachable from src
+ * 		false: otherwise
+ */
+bool Graph::is_reachable(const vertex &src, const vertex &dst) {
+	if (src == dst)
+		return true;
+
+	/// mark all vertices as not visited
+	vector<bool> visited(V, false);
+
+	/// create a worklist queue for BFS
+	queue<vertex, deque<vertex>> worklist;
+	worklist.emplace(src);
+
+	while (!worklist.empty()) {
+		/// dequeue a vertex from worklist
+		auto curr = worklist.front();
+		worklist.pop();
+
+		/// get all adjacency vertices of the dequeued vertex curr
+		/// if an adjacent is not visited, the mark it as visited,
+		/// and enqueue it
+		auto ifind = Adj.find(curr);
+		if (ifind != Adj.end())
+			for (auto iu = ifind->second.begin(); iu != ifind->second.end();
+					++iu) {
+				/// if the adjacent vertex is destination, the return true
+				if (*iu == dst)
+					return true;
+
+				/// else, continue to do BFS
+				if (!visited[*iu]) {
+					visited[*iu] = true;
+					worklist.emplace(*iu);
+				}
+			}
+	}
+	return false;
 }
 
 } /* namespace SURA */

@@ -29,9 +29,12 @@ bool Sura::symbolic_reachability_analysis(const string& filename,
 		const string& initl_ts, const string& final_ts) {
 	INITL_TS = this->parse_input_tss(initl_ts);
 	FINAL_TS = this->parse_input_tss(final_ts);
-	if (INITL_TS == FINAL_TS) {
+
+	/// if initial thread state is equal to final thread state,
+	/// then return true
+	if (INITL_TS == FINAL_TS)
 		return true;
-	}
+
 	return this->reachability_as_logic_decision(original_TTD,
 			parse_input_ttd(filename));
 }
@@ -76,7 +79,7 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
 			DBG_STD(
 					cout << s1 << " " << l1 << " -> " << s2 << " " << l2
-					<< "\n")
+							<< "\n")
 			if (l1 == l2) /// remove self loops and vertical transitions
 				continue;
 			if (sep == "->" || sep == "+>") {
@@ -141,7 +144,7 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 			cout << "shared state: " << is << " ";
 			for (auto iv = s_in_out[is].first.begin();
 					iv != s_in_out[is].first.end(); ++iv)
-				cout << mapping_TS[*iv] << " ";
+			cout << mapping_TS[*iv] << " ";
 			cout << "\n";
 		}
 
@@ -150,13 +153,13 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 			cout << "shared state: " << is << " ";
 			for (auto iv = s_in_out[is].second.begin();
 					iv != s_in_out[is].second.end(); ++iv)
-				cout << mapping_TS[*iv] << " ";
+			cout << mapping_TS[*iv] << " ";
 			cout << "\n";
 		}
 
 		cout << mapping_TS.size() << "\n";
 		for (auto i = 0; i < mapping_TS.size(); i++)
-			cout << i << " " << mapping_TS[i] << "\n";
+		cout << i << " " << mapping_TS[i] << "\n";
 		cout << endl;
 #endif
 
@@ -208,7 +211,11 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
 		const vector<inout>& s_in_out) {
 	ELAPSED_TIME = clock() - ELAPSED_TIME;
 
+	Graph g(mapping_TS.size(), TTD);
+	if (g.is_reachable(INITL_V, FINAL_V))
+		return true;
 	ETTD ettd(TTD, s_in_out);
+	DBG_LOC();
 #ifndef NDEBUG
 	cout << "print out ETTD and expanded transitions:\n";
 	ettd.print_expanded_TTD();
@@ -221,7 +228,7 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
 	for (auto i = p_gscc->get_sccs().begin(); i != p_gscc->get_sccs().end();
 			++i) {
 		if (*i != nullptr)
-			cout << **i << "\n";
+		cout << **i << "\n";
 	}
 #endif
 	return this->path_wise_analysis(p_gscc);
@@ -235,10 +242,15 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
  * 		false: otherwise
  */
 bool Sura::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
-	const auto& list_P = p_gscc->find_all_paths();
-	auto size_P = list_P.size();
+	const auto& paths = p_gscc->find_all_paths();
+	auto size_P = paths.size();
+	if (size_P < 1) {
+		cout << "There is no path between " << INITL_TS << " and " << FINAL_TS
+				<< endl;
+	}
+
 	FWS fws(size_P, p_gscc);
-	return fws.fws_as_logic_decision(list_P);
+	return fws.fws_as_logic_decision(paths);
 }
 
 } /* namespace sura */

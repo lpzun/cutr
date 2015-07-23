@@ -10,13 +10,12 @@
 #ifndef DEBUG_HH_
 #define DEBUG_HH_
 
-//#define DEBUG_MODE
-//#define _STATISTICS_
+//#define NDEBUG
 
 #ifndef NDEBUG
 #define NDEBUG
 #else
-
+#define DEBUG_MODE
 #endif
 
 #ifdef DEBUG_MODE
@@ -26,6 +25,7 @@
 #else
 #  define DBG_LOG(x)
 #  define DBG_STD(x)
+#  define DBG_LOC();
 #endif // DEBUG
 
 class Debug {
