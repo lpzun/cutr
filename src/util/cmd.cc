@@ -154,7 +154,7 @@ void Cmd_Line::print_usage_info(const string& prog_name, cushort& indent, ostrea
 	out << " " << PPRINT::widthify(prog_name + " source.ttd ", this->name_width, PPRINT::LEFTJUST)
 			<< PPRINT::widthify("check given program", PPRINT::LEFTJUST) << "\n";
 
-	for (auto i = 0; i < types.size(); i++) {
+	for (size_t i = 0; i < types.size(); i++) {
 		out << types[i] << "\n";
 		auto iopts = options.find(i);
 		if (iopts != options.end())

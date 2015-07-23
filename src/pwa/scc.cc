@@ -50,7 +50,7 @@ vector<list<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
  */
 void GSCC::build_GSCC(const vector<list<vertex>>& sccs) {
 	/// construct SCCs: vertices of SCC quotient graph
-	for (auto idx = 0; idx < sccs.size(); ++idx) {
+	for (size_t idx = 0; idx < sccs.size(); ++idx) {
 		if (sccs[idx].size() > 1)
 			this->sccs[idx] = std::make_shared<SCC>(sccs[idx].front(),
 					sccs[idx]);
@@ -60,8 +60,8 @@ void GSCC::build_GSCC(const vector<list<vertex>>& sccs) {
 
 	/// construct adjacency list of SCC quotient graph: id_scc
 	adj_list Adj;
-	for (auto iu = 0; iu < sccs.size(); ++iu) {
-		for (auto iv = iu + 1; iv < sccs.size(); ++iv) {
+	for (size_t iu = 0; iu < sccs.size(); ++iu) {
+		for (size_t iv = iu + 1; iv < sccs.size(); ++iv) {
 			bool is_uv = false, is_vu = false;
 			this->build_E_in_GSCC(sccs[iu], iu, sccs[iv], iv, is_uv, is_vu);
 			if (is_uv)

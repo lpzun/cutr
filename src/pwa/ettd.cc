@@ -64,7 +64,7 @@ void ETTD::build_real_R() {
  */
 void ETTD::build_ETTD(const adj_list& TTD, const vector<inout>& s_in_out) {
 	expd_R = vector<vector<bool>>(V, vector<bool>(V, false));
-	for (auto s = 0; s < s_in_out.size(); ++s) {
+	for (size_t s = 0; s < s_in_out.size(); ++s) {
 		const auto& in_out = s_in_out[s];
 		for (auto iv = in_out.first.begin(); iv != in_out.first.end(); ++iv)
 			for (auto iw = in_out.second.begin(); iw != in_out.second.end();
@@ -114,8 +114,8 @@ void ETTD::print_expanded_TTD() {
 }
 
 void ETTD::print_transitions() {
-	for (auto i = 0; i < V; ++i)
-		for (auto j = 0; j < V; ++j)
+	for (size_t i = 0; i < V; ++i)
+		for (size_t j = 0; j < V; ++j)
 			if (real_R[i][j])
 				cout << mapping_TS[i] << " -> " << mapping_TS[j] << "\n";
 			else if (expd_R[i][j])

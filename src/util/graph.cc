@@ -31,7 +31,7 @@ void Graph::build_SCC() {
 	vector<bool> visited(V, false);
 
 	/// fill vertices in stack according to their finishing time
-	for (auto u = 0; u < V; u++) {
+	for (size_t u = 0; u < V; u++) {
 		if (!visited[u])
 			this->sort(u, visited, sstack);
 	}
@@ -59,7 +59,7 @@ void Graph::build_SCC() {
 
 void Graph::DFS() {
 	vector<bool> visited(V, false);
-	for (auto u = 0; u < V; u++) {
+	for (size_t u = 0; u < V; u++) {
 		if (!visited[u])
 			DFS_visit(u, visited, Adj);
 	}
@@ -112,7 +112,7 @@ void Graph::sort(const vertex& u, vector<bool>& visited,
  */
 adj_list Graph::transpose() {
 	adj_list trps_G; /// transpose of graph
-	for (auto u = 0; u < V; u++) {
+	for (size_t u = 0; u < V; u++) {
 		for (auto iv = Adj[u].begin(); iv != Adj[u].end(); iv++) {
 			trps_G[*iv].emplace_back(u);
 		}
