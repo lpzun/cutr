@@ -21,8 +21,8 @@ extern vertex FINAL_V;
 extern vertex INITL_SCC;
 extern vertex FINAL_SCC;
 
-typedef unordered_map<vertex, list<vertex>> adj_list;
-typedef list<vertex> _path;
+typedef unordered_map<vertex, deque<vertex>> adj_list;
+typedef deque<vertex> _path;
 typedef unsigned int id_scc;
 
 class Graph {
@@ -33,7 +33,7 @@ public:
 	void build_SCC();
 
 	vertex get_sccs_size() const;
-	const vector<list<vertex> >& get_sccs() const;
+	const vector<deque<vertex> >& get_sccs() const;
 
 	bool is_reachable(const vertex &src, const vertex &dst);
 	vector<_path> find_all_paths(const vertex& start, const vertex& final);
@@ -43,7 +43,7 @@ private:
 	adj_list Adj;    /// adjacency list
 
 	id_scc scc_id;
-	vector<list<vertex>> sccs;
+	vector<deque<vertex>> sccs;
 
 	void DFS();
 	void DFS_visit(const vertex& u, vector<bool>& visited, const adj_list& Adj);

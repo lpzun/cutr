@@ -64,7 +64,7 @@ void Util::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list,
  * @param adjacency_list
  * @param out
  */
-void Util::print_adj_list(const map<Thread_State, list<Thread_State> >& adj_list, ostream& out) {
+void Util::print_adj_list(const map<Thread_State, deque<Thread_State> >& adj_list, ostream& out) {
 	out << Thread_State::L << " " << Thread_State::S << endl;
 	for (auto iu = adj_list.begin(); iu != adj_list.end(); ++iu)
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)

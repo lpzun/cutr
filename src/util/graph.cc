@@ -53,7 +53,7 @@ void Graph::build_SCC() {
 
 		/// print strongly connected component of popped vertex
 		if (!visited[u]) {
-			sccs.emplace_back(list<vertex>());
+			sccs.emplace_back(deque<vertex>());
 			DFS_visit(u, visited, trsp_G);
 			this->scc_id++;
 		}
@@ -203,7 +203,7 @@ vertex Graph::get_sccs_size() const {
 	return scc_id - 1;
 }
 
-const vector<list<vertex> >& Graph::get_sccs() const {
+const vector<deque<vertex> >& Graph::get_sccs() const {
 	return sccs;
 }
 

@@ -21,16 +21,6 @@ namespace sura {
 typedef unordered_map<ushort, expr> map_expr;
 /// Aliasing vector<expr> as vec_expr
 typedef vector<expr> vec_expr;
-/// Aliasing list<expr>   as lst_expr
-typedef list<expr> lst_expr;
-
-/// alias the node in a SCC quotient path
-/// key  : current node, i.e., SCC
-/// value: edges leads to next node
-typedef pair<SCC, list<edge>> sigma_v;
-
-/// alias a SCC quotient path
-typedef list<sigma_v> sigma;
 
 class FWS {
 public:

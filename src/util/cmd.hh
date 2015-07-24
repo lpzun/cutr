@@ -192,8 +192,8 @@ public:
 	}
 
 private:
-	map<short, list<Options>> options;
-	map<short, list<Switch>> switches;
+	map<short, deque<Options>> options;
+	map<short, deque<Switch>> switches;
 	vector<string> types;
 	static ushort name_width;
 	static const string help_message;
