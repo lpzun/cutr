@@ -15,7 +15,7 @@ namespace sura {
 class SCC {
 public:
 	SCC(const vertex& v);
-	SCC(const vertex& v, const list<vertex>& V);
+	SCC(const vertex& v, const deque<vertex>& V);
 	virtual ~SCC();
 
 	bool is_trivial() const;
@@ -34,7 +34,7 @@ private:
 	vertex v;       /// delegate
 	deque<edge> E;   /// edges in SCC
 
-	uint build_E(const list<vertex>& V);
+	uint build_E(const deque<vertex>& V);
 	bool is_loop_nests(const size_V& size, const uint& size_E);
 };
 
@@ -123,10 +123,10 @@ private:
 
 	vector<_path> paths;/// all scc quotient paths
 
-	vector<list<vertex>> build_SCC(const size_V& V, const adj_list& Adj);
-	void build_GSCC(const vector<list<vertex>>& sccs);
-	void build_E_in_GSCC(const list<vertex>& scc1, const size_t& u,
-			const list<vertex>& scc2, const size_t& v, bool& is_uv, bool& is_vu);
+	vector<deque<vertex>> build_SCC(const size_V& V, const adj_list& Adj);
+	void build_GSCC(const vector<deque<vertex>>& sccs);
+	void build_E_in_GSCC(const deque<vertex>& scc1, const size_t& u,
+			const deque<vertex>& scc2, const size_t& v, bool& is_uv, bool& is_vu);
 };
 
 }

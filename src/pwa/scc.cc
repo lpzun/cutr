@@ -26,7 +26,7 @@ GSCC::~GSCC() {
  * @param V  : the set of vertices
  * @param Adj: adjacent list to represent expanded TTD
  */
-vector<list<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
+vector<deque<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
 	Graph g(V, Adj);
 	g.build_SCC();
 
@@ -48,7 +48,7 @@ vector<list<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
  * @brief build a GSCC graph
  * @param sccs
  */
-void GSCC::build_GSCC(const vector<list<vertex>>& sccs) {
+void GSCC::build_GSCC(const vector<deque<vertex>>& sccs) {
 	/// construct SCCs: vertices of SCC quotient graph
 	for (size_t idx = 0; idx < sccs.size(); ++idx) {
 		if (sccs[idx].size() > 1)
@@ -115,8 +115,8 @@ const vector<_path>& GSCC::find_all_paths() const {
  * @param is_uv
  * @param is_vu
  */
-void GSCC::build_E_in_GSCC(const list<vertex>& scc1, const size_t& u,
-		const list<vertex>& scc2, const size_t& v, bool& is_uv, bool& is_vu) {
+void GSCC::build_E_in_GSCC(const deque<vertex>& scc1, const size_t& u,
+		const deque<vertex>& scc2, const size_t& v, bool& is_uv, bool& is_vu) {
 	deque<edge> UV, VU;
 	for (auto iu = scc1.begin(); iu != scc1.end(); ++iu) {
 		for (auto iv = scc2.begin(); iv != scc2.end(); ++iv) {
@@ -161,7 +161,7 @@ SCC::SCC(const vertex& v) :
  * @param v: delegate
  * @param V: the set of vertices
  */
-SCC::SCC(const vertex& v, const list<vertex>& V) :
+SCC::SCC(const vertex& v, const deque<vertex>& V) :
 		is_TRIVIAL(false), is_NESTED(false), V_size(V.size()), v(v), E() {
 	this->is_NESTED = this->is_loop_nests(this->V_size, this->build_E(V));
 }
@@ -193,7 +193,7 @@ const size_V SCC::size() const {
  * @brief build the set of egdes E
  * @param V
  */
-uint SCC::build_E(const list<vertex>& V) {
+uint SCC::build_E(const deque<vertex>& V) {
 	uint size = 0;
 	for (auto iu = V.begin(); iu != V.end(); ++iu) {
 		for (auto iv = V.begin(); iv != V.end(); ++iv) {
