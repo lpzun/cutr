@@ -159,7 +159,7 @@ vec_expr FWS::path_summary(const _path& P) {
 		}
 	}
 #endif
-	return this->path_summary(P, las_level.front());
+	return this->slice_summary(P, las_level.front());
 }
 
 /**
@@ -168,7 +168,7 @@ vec_expr FWS::path_summary(const _path& P) {
  * @param permu
  * @return
  */
-vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
+vec_expr FWS::slice_summary(const _path& P, const deque<size_t>& permu) {
 	/// pfx: The vector of expressions: store prefix formula
 	/// 	 Range [0, l) store constraints for local states
 	///		 Range [l, l+s) store constraints for shared states

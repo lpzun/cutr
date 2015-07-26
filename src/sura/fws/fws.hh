@@ -60,7 +60,7 @@ private:
 
 	////// build path constraint
 	vec_expr path_summary(const _path& P);
-	vec_expr path_summary(const _path& path, const deque<size_t>& permu);
+	vec_expr slice_summary(const _path& path, const deque<size_t>& permu);
 
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta);
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
