@@ -53,7 +53,7 @@ inline Transition::Transition(const vertex& src, const vertex& dst,
 }
 
 inline ostream& Transition::to_stream(ostream& out) const {
-	out << mapping_TS[src] << " ";
+	out << Refs::mapping_TS[src] << " ";
 //	switch (type) {
 //	case type_T::EXPD:
 //		out << ":>";
@@ -69,7 +69,7 @@ inline ostream& Transition::to_stream(ostream& out) const {
 //		break;
 //	}
 	out << "->";
-	out << " " << mapping_TS[dst];
+	out << " " << Refs::mapping_TS[dst];
 	out << "\n";
 	return out;
 }

@@ -51,52 +51,51 @@ int main(const int argc, const char * const * const argv) {
 			return 0;
 		}
 
-		OPT_PRINT_DOT = cmd.arg_bool(PROB_INST_OPTS, "--ettd2dot");
-		OPT_PRINT_ADJ = cmd.arg_bool(PROB_INST_OPTS, "--adj-list");
+		Refs::OPT_PRINT_DOT = cmd.arg_bool(PROB_INST_OPTS, "--ettd2dot");
+		Refs::OPT_PRINT_ADJ = cmd.arg_bool(PROB_INST_OPTS, "--adj-list");
 
-		OPT_PRINT_PATH = cmd.arg_bool(EXP_MODE_OPTS, "--path");
-		IS_BWS_TREE = cmd.arg_bool(EXP_MODE_OPTS, "--bwstree");
-		OPT_COMPLETE = cmd.arg_bool(EXP_MODE_OPTS, "--complete");
-		OPT_BACKWARD = cmd.arg_bool(EXP_MODE_OPTS, "--backward");
-		OPT_SHARED = cmd.arg_bool(EXP_MODE_OPTS, "--shared");
+		Refs::OPT_PRINT_PATH = cmd.arg_bool(EXP_MODE_OPTS, "--path");
+		Refs::IS_BWS_TREE = cmd.arg_bool(EXP_MODE_OPTS, "--bwstree");
+		Refs::OPT_COMPLETE = cmd.arg_bool(EXP_MODE_OPTS, "--complete");
+		Refs::OPT_BACKWARD = cmd.arg_bool(EXP_MODE_OPTS, "--backward");
+		Refs::OPT_SHARED = cmd.arg_bool(EXP_MODE_OPTS, "--shared");
 
-		OPT_NOT_SIMPLE = cmd.arg_bool(OTHER_OPTS, "--nosimpl");
-		OPT_PRINT_ALL = cmd.arg_bool(OTHER_OPTS, "--all");
-		OPT_CONSTRAINT = cmd.arg_bool(OTHER_OPTS, "--cstr");
+		Refs::OPT_NOT_SIMPLE = cmd.arg_bool(OTHER_OPTS, "--nosimpl");
+		Refs::OPT_PRINT_ALL = cmd.arg_bool(OTHER_OPTS, "--all");
+		Refs::OPT_CONSTRAINT = cmd.arg_bool(OTHER_OPTS, "--cstr");
 
-		if (cmd.arg_bool(OTHER_OPTS, "--cmd-line") || OPT_PRINT_ALL) {
+		if (cmd.arg_bool(OTHER_OPTS, "--cmd-line") || Refs::OPT_PRINT_ALL) {
 			// TODO do something
 		}
-		const string filename = cmd.arg_value(PROB_INST_OPTS, "--input-file");
-		FILE_NAME_PREFIX = filename.substr(0, filename.find_last_of("."));
-		const string s_initial = cmd.arg_value(PROB_INST_OPTS, "--initial");
-		const string s_target = cmd.arg_value(PROB_INST_OPTS, "--target");
+		const string& filename = cmd.arg_value(PROB_INST_OPTS, "--input-file");
+		//Refs::FILE_NAME_PREFIX = filename.substr(0, filename.find_last_of("."));
+		const string& s_initl = cmd.arg_value(PROB_INST_OPTS, "--initial");
+		const string& s_final = cmd.arg_value(PROB_INST_OPTS, "--target");
 
 		// SMT_SOLVER = cmd.arg_value(PROB_INST_OPTS, "--smt-solver");
 
 		bool is_reachable = false;
-		const string mode = cmd.arg_value(EXP_MODE_OPTS, "--mode");
-		if (mode.compare(OPT_MODE_LDP) == 0) { /// logic decision alg.
+		const string& mode = cmd.arg_value(EXP_MODE_OPTS, "--mode");
+		if (mode.compare(OPT_MODE_LDP) == 0) { /// logic decision algorithm
 			Sura ursula;
 			is_reachable = ursula.symbolic_reachability_analysis(filename,
-					s_initial, s_target);
-			cout << "logical decision analysis is done!" << endl;
+					s_initl, s_final);
+			cout << "logical decision analysis is done! " << "\n";
 		} else if (mode.compare(OPT_MODE_FWS) == 0) { /// forward search alg.
-			cout << "forward search is done!" << endl;
+			cout << "forward search is done! " << "\n";
 		} else if (mode.compare(OPT_MODE_CON) == 0) { /// concurrent LDP&FWS
-			cout << "forward search join ... " << endl;
-			cout << "logical decision analysis join ... " << endl;
+			cout << "forward search join ... " << "\n";
+			cout << "logical decision analysis join ... " << "\n";
 		} else {
 			throw ural_rt_err("main: unknown mode");
 		}
 
 		cout << "======================================================\n";
-		cout << " " << FINAL_TS;
-		if (is_reachable) {
+		cout << " " << Refs::FINAL_TS;
+		if (is_reachable)
 			cout << " is reachable: verification failed!\n";
-		} else {
+		else
 			cout << " is unreachable: verification successful!\n";
-		}
 		cout << "======================================================"
 				<< endl;
 		return 0;

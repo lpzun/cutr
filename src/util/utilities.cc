@@ -24,7 +24,8 @@ Util::~Util() {
  * @param delim
  * @return
  */
-Thread_State Util::create_thread_state_from_str(const string& s_ts, const char& delim) {
+Thread_State Util::create_thread_state_from_str(const string& s_ts,
+		const char& delim) {
 	vector<string> vs_ts = PPRINT::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
 		throw("The format of thread state is wrong.");
@@ -38,13 +39,14 @@ Thread_State Util::create_thread_state_from_str(const string& s_ts, const char& 
  * @param delim
  * @return
  */
-Thread_State Util::create_thread_state_from_gs_str(const string& s_ts, const char& delim) {
+Thread_State Util::create_thread_state_from_gs_str(const string& s_ts,
+		const char& delim) {
 	auto vs_ts = PPRINT::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
 		throw ural_rt_err("The format of global state is wrong.");
 	}
 	auto vs_locals = PPRINT::split(vs_ts[1], ',');
-	TARGET_THR_NUM = vs_locals.size();
+	Refs::TARGET_THR_NUM = vs_locals.size();
 	return Thread_State(atol(vs_ts[0].c_str()), atol(vs_locals[0].c_str()));
 }
 /**
@@ -52,7 +54,8 @@ Thread_State Util::create_thread_state_from_gs_str(const string& s_ts, const cha
  * @param adjacency_list
  * @param out
  */
-void Util::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list, ostream& out) {
+void Util::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list,
+		ostream& out) {
 	out << Thread_State::L << " " << Thread_State::S << endl;
 	for (auto iu = adj_list.begin(); iu != adj_list.end(); ++iu)
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
@@ -64,13 +67,13 @@ void Util::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list,
  * @param adjacency_list
  * @param out
  */
-void Util::print_adj_list(const map<Thread_State, deque<Thread_State> >& adj_list, ostream& out) {
+void Util::print_adj_list(
+		const map<Thread_State, deque<Thread_State> >& adj_list, ostream& out) {
 	out << Thread_State::L << " " << Thread_State::S << endl;
 	for (auto iu = adj_list.begin(); iu != adj_list.end(); ++iu)
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
 			out << iu->first << " -> " << (*iv) << endl;
 }
-
 
 /**
  * @brief to generate the .dot file for TTD
@@ -120,14 +123,14 @@ void Util::print_adj_list(const map<Thread_State, deque<Thread_State> >& adj_lis
 //		fout.close();
 //	}
 //}
-
 /**
  * @brief remove the comments of .ttd files
  * @param in
  * @param filename
  * @param comment
  */
-void Parser::remove_comments(istream& in, const string& filename, const string& comment) {
+void Parser::remove_comments(istream& in, const string& filename,
+		const string& comment) {
 	ofstream out(filename.c_str());
 	remove_comments(in, out, comment);
 }
@@ -138,7 +141,8 @@ void Parser::remove_comments(istream& in, const string& filename, const string& 
  * @param out
  * @param comment
  */
-void Parser::remove_comments(const string& in, string& out, const string& comment) {
+void Parser::remove_comments(const string& in, string& out,
+		const string& comment) {
 	std::istringstream instream(in);
 	std::ostringstream outstream;
 	remove_comments(instream, outstream, comment);
@@ -149,7 +153,9 @@ void Parser::remove_comments(istream& in, ostream& out, const string& comment) {
 	string line;
 	while (getline(in, line = "")) {
 		const size_t comment_start = line.find(comment);
-		out << (comment_start == string::npos ? line : line.substr(0, comment_start)) << endl;
+		out
+				<< (comment_start == string::npos ?
+						line : line.substr(0, comment_start)) << endl;
 	}
 }
 

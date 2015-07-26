@@ -51,8 +51,8 @@ delta Ufun::compute_delta(const edge& ifx) {
  * @param e: an edge
  */
 void Ufun::update_counter(delta &d, const edge &e) {
-	d[mapping_TS[e.get_src()].get_local()]--;
-	d[mapping_TS[e.get_dst()].get_local()]++;
+	d[Refs::mapping_TS[e.get_src()].get_local()]--;
+	d[Refs::mapping_TS[e.get_dst()].get_local()]++;
 }
 
 /**

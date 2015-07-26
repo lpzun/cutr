@@ -8,33 +8,46 @@
 #include "refs.hh"
 
 namespace sura {
-bool OPT_SIMPLIFIED = false;
-bool OPT_NOT_SIMPLE = false;
 
-bool IS_BWS_TREE = false;
-bool OPT_COMPLETE = false;
-bool OPT_BACKWARD = false;
-bool OPT_SHARED = false;
-bool OPT_PRINT_PATH = false;
-bool OPT_CONSTRAINT = false;
+Refs::Refs() {
 
-bool OPT_PRINT_DOT = false;
-bool OPT_PRINT_ADJ = false;
-bool OPT_PRINT_CMD = false;
-bool OPT_PRINT_ALL = false;
+}
 
-ushort TARGET_THR_NUM = 1; /// default is 1
+Refs::~Refs() {
 
-string FILE_NAME_PREFIX = "";
+}
 
-Thread_State INITL_TS;
-Thread_State FINAL_TS;
+bool Refs::OPT_SIMPLIFIED = false;
+bool Refs::OPT_NOT_SIMPLE = false;
 
-adj_list original_TTD;
-adj_list spawntra_TTD;
+bool Refs::IS_BWS_TREE = false;
+bool Refs::OPT_COMPLETE = false;
+bool Refs::OPT_BACKWARD = false;
+bool Refs::OPT_SHARED = false;
+bool Refs::OPT_PRINT_PATH = false;
+bool Refs::OPT_CONSTRAINT = false;
 
-vector<Thread_State> mapping_TS;
-map<Thread_State, id_thread_state> activee_TS;
+bool Refs::OPT_PRINT_DOT = false;
+bool Refs::OPT_PRINT_ADJ = false;
+bool Refs::OPT_PRINT_CMD = false;
+bool Refs::OPT_PRINT_ALL = false;
 
-clock_t ELAPSED_TIME = clock();
+ushort Refs::TARGET_THR_NUM = 1; /// default is 1
+
+//string Refs::FILE_NAME_PREFIX = "";
+
+Thread_State Refs::INITL_TS;
+Thread_State Refs::FINAL_TS;
+
+adj_list Refs::original_TTD;
+adj_list Refs::spawntra_TTD;
+
+vector<Thread_State> Refs::mapping_TS;
+map<Thread_State, id_thread_state> Refs::activee_TS;
+
+clock_t Refs::ELAPSED_TIME = clock();
+
+uint Refs::INITL_N = 1;
+uint Refs::SPAWN_Z = 0;
+
 } /* namespace SURA */

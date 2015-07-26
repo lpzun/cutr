@@ -15,6 +15,11 @@ vertex FINAL_V = 0;
 vertex INITL_SCC = 0;
 vertex FINAL_SCC = 0;
 
+/**
+ * @brief constructor
+ * @param V  : size of vertices
+ * @param Adj: adjacency list
+ */
 Graph::Graph(const size_V& V, const adj_list& Adj) :
 		V(V), Adj(Adj), scc_id(0), sccs() {
 	this->sccs.reserve(V);

@@ -214,6 +214,9 @@ Cmd_Line create_argument_list() {
 	cmd.add_switch(EXP_MODE_OPTS, "-cmp", "--complete", "verification via a complete approach");
 	cmd.add_switch(EXP_MODE_OPTS, "-bws", "--backward", "backward search based encoding (default=false)");
 	cmd.add_switch(EXP_MODE_OPTS, "-sh", "--shared", "shared states based constraints (default=false)");
+	//TODO might remove it in future
+//	cmd.add_switch(EXP_MODE_OPTS, "-n", "--initial-threads", "the number of threads at initial state");
+//	cmd.add_switch(EXP_MODE_OPTS, "-z", "--spawn-threads", "the maximal number of spawn threads");
 
 	/// SMT Solver options
 	//DBG_STD(cmd.add_option(SMT_SOLVER_OPTS, "-smt", "--smt-solver", "set the SMT Solver to be used", "z3"));
@@ -240,9 +243,9 @@ string create_version_info() {
 	.append("----------------------------------------------------------------------------------\n") ///
 	.append("* *                      Unbounded-Thread Reachability via                     * *\n") ///
 	.append("* *                   Symbolic Execution and Loop Acceleration                 * *\n")	///
-	.append("* *                         Peizun Liu and Thomas Wahl                         * *\n") ///
+	.append("* *                         Thomas Wahl's Research Group                       * *\n") ///
 	.append("* *                    Northeastern University, United States                  * *\n") ///
-	.append("* *                                                   Build Date:  ").append( __DATE__).append(" * *\n").append(
+	.append("* *                                         Build Time: ").append( __DATE__).append(
 			" @ ").append(__TIME__).append(" * *\n") ///
 	.append("----------------------------------------------------------------------------------\n");
 	return info;

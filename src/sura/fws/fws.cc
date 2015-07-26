@@ -26,7 +26,7 @@ string FWS::x_affix = "x"; /// prefix for marking equation variables
 
 /// counter variable for initial local state
 expr FWS::n_0 = ctx.int_const(
-		(n_affix + std::to_string(INITL_TS.get_local())).c_str());
+		(n_affix + std::to_string(Refs::INITL_TS.get_local())).c_str());
 
 uint FWS::max_n = 0;  /// maximal number of initial   threads in max path
 uint FWS::max_z = 0;  /// maximal number of spawn transitions in max path
@@ -104,7 +104,7 @@ bool FWS::path_reachability(const _path& P, const ushort& id_P) {
 		solver_P[id_P]->add(
 				ctx.int_const((x_affix + std::to_string(idx)).c_str()) >= 0);
 
-	auto phi = this->path_summary(P);
+	const auto &phi = this->path_summary(P);
 	/// add constraints
 	for (auto iphi = phi.begin(); iphi != phi.end(); ++iphi)
 		solver_P[id_P]->add(*iphi);
@@ -124,7 +124,7 @@ bool FWS::path_reachability(const _path& P, const ushort& id_P) {
 }
 
 /**
- * @brief encoding a path as a Presburger formula: forward version
+ * @brief encoding a SCC quotient path as a Presburger formula: forward version
  * @param p: a quotient path
  * @return vec_expr
  * 		a vector of constraint for all local and shared states
@@ -163,7 +163,7 @@ vec_expr FWS::path_summary(const _path& P) {
 }
 
 /**
- * @brief
+ * @brief encoding a SCC quotient path as a Presburger formula: forward version
  * @param P
  * @param permu
  * @return
@@ -173,13 +173,13 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 	/// 	 Range [0, l) store constraints for local states
 	///		 Range [l, l+s) store constraints for shared states
 	vec_expr pfx(Thread_State::L + Thread_State::S, ctx.int_val(0));
-	pfx[INITL_TS.get_local()] = n_0;
+	pfx[Refs::INITL_TS.get_local()] = n_0;
 
 	/// phi: The vector of expressions: store path summary constraints
 	/// 	 Range [0, l) store constraints for local states
 	///		 Range [l, l+s) store constraints for shared states
 	vec_expr phi(Thread_State::L + Thread_State::S, ctx.bool_val(true));
-	phi[INITL_TS.get_local()] = n_0 > 1; /// constraint n_0 > 1
+	phi[Refs::INITL_TS.get_local()] = n_0 > 1; /// constraint n_0 > 1
 
 	/// reset spawn expression
 	sum_z = ctx.int_val(0);
@@ -241,8 +241,8 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 				/// assemble C_L constraints
 				this->assemble(pfx, phi, is_append);
 				/// assemble C_S constraints
-				this->assemble(pfx, phi, mapping_TS[en].get_share(),
-						mapping_TS[ex].get_share(), is_append);
+				this->assemble(pfx, phi, Refs::mapping_TS[en].get_share(),
+						Refs::mapping_TS[ex].get_share(), is_append);
 			}
 		}
 		/// append the ipos^th transition between current SCC and its successor
@@ -254,8 +254,9 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 	auto ifx_d = Ufun::compute_delta(infix);
 	this->assemble(pfx, phi, ifx_d);
 	/// n_f >= 1
-	phi[FINAL_TS.get_local()] = phi[FINAL_TS.get_local()]
-			&& (pfx[FINAL_TS.get_local()] + ifx_d[FINAL_TS.get_local()] >= 1);
+	phi[Refs::FINAL_TS.get_local()] = phi[Refs::FINAL_TS.get_local()]
+			&& (pfx[Refs::FINAL_TS.get_local()]
+					+ ifx_d[Refs::FINAL_TS.get_local()] >= 1);
 
 	/// build spawn expression to summarize spawn transitions
 	sum_z = sum_z + ctx.int_val(con_z);
@@ -384,8 +385,8 @@ vector<bool> FWS::append_marking_equation(vec_expr &pfx, const SCC &scc) {
 		}
 
 		/// define C_S constraints
-		const auto& s_src = mapping_TS[itran->get_src()].get_share(); /// shared state of      source TS
-		const auto& s_dst = mapping_TS[itran->get_dst()].get_share(); /// shared state of destination TS
+		const auto& s_src = Refs::mapping_TS[itran->get_src()].get_share(); /// shared state of      source TS
+		const auto& s_dst = Refs::mapping_TS[itran->get_dst()].get_share(); /// shared state of destination TS
 		if (s_src != s_dst) {
 			pfx[Thread_State::L + s_src] = pfx[Thread_State::L + s_src] - x; /// incoming - x
 			if (!is_append[Thread_State::L + s_src])
@@ -519,7 +520,7 @@ bool FWS::solicit_for_CEGAR() {
 bool FWS::check_reach_with_fixed_threads(const uint& n, const uint& z) {
 	auto spw = z;
 	queue<Global_State, deque<Global_State>> W; /// worklist
-	W.emplace(INITL_TS, n); /// start from the initial state with n threads
+	W.emplace(Refs::INITL_TS, n); /// start from the initial state with n threads
 	set<Global_State> R; /// reachable global states
 	while (!W.empty()) {
 		Global_State tau = W.front();
@@ -528,14 +529,14 @@ bool FWS::check_reach_with_fixed_threads(const uint& n, const uint& z) {
 		for (auto il = tau.get_locals().begin(); il != tau.get_locals().end();
 				++il) {
 			const Thread_State src(shared, il->first); /// source TS
-			if (src != FINAL_TS) {
-				auto isrc = activee_TS.find(src); /// get the id of source TS
-				if (isrc != activee_TS.end()) {
-					auto ifind = original_TTD.find(isrc->second);
-					if (ifind != original_TTD.end()) {
+			if (src != Refs::FINAL_TS) {
+				auto isrc = Refs::activee_TS.find(src); /// get the id of source TS
+				if (isrc != Refs::activee_TS.end()) {
+					auto ifind = Refs::original_TTD.find(isrc->second);
+					if (ifind != Refs::original_TTD.end()) {
 						for (auto idst = ifind->second.begin();
 								idst != ifind->second.end(); ++idst) {
-							const auto &dst = mapping_TS[*idst]; /// destination TS
+							const auto &dst = Refs::mapping_TS[*idst]; /// destination TS
 							Locals locals;
 							if (ETTD::spaw_R[isrc->second][*idst]) { /// if src +> dst
 								if (spw > 0) {
@@ -642,9 +643,9 @@ void FWS::reproduce_witness_path(const shared_ptr<Global_State>& pi,
  * 		false: otherwise
  */
 bool FWS::is_initial_state(const Global_State &tau) {
-	if (tau.get_share() == INITL_TS.get_share()) {
+	if (tau.get_share() == Refs::INITL_TS.get_share()) {
 		if (tau.get_locals().size() == 1) {
-			if (tau.get_locals().begin()->first == INITL_TS.get_local()
+			if (tau.get_locals().begin()->first == Refs::INITL_TS.get_local()
 					&& tau.get_locals().begin()->second > 0)
 				return true;
 		}

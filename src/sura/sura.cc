@@ -27,15 +27,15 @@ Sura::~Sura() {
  */
 bool Sura::symbolic_reachability_analysis(const string& filename,
 		const string& initl_ts, const string& final_ts) {
-	INITL_TS = this->parse_input_tss(initl_ts);
-	FINAL_TS = this->parse_input_tss(final_ts);
+	Refs::INITL_TS = this->parse_input_tss(initl_ts);
+	Refs::FINAL_TS = this->parse_input_tss(final_ts);
 
 	/// if initial thread state is equal to final thread state,
 	/// then return true
-	if (INITL_TS == FINAL_TS)
+	if (Refs::INITL_TS == Refs::FINAL_TS)
 		return true;
-
-	return this->reachability_as_logic_decision(original_TTD,
+//	return this->fws(Refs::INITL_N, Refs::SPAWN_Z);
+	return this->reachability_as_logic_decision(Refs::original_TTD,
 			parse_input_ttd(filename));
 }
 
@@ -57,13 +57,13 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// remove comments
 
 		new_in >> Thread_State::S >> Thread_State::L;
-		mapping_TS.reserve(Thread_State::S * Thread_State::L);
+		Refs::mapping_TS.reserve(Thread_State::S * Thread_State::L);
 
 		id_thread_state id_TS = 0; /// the id of thread state
 
 		/// setting the initial vertex
-		mapping_TS.emplace_back(INITL_TS);
-		activee_TS.emplace(INITL_TS, id_TS);
+		Refs::mapping_TS.emplace_back(Refs::INITL_TS);
+		Refs::activee_TS.emplace(Refs::INITL_TS, id_TS);
 		INITL_V = id_TS++;
 
 		/// store all outgoing vertices from same shared state
@@ -79,35 +79,35 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
 			DBG_STD(
 					cout << s1 << " " << l1 << " -> " << s2 << " " << l2
-							<< "\n")
+					<< "\n")
 			if (l1 == l2) /// remove self loops and vertical transitions
 				continue;
 			if (sep == "->" || sep == "+>") {
 				const Thread_State src_TS(s1, l1);
 				/// see if (s1, l1) is already found
-				auto ifind = activee_TS.find(src_TS);
-				if (ifind != activee_TS.end()) {
+				auto ifind = Refs::activee_TS.find(src_TS);
+				if (ifind != Refs::activee_TS.end()) {
 					src = ifind->second;
 				} else {
 					src = id_TS++;
-					mapping_TS.emplace_back(src_TS);
-					activee_TS.emplace(src_TS, src);
+					Refs::mapping_TS.emplace_back(src_TS);
+					Refs::activee_TS.emplace(src_TS, src);
 				}
 
 				const Thread_State dst_TS(s2, l2);
 				/// see if (s2, l2) is already found
-				ifind = activee_TS.find(dst_TS);
-				if (ifind != activee_TS.end()) {
+				ifind = Refs::activee_TS.find(dst_TS);
+				if (ifind != Refs::activee_TS.end()) {
 					dst = ifind->second;
 				} else {
 					dst = id_TS++;
-					mapping_TS.emplace_back(dst_TS);
-					activee_TS.emplace(dst_TS, dst);
+					Refs::mapping_TS.emplace_back(dst_TS);
+					Refs::activee_TS.emplace(dst_TS, dst);
 				}
 
 				if (sep == "+>")
-					spawntra_TTD[src].emplace_back(dst);
-				original_TTD[src].emplace_back(dst);
+					Refs::spawntra_TTD[src].emplace_back(dst);
+				Refs::original_TTD[src].emplace_back(dst);
 				if (s1 != s2) {
 					s_in_out[s1].second.emplace(src);
 					s_in_out[s2].first.emplace(dst);
@@ -118,19 +118,19 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		}
 		new_in.close();
 		org_in.close();
-		mapping_TS.shrink_to_fit();
+		Refs::mapping_TS.shrink_to_fit();
 
 		/// setting the final vertex
-		auto ifind = activee_TS.find(FINAL_TS);
-		if (ifind != activee_TS.end()) {
+		auto ifind = Refs::activee_TS.find(Refs::FINAL_TS);
+		if (ifind != Refs::activee_TS.end()) {
 			FINAL_V = ifind->second;
 		} else {
-			mapping_TS.emplace_back(FINAL_TS);
-			activee_TS.emplace(FINAL_TS, id_TS);
+			Refs::mapping_TS.emplace_back(Refs::FINAL_TS);
+			Refs::activee_TS.emplace(Refs::FINAL_TS, id_TS);
 			FINAL_V = id_TS;
 		}
 
-		s_in_out[FINAL_TS.get_share()].second.emplace(FINAL_V);
+		s_in_out[Refs::FINAL_TS.get_share()].second.emplace(FINAL_V);
 
 #ifndef NDEBUG
 		cout << __func__ << "\n";
@@ -163,14 +163,14 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		cout << endl;
 #endif
 
-		if (OPT_PRINT_ADJ || OPT_PRINT_ALL) {
+		if (Refs::OPT_PRINT_ADJ || Refs::OPT_PRINT_ALL) {
 			cout << "The original TTD:" << endl;
-			for (auto isrc = original_TTD.begin(); isrc != original_TTD.end();
-					++isrc) {
+			for (auto isrc = Refs::original_TTD.begin();
+					isrc != Refs::original_TTD.end(); ++isrc) {
 				for (auto idst = isrc->second.begin();
 						idst != isrc->second.end(); ++idst) {
-					cout << mapping_TS[isrc->first] << " -> "
-							<< mapping_TS[*idst] << " ";
+					cout << Refs::mapping_TS[isrc->first] << " -> "
+							<< Refs::mapping_TS[*idst] << " ";
 					cout << isrc->first << " -> " << *idst << "\n";
 				}
 			}
@@ -209,13 +209,12 @@ Thread_State Sura::parse_input_tss(const string& str_ts) {
  */
 bool Sura::reachability_as_logic_decision(const adj_list& TTD,
 		const vector<inout>& s_in_out) {
-	ELAPSED_TIME = clock() - ELAPSED_TIME;
+	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
 
-	Graph g(mapping_TS.size(), TTD);
+	Graph g(Refs::mapping_TS.size(), TTD);
 	if (g.is_reachable(INITL_V, FINAL_V))
 		return true;
 	ETTD ettd(TTD, s_in_out);
-	DBG_LOC();
 #ifndef NDEBUG
 	cout << "print out ETTD and expanded transitions:\n";
 	ettd.print_expanded_TTD();
@@ -245,8 +244,8 @@ bool Sura::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
 	const auto& paths = p_gscc->find_all_paths();
 	auto size_P = paths.size();
 	if (size_P < 1) {
-		cout << "There is no path between " << INITL_TS << " and " << FINAL_TS
-				<< endl;
+		cout << "There is no path between " << Refs::INITL_TS << " and "
+				<< Refs::FINAL_TS << endl;
 	}
 
 	FWS fws(size_P, p_gscc);

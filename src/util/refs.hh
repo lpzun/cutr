@@ -8,39 +8,49 @@
 #ifndef REFS_HH_
 #define REFS_HH_
 
-#include "graph.hh"
 #include "state.hh"
-
+#include "graph.hh"
 namespace sura {
-extern bool OPT_PRINT_ALL;
-extern bool OPT_PRINT_DOT;
-extern bool OPT_SIMPLIFIED;
-extern bool OPT_PRINT_CMD;
-extern bool OPT_NOT_SIMPLE;
-extern bool IS_BWS_TREE;
-extern bool OPT_PRINT_PATH;
-extern bool OPT_CONSTRAINT;
-extern bool OPT_PRINT_ADJ;
-extern bool OPT_COMPLETE;
-extern bool OPT_BACKWARD;
-extern bool OPT_SHARED;
 
-extern ushort TARGET_THR_NUM;
+typedef unsigned int vertex;
 
-extern string FILE_NAME_PREFIX;
+class Refs {
+public:
+	Refs();
+	~Refs();
 
-extern Thread_State INITL_TS;
-extern Thread_State FINAL_TS;
+	static bool OPT_PRINT_ALL;
+	static bool OPT_PRINT_DOT;
+	static bool OPT_SIMPLIFIED;
+	static bool OPT_PRINT_CMD;
+	static bool OPT_NOT_SIMPLE;
+	static bool IS_BWS_TREE;
+	static bool OPT_PRINT_PATH;
+	static bool OPT_CONSTRAINT;
+	static bool OPT_PRINT_ADJ;
+	static bool OPT_COMPLETE;
+	static bool OPT_BACKWARD;
+	static bool OPT_SHARED;
 
-extern adj_list original_TTD;
-extern adj_list spawntra_TTD;
+	static ushort TARGET_THR_NUM;
 
-extern vector<Thread_State> mapping_TS;
-extern map<Thread_State, id_thread_state> activee_TS;
+//	static string FILE_NAME_PREFIX;
 
-/// global variable for elapsed time
-extern clock_t ELAPSED_TIME;
+	static Thread_State INITL_TS;
+	static Thread_State FINAL_TS;
 
+	static adj_list original_TTD;
+	static adj_list spawntra_TTD;
+
+	static vector<Thread_State> mapping_TS;
+	static map<Thread_State, id_thread_state> activee_TS;
+
+	static uint INITL_N;
+	static uint SPAWN_Z;
+
+	/// global variable for elapsed time
+	static clock_t ELAPSED_TIME;
+};
 } /* namespace SURA */
 
 #endif /* REFS_HH_ */

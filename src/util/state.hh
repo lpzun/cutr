@@ -8,7 +8,6 @@
 #ifndef STATE_HH_
 #define STATE_HH_
 
-#include "heads.hh"
 #include "algs.hh"
 
 namespace sura {

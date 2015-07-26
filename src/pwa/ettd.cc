@@ -16,7 +16,7 @@ matrix ETTD::spaw_R;
 matrix ETTD::expd_R;
 
 ETTD::ETTD(const adj_list& TTD, const vector<inout>& s_in_out) :
-		V(mapping_TS.size()), expanded_TTD(TTD) {
+		V(Refs::mapping_TS.size()), expanded_TTD(TTD) {
 	this->build_real_R();
 	this->build_ETTD(TTD, s_in_out);
 }
@@ -47,13 +47,15 @@ size_V ETTD::get_V() const {
 void ETTD::build_real_R() {
 	/// setting real  transition mark
 	real_R = vector<vector<bool>>(V, vector<bool>(V, false));
-	for (auto iu = original_TTD.begin(); iu != original_TTD.end(); ++iu)
+	for (auto iu = Refs::original_TTD.begin(); iu != Refs::original_TTD.end();
+			++iu)
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
 			real_R[iu->first][*iv] = true;
 
 	/// setting spawn transition mark
 	spaw_R = vector<vector<bool>>(V, vector<bool>(V, false));
-	for (auto iu = spawntra_TTD.begin(); iu != spawntra_TTD.end(); ++iu)
+	for (auto iu = Refs::spawntra_TTD.begin(); iu != Refs::spawntra_TTD.end();
+			++iu)
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
 			spaw_R[iu->first][*iv] = true;
 }
@@ -98,7 +100,7 @@ bool ETTD::is_real_trans(const vertex& u, const vertex& v) {
  * 			false: otherwise
  */
 bool ETTD::is_horizontal(const vertex& u, const vertex& v) {
-	return mapping_TS[u].get_share() == mapping_TS[v].get_share();
+	return Refs::mapping_TS[u].get_share() == Refs::mapping_TS[v].get_share();
 }
 
 /////////////////////////////////for test//////////////////////////////////////
@@ -108,8 +110,8 @@ void ETTD::print_expanded_TTD() {
 	for (auto isrc = expanded_TTD.begin(); isrc != expanded_TTD.end(); ++isrc)
 		for (auto idst = isrc->second.begin(); idst != isrc->second.end();
 				++idst)
-			cout << mapping_TS[isrc->first] << " -> " << mapping_TS[*idst]
-					<< "\n";
+			cout << Refs::mapping_TS[isrc->first] << " -> "
+					<< Refs::mapping_TS[*idst] << "\n";
 	cout << endl;
 }
 
@@ -117,11 +119,14 @@ void ETTD::print_transitions() {
 	for (size_t i = 0; i < V; ++i)
 		for (size_t j = 0; j < V; ++j)
 			if (real_R[i][j])
-				cout << mapping_TS[i] << " -> " << mapping_TS[j] << "\n";
+				cout << Refs::mapping_TS[i] << " -> " << Refs::mapping_TS[j]
+						<< "\n";
 			else if (expd_R[i][j])
-				cout << mapping_TS[i] << " :> " << mapping_TS[j] << "\n";
+				cout << Refs::mapping_TS[i] << " :> " << Refs::mapping_TS[j]
+						<< "\n";
 			else if (spaw_R[i][j])
-				cout << mapping_TS[i] << " +> " << mapping_TS[j] << "\n";
+				cout << Refs::mapping_TS[i] << " +> " << Refs::mapping_TS[j]
+						<< "\n";
 	cout << endl;
 }
 
