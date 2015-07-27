@@ -17,6 +17,7 @@ class Transition {
 public:
 	static id_tran ID;
 
+	inline Transition(const Transition& t);
 	inline Transition(const vertex& src, const vertex& dst);
 	inline Transition(const vertex& src, const vertex& dst, const id_tran& id);
 	virtual ~Transition() {
@@ -42,12 +43,16 @@ private:
 	id_tran id;
 };
 
+inline Transition::Transition(const Transition& t) :
+		src(t.src), dst(t.dst), id(t.id) {
+
+}
+
 inline Transition::Transition(const vertex& src, const vertex& dst) :
 		src(src), dst(dst), id(0) {
 }
 
-inline Transition::Transition(const vertex& src, const vertex& dst,
-		const id_tran& id) :
+inline Transition::Transition(const vertex& src, const vertex& dst, const id_tran& id) :
 		src(src), dst(dst), id(id) {
 
 }

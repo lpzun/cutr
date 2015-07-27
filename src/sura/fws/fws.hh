@@ -18,9 +18,13 @@ using namespace z3;
 namespace sura {
 
 /// Aliasing unordered_map<ushort, expr> as map_expr
-typedef unordered_map<ushort, expr> map_expr;
+using map_expr = unordered_map<ushort, expr>;
 /// Aliasing vector<expr> as vec_expr
-typedef vector<expr> vec_expr;
+using vec_expr = vector<expr>;
+
+enum class result {
+	reach = 0, unreach = 1, unknown = 2
+};
 
 class FWS {
 public:
@@ -56,8 +60,8 @@ private:
 	vector<bool> sat_P;      /// mark which path is satisfiable
 	set<id_tran> spaw_vars;  /// store the IDs of spawn transitions
 
-	bool quotient_path_reachability(const _path& P);
-	bool path_reachability(const vec_expr& phi, const ushort& id_P);
+	result quotient_path_reachability(const _path& P);
+	result path_reachability(const vec_expr& phi, const ushort& id_P);
 	//bool path_reachability(const _path& P, const ushort& id_P);
 
 	////// build path constraint
@@ -65,17 +69,14 @@ private:
 	vec_expr path_summary(const _path& path, const deque<size_t>& permu);
 
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta);
-	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
-			const expr &k);
-	void assemble(const vec_expr &pfx, vec_expr &phi,
-			const vector<bool> &is_append);
-	void assemble(const vec_expr &pfx, vec_expr &phi,
-			const Shared_State &s_entr, const Shared_State &s_exit,
+	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta, const expr &k);
+	void assemble(const vec_expr &pfx, vec_expr &phi, const vector<bool> &is_append);
+	void assemble(const vec_expr &pfx, vec_expr &phi, const Shared_State &s_entr, const Shared_State &s_exit,
 			const vector<bool> &is_append);
 
 	vector<bool> append_marking_equation(vec_expr &pfx, const SCC &scc);
 
-	bool check_sat_via_smt_solver(shared_ptr<solver>& s);
+	result check_sat_via_smt_solver(shared_ptr<solver>& s);
 	bool parse_sat_solution(const model& m);
 	bool is_spawn_variable(const string& v);
 	uint get_z3_const_uint(const expr& e);
@@ -84,11 +85,9 @@ private:
 
 	bool check_reach_with_fixed_threads(const uint& n, const uint& z);
 	Locals update_counter(const Locals &Z, const ushort &inc);
-	Locals update_counter(const Locals &Z, const Local_State &dec,
-			const Local_State &inc);
+	Locals update_counter(const Locals &Z, const Local_State &dec, const Local_State &inc);
 
-	void reproduce_witness_path(const shared_ptr<Global_State>& pi,
-			const set<Global_State> &R);
+	void reproduce_witness_path(const shared_ptr<Global_State>& pi, const set<Global_State> &R);
 	bool is_initial_state(const Global_State &tau);
 };
 
