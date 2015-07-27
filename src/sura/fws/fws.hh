@@ -56,11 +56,13 @@ private:
 	vector<bool> sat_P;      /// mark which path is satisfiable
 	set<id_tran> spaw_vars;  /// store the IDs of spawn transitions
 
-	bool path_reachability(const _path& P, const ushort& id_P);
+	bool quotient_path_reachability(const _path& P);
+	bool path_reachability(const vec_expr& phi, const ushort& id_P);
+	//bool path_reachability(const _path& P, const ushort& id_P);
 
 	////// build path constraint
-	vec_expr path_summary(const _path& P);
-	vec_expr slice_summary(const _path& path, const deque<size_t>& permu);
+//	vec_expr path_summary(const _path& P);
+	vec_expr path_summary(const _path& path, const deque<size_t>& permu);
 
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta);
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
@@ -74,7 +76,7 @@ private:
 	vector<bool> append_marking_equation(vec_expr &pfx, const SCC &scc);
 
 	bool check_sat_via_smt_solver(shared_ptr<solver>& s);
-	void parse_sat_solution(const model& m);
+	bool parse_sat_solution(const model& m);
 	bool is_spawn_variable(const string& v);
 	uint get_z3_const_uint(const expr& e);
 

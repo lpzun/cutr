@@ -10,12 +10,11 @@
 #ifndef DEBUG_HH_
 #define DEBUG_HH_
 
-//#define NDEBUG
+#define NDEBUG
 
 #ifndef NDEBUG
-#define NDEBUG
-#else
 #define DEBUG_MODE
+#else
 #endif
 
 #ifdef DEBUG_MODE
