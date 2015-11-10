@@ -25,16 +25,16 @@ Sura::~Sura() {
  * @param final_ts: final   thread state
  * @return
  */
-bool Sura::symbolic_reachability_analysis(const string& filename, const string& initl_ts, const string& final_ts) {
+bool Sura::symbolic_reachability_analysis(const string& filename,
+		const string& initl_ts, const string& final_ts) {
 	Refs::INITL_TS = this->parse_input_tss(initl_ts);
 	Refs::FINAL_TS = this->parse_input_tss(final_ts);
-
 	/// if initial thread state is equal to final thread state,
 	/// then return true
 	if (Refs::INITL_TS == Refs::FINAL_TS)
 		return true;
-//	return this->fws(Refs::INITL_N, Refs::SPAWN_Z);
-	return this->reachability_as_logic_decision(Refs::original_TTD, parse_input_ttd(filename));
+	return this->reachability_as_logic_decision(Refs::original_TTD,
+			parse_input_ttd(filename));
 }
 
 /**
@@ -76,6 +76,8 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		string sep;                       /// separator
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
 			DBG_STD(cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n")
+			//if (s2 == Refs::FINAL_TS.get_share())
+				cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n"; // delete------------
 			if (l1 == l2) /// remove self loops and vertical transitions
 				continue;
 			if (sep == "->" || sep == "+>") {
@@ -115,7 +117,6 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		new_in.close();
 		org_in.close();
 		Refs::mapping_TS.shrink_to_fit();
-
 		/// setting the final vertex
 		auto ifind = Refs::activee_TS.find(Refs::FINAL_TS);
 		if (ifind != Refs::activee_TS.end()) {
@@ -159,9 +160,12 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 
 		if (Refs::OPT_PRINT_ADJ || Refs::OPT_PRINT_ALL) {
 			cout << "The original TTD:" << endl;
-			for (auto isrc = Refs::original_TTD.begin(); isrc != Refs::original_TTD.end(); ++isrc) {
-				for (auto idst = isrc->second.begin(); idst != isrc->second.end(); ++idst) {
-					cout << Refs::mapping_TS[isrc->first] << " -> " << Refs::mapping_TS[*idst] << " ";
+			for (auto isrc = Refs::original_TTD.begin();
+					isrc != Refs::original_TTD.end(); ++isrc) {
+				for (auto idst = isrc->second.begin();
+						idst != isrc->second.end(); ++idst) {
+					cout << Refs::mapping_TS[isrc->first] << " -> "
+							<< Refs::mapping_TS[*idst] << " ";
 					cout << isrc->first << " -> " << *idst << "\n";
 				}
 			}
@@ -198,7 +202,8 @@ Thread_State Sura::parse_input_tss(const string& str_ts) {
  * @param TTD
  * @return bool
  */
-bool Sura::reachability_as_logic_decision(const adj_list& TTD, const vector<inout>& s_in_out) {
+bool Sura::reachability_as_logic_decision(const adj_list& TTD,
+		const vector<inout>& s_in_out) {
 	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
 
 	Graph g(Refs::mapping_TS.size(), TTD);
@@ -210,7 +215,8 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD, const vector<inou
 	ettd.print_expanded_TTD();
 	ettd.print_transitions();
 #endif
-	shared_ptr<GSCC> p_gscc = std::make_shared<GSCC>(ettd.get_V(), ettd.get_expanded_TTD());
+	shared_ptr<GSCC> p_gscc = std::make_shared<GSCC>(ettd.get_V(),
+			ettd.get_expanded_TTD());
 #ifndef NDEBUG
 	cout << "print out all SCCs:\n";
 	for (auto i = p_gscc->get_sccs().begin(); i != p_gscc->get_sccs().end(); ++i) {
@@ -219,7 +225,8 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD, const vector<inou
 	}
 #endif
 	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
-	cout << "Build SCC quotient paths time: " << (double(Refs::ELAPSED_TIME)) / CLOCKS_PER_SEC << endl;
+	cout << "Build SCC quotient paths time: "
+			<< (double(Refs::ELAPSED_TIME)) / CLOCKS_PER_SEC << endl;
 	return this->path_wise_analysis(p_gscc);
 }
 
@@ -234,15 +241,19 @@ bool Sura::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
 	const auto& paths = p_gscc->find_all_paths();
 	auto size_P = paths.size();
 	if (size_P < 1) {
-		cout << "There is no path between " << Refs::INITL_TS << " and " << Refs::FINAL_TS << endl;
+		cout << "There is no path between " << Refs::INITL_TS << " and "
+				<< Refs::FINAL_TS << endl;
 		return false;
 	}
 	size_P = 0;
 	for (auto ipath = paths.begin(); ipath != paths.end(); ++ipath) {
 		size_t num = 1;
-		for (auto iscc = ipath->begin(); std::next(iscc) != ipath->end(); ++iscc) {
-			if (p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))] != nullptr)
-				num *= (p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))])->size();
+		for (auto iscc = ipath->begin(); std::next(iscc) != ipath->end();
+				++iscc) {
+			if (p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))]
+					!= nullptr)
+				num *=
+						(p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))])->size();
 		}
 		size_P += num;
 	}

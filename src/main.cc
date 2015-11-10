@@ -44,46 +44,55 @@ using namespace std;
  */
 int main(const int argc, const char * const * const argv) {
 	try {
-		Cmd_Line cmd = CMD::create_argument_list();
+		cmd_line cmd;
 		try {
 			cmd.get_command_line(argc, argv);
-		} catch (Cmd_Line::Help) {
+		} catch (cmd_line::Help) {
 			return 0;
 		}
+		Refs::OPT_PRINT_DOT = cmd.arg_bool(cmd_line::prob_inst_opts(),
+				"--ettd2dot");
+		Refs::OPT_PRINT_ADJ = cmd.arg_bool(cmd_line::prob_inst_opts(),
+				"--adj-list");
+		Refs::OPT_PRINT_PATH = cmd.arg_bool(cmd_line::exp_mode_opts(),
+				"--path");
+		Refs::IS_BWS_TREE = cmd.arg_bool(cmd_line::exp_mode_opts(),
+				"--bwstree");
+		Refs::OPT_COMPLETE = cmd.arg_bool(cmd_line::exp_mode_opts(),
+				"--complete");
+		Refs::OPT_BACKWARD = cmd.arg_bool(cmd_line::exp_mode_opts(),
+				"--backward");
+		Refs::OPT_SHARED = cmd.arg_bool(cmd_line::exp_mode_opts(), "--shared");
 
-		Refs::OPT_PRINT_DOT = cmd.arg_bool(PROB_INST_OPTS, "--ettd2dot");
-		Refs::OPT_PRINT_ADJ = cmd.arg_bool(PROB_INST_OPTS, "--adj-list");
+		Refs::OPT_NOT_SIMPLE = cmd.arg_bool(cmd_line::other_opts(),
+				"--nosimpl");
+		Refs::OPT_PRINT_ALL = cmd.arg_bool(cmd_line::other_opts(), "--all");
+		Refs::OPT_CONSTRAINT = cmd.arg_bool(cmd_line::other_opts(), "--cstr");
 
-		Refs::OPT_PRINT_PATH = cmd.arg_bool(EXP_MODE_OPTS, "--path");
-		Refs::IS_BWS_TREE = cmd.arg_bool(EXP_MODE_OPTS, "--bwstree");
-		Refs::OPT_COMPLETE = cmd.arg_bool(EXP_MODE_OPTS, "--complete");
-		Refs::OPT_BACKWARD = cmd.arg_bool(EXP_MODE_OPTS, "--backward");
-		Refs::OPT_SHARED = cmd.arg_bool(EXP_MODE_OPTS, "--shared");
-
-		Refs::OPT_NOT_SIMPLE = cmd.arg_bool(OTHER_OPTS, "--nosimpl");
-		Refs::OPT_PRINT_ALL = cmd.arg_bool(OTHER_OPTS, "--all");
-		Refs::OPT_CONSTRAINT = cmd.arg_bool(OTHER_OPTS, "--cstr");
-
-		if (cmd.arg_bool(OTHER_OPTS, "--cmd-line") || Refs::OPT_PRINT_ALL) {
+		if (cmd.arg_bool(cmd_line::other_opts(), "--cmd-line")
+				|| Refs::OPT_PRINT_ALL) {
 			// TODO do something
 		}
-		const string& filename = cmd.arg_value(PROB_INST_OPTS, "--input-file");
-		//Refs::FILE_NAME_PREFIX = filename.substr(0, filename.find_last_of("."));
-		const string& s_initl = cmd.arg_value(PROB_INST_OPTS, "--initial");
-		const string& s_final = cmd.arg_value(PROB_INST_OPTS, "--target");
+		const string& filename = cmd.arg_value(cmd_line::prob_inst_opts(),
+				"--input-file");
+		// Refs::FILE_NAME_PREFIX = filename.substr(0, filename.find_last_of("."));
+		const string& s_initl = cmd.arg_value(cmd_line::prob_inst_opts(),
+				"--initial");
+		const string& s_final = cmd.arg_value(cmd_line::prob_inst_opts(),
+				"--target");
 
 		// SMT_SOLVER = cmd.arg_value(PROB_INST_OPTS, "--smt-solver");
 
 		bool is_reachable = false;
-		const string& mode = cmd.arg_value(EXP_MODE_OPTS, "--mode");
-		if (mode.compare(OPT_MODE_LDP) == 0) { /// logic decision algorithm
+		const string& mode = cmd.arg_value(cmd_line::exp_mode_opts(), "--mode");
+		if (mode.compare(cmd_line::opt_mode_ldp()) == 0) { ///  logic decision algorithm
 			Sura ursula;
 			is_reachable = ursula.symbolic_reachability_analysis(filename,
 					s_initl, s_final);
 			cout << "logical decision analysis is done! " << "\n";
-		} else if (mode.compare(OPT_MODE_FWS) == 0) { /// forward search alg.
+		} else if (mode.compare(cmd_line::opt_mode_fws()) == 0) { /// forward search alg
 			cout << "forward search is done! " << "\n";
-		} else if (mode.compare(OPT_MODE_CON) == 0) { /// concurrent LDP&FWS
+		} else if (mode.compare(cmd_line::opt_mode_con()) == 0) { /// concurrent LDP&FWS
 			cout << "forward search join ... " << "\n";
 			cout << "logical decision analysis join ... " << "\n";
 		} else {
