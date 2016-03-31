@@ -17,11 +17,11 @@ class Util {
 public:
 	Util();
 	virtual ~Util();
-	static Thread_State create_thread_state_from_str(const string& s_ts, const char& delim = '|');
-	static Thread_State create_thread_state_from_gs_str(const string& s_ts, const char& delim = '|');
+	static thread_state create_thread_state_from_str(const string& s_ts, const char& delim = '|');
+	static thread_state create_thread_state_from_gs_str(const string& s_ts, const char& delim = '|');
 
-	static void print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list, ostream& out = cout);
-	static void print_adj_list(const map<Thread_State, deque<Thread_State> >& adj_list, ostream& out = cout);
+	static void print_adj_list(const map<thread_state, set<thread_state> >& adj_list, ostream& out = cout);
+	static void print_adj_list(const map<thread_state, deque<thread_state> >& adj_list, ostream& out = cout);
 
 //	static void output_ettd_to_dot_file(const string& filename, const list<Transition<Thread_State>>& transitions);
 };

@@ -36,14 +36,14 @@ public:
 
 //	static string FILE_NAME_PREFIX;
 
-	static Thread_State INITL_TS;
-	static Thread_State FINAL_TS;
+	static thread_state INITL_TS;
+	static thread_state FINAL_TS;
 
 	static adj_list original_TTD;
 	static adj_list spawntra_TTD;
 
-	static vector<Thread_State> mapping_TS;
-	static map<Thread_State, id_thread_state> activee_TS;
+	static vector<thread_state> mapping_TS;
+	static map<thread_state, id_thread_state> activee_TS;
 
 	static uint INITL_N;
 	static uint SPAWN_Z;

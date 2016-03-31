@@ -95,9 +95,9 @@ result FWS::quotient_path_reachability(const _path& P) {
 	for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc) {
 		cout << " => " << *iscc << " by ";
 		if (p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))] != nullptr)
-		for (const auto& t : *(p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(
-										iscc))]))
-		cout << t << " ";
+			for (const auto& t : *(p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(
+					iscc))]))
+				cout << t << " ";
 	}
 	cout << endl;
 #endif
@@ -128,7 +128,7 @@ result FWS::quotient_path_reachability(const _path& P) {
 //		for (auto ie = ip->begin(); ie != ip->end(); ++ie) {
 //			cout << *ie << "\n";
 //		}
-		cout<<"size "<<ip->size()<<"\n";
+		cout << "size " << ip->size() << "\n";
 	}
 #endif
 
@@ -189,10 +189,10 @@ result FWS::path_reachability(const vec_expr& phi, const ushort& id_P) {
 	cout << __func__ << " " << phi.size() << "\n";
 	unsigned i = 0;
 	for (auto iphi = phi.begin(); iphi != phi.end(); ++iphi, ++i) {
-		if (i < Thread_State::L)
-		cout << "l" << i << *iphi << "\n";
+		if (i < thread_state::L)
+			cout << "l" << i << *iphi << "\n";
 		else
-		cout << "s" << i - Thread_State::L << *iphi << "\n";
+			cout << "s" << i - thread_state::L << *iphi << "\n";
 	}
 #endif
 
@@ -209,13 +209,13 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 	/// pfx: The vector of expressions: store prefix formula
 	/// 	 Range [0, l) store constraints for local states
 	///		 Range [l, l+s) store constraints for shared states
-	vec_expr pfx(Thread_State::L + Thread_State::S, ctx.int_val(0));
+	vec_expr pfx(thread_state::L + thread_state::S, ctx.int_val(0));
 	pfx[Refs::INITL_TS.get_local()] = n_0;
 
 	/// phi: The vector of expressions: store path summary constraints
 	/// 	 Range [0, l) store constraints for local states
 	///		 Range [l, l+s) store constraints for shared states
-	vec_expr phi(Thread_State::L + Thread_State::S, ctx.bool_val(true));
+	vec_expr phi(thread_state::L + thread_state::S, ctx.bool_val(true));
 	phi[Refs::INITL_TS.get_local()] = n_0 > 1; /// constraint n_0 > 1
 
 	/// reset spawn expression
@@ -226,7 +226,7 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 #ifndef NDEBUG
 	cout << __func__ << "Iterator: \n";
 	for (auto ie = permu.begin(); ie != permu.end(); ++ie)
-	cout << *ie << "\n";
+		cout << *ie << "\n";
 	cout << endl;
 #endif
 
@@ -355,7 +355,7 @@ void FWS::assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
  */
 void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
 		const vector<bool> &is_append) {
-	for (auto i = 0; i < Thread_State::L; ++i)
+	for (auto i = 0; i < thread_state::L; ++i)
 		if (is_append[i])
 			phi[i] = phi[i] && pfx[i] >= 0;
 }
@@ -373,13 +373,13 @@ void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
  * @param is_append: mark whether the entries of C_L/C_S are updated or not
  */
 void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
-		const Shared_State &s_entr, const Shared_State &s_exit,
+		const shared_state &s_entr, const shared_state &s_exit,
 		const vector<bool> &is_append) {
-	for (auto i = Thread_State::L; i < Thread_State::L + Thread_State::S; ++i)
+	for (auto i = thread_state::L; i < thread_state::L + thread_state::S; ++i)
 		if (is_append[i]) {
-			if (s_entr != s_exit && i == Thread_State::S + s_entr)
+			if (s_entr != s_exit && i == thread_state::S + s_entr)
 				phi[i] = phi[i] && pfx[i] == -1;
-			else if (s_entr != s_exit && i == Thread_State::S + s_exit)
+			else if (s_entr != s_exit && i == thread_state::S + s_exit)
 				phi[i] = phi[i] && pfx[i] == 1;
 			else
 				phi[i] = phi[i] && pfx[i] == 0;
@@ -395,10 +395,10 @@ void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
  * 		  to mark to which is appended marking equations
  */
 vector<bool> FWS::append_marking_equation(vec_expr &pfx, const SCC &scc) {
-	vector<bool> is_append(Thread_State::L + Thread_State::S, false);
+	vector<bool> is_append(thread_state::L + thread_state::S, false);
 
 	/// reset prefix for shared constraints
-	for (auto i = Thread_State::L; i < Thread_State::L + Thread_State::S; ++i)
+	for (auto i = thread_state::L; i < thread_state::L + thread_state::S; ++i)
 		pfx[i] = ctx.int_val(0);
 
 	const auto& transitions = scc.get_E();
@@ -423,13 +423,13 @@ vector<bool> FWS::append_marking_equation(vec_expr &pfx, const SCC &scc) {
 		const auto& s_src = Refs::mapping_TS[itran->get_src()].get_share(); /// shared state of      source TS
 		const auto& s_dst = Refs::mapping_TS[itran->get_dst()].get_share(); /// shared state of destination TS
 		if (s_src != s_dst) {
-			pfx[Thread_State::L + s_src] = pfx[Thread_State::L + s_src] - x; /// incoming - x
-			if (!is_append[Thread_State::L + s_src])
-				is_append[Thread_State::L + s_src] = true;
+			pfx[thread_state::L + s_src] = pfx[thread_state::L + s_src] - x; /// incoming - x
+			if (!is_append[thread_state::L + s_src])
+				is_append[thread_state::L + s_src] = true;
 
-			pfx[Thread_State::L + s_dst] = pfx[Thread_State::L + s_dst] + x; /// outgoing + x
-			if (!is_append[Thread_State::L + s_dst])
-				is_append[Thread_State::L + s_dst] = true;
+			pfx[thread_state::L + s_dst] = pfx[thread_state::L + s_dst] + x; /// outgoing + x
+			if (!is_append[thread_state::L + s_dst])
+				is_append[thread_state::L + s_dst] = true;
 		}
 	}
 	return is_append;
@@ -446,7 +446,7 @@ result FWS::check_sat_via_smt_solver(shared_ptr<solver>& s) {
 	switch (s->check()) {
 	case sat:   /// if   sat
 		if (this->parse_sat_solution(s->get_model())) /// if max_n or max_z is updated
-			if (this->check_reach_with_fixed_threads(max_n, ++max_z)) /// if find out a witness
+			if (this->standard_FWS(max_n, ++max_z)) /// if find out a witness
 				return result::reach;
 		return result::unknown;
 	case unsat: /// if unsat
@@ -558,19 +558,18 @@ bool FWS::solicit_for_CEGAR() {
  * 		true : if there is a witness path
  * 		false: otherwise
  */
-bool FWS::check_reach_with_fixed_threads(const uint& n, const uint& z) {
-//	cout << "I am here ........................." << n << " " << z << endl;
+bool FWS::standard_FWS(const uint& n, const uint& z) {
 	auto spw = z;
-	queue<Global_State, deque<Global_State>> W; /// worklist
+	queue<global_state, deque<global_state>> W; /// worklist
 	W.emplace(Refs::INITL_TS, n); /// start from the initial state with n threads
-	set<Global_State> R; /// reachable global states
+	set<global_state> R; /// reachable global states
 	while (!W.empty()) {
-		Global_State tau = W.front();
+		global_state tau = W.front();
 		W.pop();
 		const ushort &shared = tau.get_share();
 		for (auto il = tau.get_locals().begin(); il != tau.get_locals().end();
 				++il) {
-			const Thread_State src(shared, il->first); /// source TS
+			const thread_state src(shared, il->first); /// source TS
 			if (src != Refs::FINAL_TS) {
 				auto isrc = Refs::activee_TS.find(src); /// get the id of source TS
 				if (isrc != Refs::activee_TS.end()) {
@@ -579,7 +578,7 @@ bool FWS::check_reach_with_fixed_threads(const uint& n, const uint& z) {
 						for (auto idst = ifind->second.begin();
 								idst != ifind->second.end(); ++idst) {
 							const auto &dst = Refs::mapping_TS[*idst]; /// destination TS
-							Locals locals;
+							ca_locals locals;
 							if (ETTD::spaw_R[isrc->second][*idst]) { /// if src +> dst
 								if (spw > 0) {
 									spw--;
@@ -615,7 +614,7 @@ bool FWS::check_reach_with_fixed_threads(const uint& n, const uint& z) {
  * @param inc: local state whose counter is incremented
  * @return local states after updating counters
  */
-Locals FWS::update_counter(const map<ushort, ushort> &Z, const ushort &inc) {
+ca_locals FWS::update_counter(const map<ushort, ushort> &Z, const ushort &inc) {
 	auto _Z = Z;   /// local copy of Z
 
 	auto iinc = _Z.find(inc);
@@ -635,8 +634,8 @@ Locals FWS::update_counter(const map<ushort, ushort> &Z, const ushort &inc) {
  * @return local states after updating counters
  * 		representing in counter abstraction
  */
-Locals FWS::update_counter(const Locals &Z, const Local_State &dec,
-		const Local_State &inc) {
+ca_locals FWS::update_counter(const ca_locals &Z, const local_state &dec,
+		const local_state &inc) {
 	if (dec == inc) /// if dec == inc, do nothing
 		return Z;
 
@@ -666,8 +665,8 @@ Locals FWS::update_counter(const Locals &Z, const Local_State &dec,
  * @param pi
  * @param R
  */
-void FWS::reproduce_witness_path(const shared_ptr<Global_State>& pi,
-		const set<Global_State> &R) {
+void FWS::reproduce_witness_path(const shared_ptr<global_state>& pi,
+		const set<global_state> &R) {
 	cout << *pi << endl; ///
 	if (pi == nullptr || this->is_initial_state(*pi)) {
 		cout << *pi << endl;
@@ -684,7 +683,7 @@ void FWS::reproduce_witness_path(const shared_ptr<Global_State>& pi,
  * 		true : if tau is a global state
  * 		false: otherwise
  */
-bool FWS::is_initial_state(const Global_State &tau) {
+bool FWS::is_initial_state(const global_state &tau) {
 	if (tau.get_share() == Refs::INITL_TS.get_share()) {
 		if (tau.get_locals().size() == 1) {
 			if (tau.get_locals().begin()->first == Refs::INITL_TS.get_local()

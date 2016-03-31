@@ -62,16 +62,14 @@ private:
 
 	result quotient_path_reachability(const _path& P);
 	result path_reachability(const vec_expr& phi, const ushort& id_P);
-	//bool path_reachability(const _path& P, const ushort& id_P);
 
 	////// build path constraint
-//	vec_expr path_summary(const _path& P);
 	vec_expr path_summary(const _path& path, const deque<size_t>& permu);
 
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta);
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta, const expr &k);
 	void assemble(const vec_expr &pfx, vec_expr &phi, const vector<bool> &is_append);
-	void assemble(const vec_expr &pfx, vec_expr &phi, const Shared_State &s_entr, const Shared_State &s_exit,
+	void assemble(const vec_expr &pfx, vec_expr &phi, const shared_state &s_entr, const shared_state &s_exit,
 			const vector<bool> &is_append);
 
 	vector<bool> append_marking_equation(vec_expr &pfx, const SCC &scc);
@@ -83,12 +81,12 @@ private:
 
 	bool solicit_for_CEGAR();
 
-	bool check_reach_with_fixed_threads(const uint& n, const uint& z);
-	Locals update_counter(const Locals &Z, const ushort &inc);
-	Locals update_counter(const Locals &Z, const Local_State &dec, const Local_State &inc);
+	bool standard_FWS(const uint& n, const uint& z);
+	ca_locals update_counter(const ca_locals &Z, const ushort &inc);
+	ca_locals update_counter(const ca_locals &Z, const local_state &dec, const local_state &inc);
 
-	void reproduce_witness_path(const shared_ptr<Global_State>& pi, const set<Global_State> &R);
-	bool is_initial_state(const Global_State &tau);
+	void reproduce_witness_path(const shared_ptr<global_state>& pi, const set<global_state> &R);
+	bool is_initial_state(const global_state &tau);
 };
 
 } /* namespace SURA */

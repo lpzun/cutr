@@ -24,13 +24,13 @@ Util::~Util() {
  * @param delim
  * @return
  */
-Thread_State Util::create_thread_state_from_str(const string& s_ts,
+thread_state Util::create_thread_state_from_str(const string& s_ts,
 		const char& delim) {
 	vector<string> vs_ts = PPRINT::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
 		throw("The format of thread state is wrong.");
 	}
-	return Thread_State(atol(vs_ts[0].c_str()), atol(vs_ts[1].c_str()));
+	return thread_state(atol(vs_ts[0].c_str()), atol(vs_ts[1].c_str()));
 }
 
 /**
@@ -39,7 +39,7 @@ Thread_State Util::create_thread_state_from_str(const string& s_ts,
  * @param delim
  * @return
  */
-Thread_State Util::create_thread_state_from_gs_str(const string& s_ts,
+thread_state Util::create_thread_state_from_gs_str(const string& s_ts,
 		const char& delim) {
 	auto vs_ts = PPRINT::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
@@ -47,16 +47,16 @@ Thread_State Util::create_thread_state_from_gs_str(const string& s_ts,
 	}
 	auto vs_locals = PPRINT::split(vs_ts[1], ',');
 	Refs::TARGET_THR_NUM = vs_locals.size();
-	return Thread_State(atol(vs_ts[0].c_str()), atol(vs_locals[0].c_str()));
+	return thread_state(atol(vs_ts[0].c_str()), atol(vs_locals[0].c_str()));
 }
 /**
  * @brief print all of the transitions in the thread-state transition diagram
  * @param adjacency_list
  * @param out
  */
-void Util::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list,
+void Util::print_adj_list(const map<thread_state, set<thread_state> >& adj_list,
 		ostream& out) {
-	out << Thread_State::L << " " << Thread_State::S << endl;
+	out << thread_state::L << " " << thread_state::S << endl;
 	for (auto iu = adj_list.begin(); iu != adj_list.end(); ++iu)
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
 			out << iu->first << " -> " << (*iv) << endl;
@@ -68,8 +68,8 @@ void Util::print_adj_list(const map<Thread_State, set<Thread_State> >& adj_list,
  * @param out
  */
 void Util::print_adj_list(
-		const map<Thread_State, deque<Thread_State> >& adj_list, ostream& out) {
-	out << Thread_State::L << " " << Thread_State::S << endl;
+		const map<thread_state, deque<thread_state> >& adj_list, ostream& out) {
+	out << thread_state::L << " " << thread_state::S << endl;
 	for (auto iu = adj_list.begin(); iu != adj_list.end(); ++iu)
 		for (auto iv = iu->second.begin(); iv != iu->second.end(); ++iv)
 			out << iu->first << " -> " << (*iv) << endl;

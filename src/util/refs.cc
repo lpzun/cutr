@@ -36,14 +36,14 @@ ushort Refs::TARGET_THR_NUM = 1; /// default is 1
 
 //string Refs::FILE_NAME_PREFIX = "";
 
-Thread_State Refs::INITL_TS;
-Thread_State Refs::FINAL_TS;
+thread_state Refs::INITL_TS;
+thread_state Refs::FINAL_TS;
 
 adj_list Refs::original_TTD;
 adj_list Refs::spawntra_TTD;
 
-vector<Thread_State> Refs::mapping_TS;
-map<Thread_State, id_thread_state> Refs::activee_TS;
+vector<thread_state> Refs::mapping_TS;
+map<thread_state, id_thread_state> Refs::activee_TS;
 
 clock_t Refs::ELAPSED_TIME = clock();
 

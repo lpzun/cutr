@@ -54,8 +54,8 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
 		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// remove comments
 
-		new_in >> Thread_State::S >> Thread_State::L;
-		Refs::mapping_TS.reserve(Thread_State::S * Thread_State::L);
+		new_in >> thread_state::S >> thread_state::L;
+		Refs::mapping_TS.reserve(thread_state::S * thread_state::L);
 
 		id_thread_state id_TS = 0; /// the id of thread state
 
@@ -68,10 +68,10 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		/// key is the shared state,
 		///        first  value is the set of incoming vertices
 		///        second value is the set of outgoing vertices
-		s_in_out = vector<inout>(Thread_State::S);
+		s_in_out = vector<inout>(thread_state::S);
 
-		Shared_State s1, s2;              /// shared states
-		Local_State l1, l2;               /// local  states
+		shared_state s1, s2;              /// shared states
+		local_state l1, l2;               /// local  states
 		id_thread_state src = 0, dst = 0; /// the id of thread state
 		string sep;                       /// separator
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
@@ -81,7 +81,7 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 			if (l1 == l2) /// remove self loops and vertical transitions
 				continue;
 			if (sep == "->" || sep == "+>") {
-				const Thread_State src_TS(s1, l1);
+				const thread_state src_TS(s1, l1);
 				/// see if (s1, l1) is already found
 				auto ifind = Refs::activee_TS.find(src_TS);
 				if (ifind != Refs::activee_TS.end()) {
@@ -92,7 +92,7 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 					Refs::activee_TS.emplace(src_TS, src);
 				}
 
-				const Thread_State dst_TS(s2, l2);
+				const thread_state dst_TS(s2, l2);
 				/// see if (s2, l2) is already found
 				ifind = Refs::activee_TS.find(dst_TS);
 				if (ifind != Refs::activee_TS.end()) {
@@ -179,8 +179,8 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
  * @brief parse the input initial and final thread state
  * @param str_ts: the thread state represented by string
  */
-Thread_State Sura::parse_input_tss(const string& str_ts) {
-	Thread_State ts;
+thread_state Sura::parse_input_tss(const string& str_ts) {
+	thread_state ts;
 	if (str_ts.find('|') != std::string::npos) {
 		ts = Util::create_thread_state_from_gs_str(str_ts);
 	} else { /// str_ts is store in a file

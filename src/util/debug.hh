@@ -10,7 +10,7 @@
 #ifndef DEBUG_HH_
 #define DEBUG_HH_
 
-#define NDEBUG
+//#define NDEBUG
 
 #ifndef NDEBUG
 #define DEBUG_MODE

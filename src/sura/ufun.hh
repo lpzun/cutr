@@ -21,8 +21,8 @@ public:
 	Ufun();
 	virtual ~Ufun();
 
-	static Locals update_counter(const Locals &Z, const Local_State &dec,
-			const Local_State &inc);
+	static ca_locals update_counter(const ca_locals &Z, const local_state &dec,
+			const local_state &inc);
 
 	static delta compute_delta(const deque<edge>& ifx);
 	static delta compute_delta(const edge& ifx);

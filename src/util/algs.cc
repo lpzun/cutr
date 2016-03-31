@@ -23,7 +23,8 @@ short compare(clong& x, clong& y) {
  * @param m1
  * @param m2
  */
-short compare_map(const map<ushort, ushort>& m1, const map<ushort, ushort>& m2) {
+short compare_map(const map<ushort, ushort>& m1,
+		const map<ushort, ushort>& m2) {
 	auto s1_iter = m1.begin(), s1_end = m1.end();
 	auto s2_iter = m2.begin(), s2_end = m2.end();
 	while (true) {
@@ -50,16 +51,19 @@ short compare_map(const map<ushort, ushort>& m1, const map<ushort, ushort>& m2) 
 }
 
 /**
- * @brief Returns 0 if equal, 1 if x > y, -1 if x < y. (think: sign(x-y))
- * 		Motivation: containers have "bool operator <" defined, but this only returns "<" or ">=".
- * 		When you need to distinguish between all three possibilities, compare is more efficient.
- * 		This function was not called "compare" to avoid confusion with the above compare function
+ * @brief Returns 0 if equal, 1 if x > y, -1 if x < y. (Think: sign(x-y))
+ * 		  Motivation: containers have "bool operator <" defined, but this
+ * 		  only returns "<" or ">=". When you need to distinguish between
+ * 		  all three possibilities, compare is more efficient. This function
+ * 		  was not called "compare" to avoid confusion with the above compare
+ * 		  function
  * @param x
  * @param y
  */
 template<class T>
 short compare_container(const T& x, const T& y) {
-	typename T::const_iterator xi = x.begin(), yi = y.begin(), x_end = x.end(), y_end = y.end();
+	typename T::const_iterator xi = x.begin(), yi = y.begin(), x_end = x.end(),
+			y_end = y.end();
 	while (true) {
 		if (xi == x_end && yi == y_end) // x == y
 			return 0;
@@ -163,14 +167,16 @@ string width(const T& x, cushort& width) {
 //	return result;
 //}
 /**
- * @brief Output string s, but with <sep> inserted as tabulator every tab character. Never at left or right
- * 		end of s. Never if either left or right neighbor of tabulator position is ' '
+ * @brief Output string s, but with <sep> inserted as tabulator every tab
+ *        character. Never at left or right end of s. Never if either left
+ *        or right neighbor of tabulator position is ' '
  * @param s
  * @param sep
  * @param tab
- * @return
+ * @return string
  */
-string tabularize(const string& s, const string& sep, const unsigned short& tab) {
+string tabularize(const string& s, const string& sep,
+		const unsigned short& tab) {
 	string result;
 	ushort n = s.size();
 	for (int i = 0; i < n; ++i) {
@@ -182,16 +188,17 @@ string tabularize(const string& s, const string& sep, const unsigned short& tab)
 }
 
 /**
- * @brief Convert object x into a string using sprintf and the format string supplied (which must include the %).
- * 		sprintf must be defined for object x (i.e. mainly basic types, such as numeric ones). If output is expected
- * 		to be very long, provide sufficient length argument
+ * @brief Convert object x into a string using sprintf and the format string
+ * 		  supplied (which must include the %). sprintf must be defined for
+ * 		  object x (i.e. mainly basic types, such as numeric ones). If output
+ * 		  is expected to be very long, provide sufficient length argument
  * @param x
  * @param format
  * @param length
  * @return
  */
-template<class T>
-string formatString(const T& x, const string& format, cushort& length) {
+template<class T> string formatString(const T& x, const string& format,
+		cushort& length) {
 	char* s = new char[length];
 	snprintf(s, length, format.c_str(), x);
 	string result = s;
@@ -219,24 +226,28 @@ string hourize(culong& seconds) {
 		ushort s = seconds % 3600;
 		ushort m = s / 60;
 		s = s % 60;
-		return widthify(h) + ":" + widthify(m, 2, RIGHTJUST, '0') + ":" + widthify(s, 2, RIGHTJUST, '0') + "h";
+		return widthify(h) + ":" + widthify(m, 2, RIGHTJUST, '0') + ":"
+				+ widthify(s, 2, RIGHTJUST, '0') + "h";
 	}
 }
 
 /**
- * If firstTime is true, sets it to false, otherwise outputs connective. In any case appends common.
- * Useful to print strings of expressions of the form
+ * @brief If firstTime is true, sets it to false, otherwise outputs connective.
+ *        In any case appends common.
+ * 		  Useful to print strings of expressions of the form
  * 			x[0] + x[1] + ... + x[n-1] as follows:
- * bool firstTime = true;
- * for (ushort i = 0; i < n; ++i)
- * cout << PPRINT::firstTimeOrNot(firstTime, " + ", string("x[") + widthify(i) + "]");
+ * 		  bool firstTime = true;
+ * 		  for (ushort i = 0; i < n; ++i)
+ * 			cout << PPRINT::firstTimeOrNot(firstTime, " + ",
+ * 								string("x[") + widthify(i) + "]");
  *
  * @param firstTime
  * @param connective
  * @param common
- * @return
+ * @return string
  */
-string firstTimeOrNot(bool& firstTime, const string& connective, const string& common) {
+string firstTimeOrNot(bool& firstTime, const string& connective,
+		const string& common) {
 	string result = (firstTime ? common : connective + common);
 	firstTime = false;
 	return result;
