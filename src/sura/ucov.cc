@@ -5,16 +5,16 @@
  * @author: Peizun Liu
  */
 
-#include "ucob.hh"
+#include "ucov.hh"
 
 namespace sura {
 
-ucob::ucob() {
+ucov::ucov() {
 	// TODO Auto-generated constructor stub
 
 }
 
-ucob::~ucob() {
+ucov::~ucov() {
 	// TODO Auto-generated destructor stub
 }
 
@@ -25,7 +25,7 @@ ucob::~ucob() {
  * @param final_ts: final   thread state
  * @return
  */
-bool ucob::symbolic_reachability_analysis(const string& filename,
+bool ucov::symbolic_reachability_analysis(const string& filename,
 		const string& initl_ts, const string& final_ts) {
 	Refs::INITL_TS = this->parse_input_tss(initl_ts);
 	Refs::FINAL_TS = this->parse_input_tss(final_ts);
@@ -41,7 +41,7 @@ bool ucob::symbolic_reachability_analysis(const string& filename,
  * @brief parse the input TTD
  * @param filename: the name of input .ttd file
  */
-vector<inout> ucob::parse_input_ttd(const string& filename) {
+vector<inout> ucov::parse_input_ttd(const string& filename) {
 	vector<inout> s_in_out;
 	if (filename == "X") { // make random structure
 		throw ural_rt_err("Please assign the input file!");
@@ -181,7 +181,7 @@ vector<inout> ucob::parse_input_ttd(const string& filename) {
  * @brief parse the input initial and final thread state
  * @param str_ts: the thread state represented by string
  */
-thread_state ucob::parse_input_tss(const string& str_ts) {
+thread_state ucov::parse_input_tss(const string& str_ts) {
 	thread_state ts;
 	if (str_ts.find('|') != std::string::npos) {
 		ts = Util::create_thread_state_from_gs_str(str_ts);
@@ -204,7 +204,7 @@ thread_state ucob::parse_input_tss(const string& str_ts) {
  * @param TTD
  * @return bool
  */
-bool ucob::reachability_as_logic_decision(const adj_list& TTD,
+bool ucov::reachability_as_logic_decision(const adj_list& TTD,
 		const vector<inout>& s_in_out) {
 	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
 
@@ -240,7 +240,7 @@ bool ucob::reachability_as_logic_decision(const adj_list& TTD,
  * 		true : if the final thread state is reachable
  * 		false: otherwise
  */
-bool ucob::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
+bool ucov::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
 	const auto& paths = p_gscc->find_all_paths();
 	auto size_P = paths.size();
 	if (size_P < 1) {

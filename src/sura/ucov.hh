@@ -15,10 +15,10 @@
 
 namespace sura {
 
-class ucob {
+class ucov {
 public:
-	ucob();
-	virtual ~ucob();
+	ucov();
+	virtual ~ucov();
 
 	bool symbolic_reachability_analysis(const string& filename,
 			const string& initl_ts, const string& final_ts);

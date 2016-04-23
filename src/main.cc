@@ -26,8 +26,7 @@
 #include <iostream>
 
 #include "sura/fws/fws.hh"
-#include "sura/ucob.hh"
-
+#include "sura/ucov.hh"
 #include "util/cmd.hh"
 #include "util/refs.hh"
 
@@ -83,7 +82,7 @@ int main(const int argc, const char * const * const argv) {
 		bool is_reachable = false;
 		const string& mode = cmd.arg_value(cmd_line::exp_mode_opts(), "--mode");
 		if (mode.compare(cmd_line::opt_mode_ldp()) == 0) { ///  logic decision algorithm
-			ucob ursula;
+			ucov ursula;
 			is_reachable = ursula.symbolic_reachability_analysis(filename,
 					s_initl, s_final);
 			cout << "logical decision analysis is done! " << "\n";
