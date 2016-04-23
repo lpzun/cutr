@@ -5,16 +5,16 @@
  * @author: Peizun Liu
  */
 
-#include "sura.hh"
+#include "ucob.hh"
 
 namespace sura {
 
-Sura::Sura() {
+ucob::ucob() {
 	// TODO Auto-generated constructor stub
 
 }
 
-Sura::~Sura() {
+ucob::~ucob() {
 	// TODO Auto-generated destructor stub
 }
 
@@ -25,7 +25,7 @@ Sura::~Sura() {
  * @param final_ts: final   thread state
  * @return
  */
-bool Sura::symbolic_reachability_analysis(const string& filename,
+bool ucob::symbolic_reachability_analysis(const string& filename,
 		const string& initl_ts, const string& final_ts) {
 	Refs::INITL_TS = this->parse_input_tss(initl_ts);
 	Refs::FINAL_TS = this->parse_input_tss(final_ts);
@@ -41,7 +41,7 @@ bool Sura::symbolic_reachability_analysis(const string& filename,
  * @brief parse the input TTD
  * @param filename: the name of input .ttd file
  */
-vector<inout> Sura::parse_input_ttd(const string& filename) {
+vector<inout> ucob::parse_input_ttd(const string& filename) {
 	vector<inout> s_in_out;
 	if (filename == "X") { // make random structure
 		throw ural_rt_err("Please assign the input file!");
@@ -75,9 +75,9 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		id_thread_state src = 0, dst = 0; /// the id of thread state
 		string sep;                       /// separator
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
-			DBG_STD(cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n")
-			//if (s2 == Refs::FINAL_TS.get_share())
-				cout << s1 << " " << l1 << " -> " << s2 << " " << l2 << "\n"; // delete------------
+			DBG_STD(
+					cout << s1 << " " << l1 << " -> " << s2 << " " << l2
+							<< "\n")
 			if (l1 == l2) /// remove self loops and vertical transitions
 				continue;
 			if (sep == "->" || sep == "+>") {
@@ -139,22 +139,24 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
 		cout << "Incoming:\n";
 		for (size_t is = 0; is < s_in_out.size(); ++is) {
 			cout << "shared state: " << is << " ";
-			for (auto iv = s_in_out[is].first.begin(); iv != s_in_out[is].first.end(); ++iv)
-			cout << Refs::mapping_TS[*iv] << " ";
+			for (auto iv = s_in_out[is].first.begin();
+					iv != s_in_out[is].first.end(); ++iv)
+				cout << Refs::mapping_TS[*iv] << " ";
 			cout << "\n";
 		}
 
 		cout << "Outgoing:\n";
 		for (size_t is = 0; is < s_in_out.size(); ++is) {
 			cout << "shared state: " << is << " ";
-			for (auto iv = s_in_out[is].second.begin(); iv != s_in_out[is].second.end(); ++iv)
-			cout << Refs::mapping_TS[*iv] << " ";
+			for (auto iv = s_in_out[is].second.begin();
+					iv != s_in_out[is].second.end(); ++iv)
+				cout << Refs::mapping_TS[*iv] << " ";
 			cout << "\n";
 		}
 
 		cout << Refs::mapping_TS.size() << "\n";
 		for (size_t i = 0; i < Refs::mapping_TS.size(); i++)
-		cout << i << " " << Refs::mapping_TS[i] << "\n";
+			cout << i << " " << Refs::mapping_TS[i] << "\n";
 		cout << endl;
 #endif
 
@@ -179,7 +181,7 @@ vector<inout> Sura::parse_input_ttd(const string& filename) {
  * @brief parse the input initial and final thread state
  * @param str_ts: the thread state represented by string
  */
-thread_state Sura::parse_input_tss(const string& str_ts) {
+thread_state ucob::parse_input_tss(const string& str_ts) {
 	thread_state ts;
 	if (str_ts.find('|') != std::string::npos) {
 		ts = Util::create_thread_state_from_gs_str(str_ts);
@@ -202,7 +204,7 @@ thread_state Sura::parse_input_tss(const string& str_ts) {
  * @param TTD
  * @return bool
  */
-bool Sura::reachability_as_logic_decision(const adj_list& TTD,
+bool ucob::reachability_as_logic_decision(const adj_list& TTD,
 		const vector<inout>& s_in_out) {
 	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
 
@@ -219,9 +221,10 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
 			ettd.get_expanded_TTD());
 #ifndef NDEBUG
 	cout << "print out all SCCs:\n";
-	for (auto i = p_gscc->get_sccs().begin(); i != p_gscc->get_sccs().end(); ++i) {
+	for (auto i = p_gscc->get_sccs().begin(); i != p_gscc->get_sccs().end();
+			++i) {
 		if (*i != nullptr)
-		cout << **i << "\n";
+			cout << **i << "\n";
 	}
 #endif
 	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
@@ -237,7 +240,7 @@ bool Sura::reachability_as_logic_decision(const adj_list& TTD,
  * 		true : if the final thread state is reachable
  * 		false: otherwise
  */
-bool Sura::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
+bool ucob::path_wise_analysis(const shared_ptr<GSCC>& p_gscc) {
 	const auto& paths = p_gscc->find_all_paths();
 	auto size_P = paths.size();
 	if (size_P < 1) {

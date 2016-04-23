@@ -265,8 +265,10 @@ void cmd_line::create_argument_list() {
 	this->add_switch(other_opts(), "-cs", "--cstr",
 			"output intermediate constraints");
 
-	this->add_switch(other_opts(), "-cmd", "--cmd-line", "show the command line");
-	this->add_switch(other_opts(), "-all", "--all", "show all of above messages");
+	this->add_switch(other_opts(), "-cmd", "--cmd-line",
+			"show the command line");
+	this->add_switch(other_opts(), "-all", "--all",
+			"show all of above messages");
 	this->add_switch(other_opts(), SHORT_VERSION_OPT, LONG_VERSION_OPT,
 			"show version information and exit");
 }
@@ -274,30 +276,18 @@ void cmd_line::create_argument_list() {
 string cmd_line::create_version_info() {
 	string info = ""; ///
 	info ///
+	.append("* *      _/_/_/    _/    _/    _/_/_/_/_/    _/_/_/     * *\n") ///
+	.append("* *    _/         _/    _/        _/        _/    _/    * *\n") ///
+	.append("* *   _/         _/    _/        _/        _/_/_/       * *\n") ///
+	.append("* *  _/         _/    _/        _/        _/ _/         * *\n") ///
+	.append("* *   _/_/_/   _/_/_/_/        _/        _/    _/  "+ VERSION + " * *\n") ///
+	.append("-----------------------------------------------------------\n") ///
+	.append("* *        Concolic Unbounded-Thread Reachability       * *\n") ///
+	.append("* *                 via Loop Summaries                  * *\n")	///
+	.append("* *           Peizun Liu @ Thomas Wahl's Group          * *\n") ///
+	.append("* *        Northeastern University, United States       * *\n") ///
+	.append("* *                             Build Time: ").append(__DATE__).append(" * *\n") ///
 	.append(
-			"* *     _/    _/    _/_/_/       _/_/_/     _/    _/    _/           _/_/_/    * *\n") ///
-	.append(
-			"* *    _/    _/    _/    _/    _/          _/    _/    _/          _/    _/    * *\n") ///
-	.append(
-			"* *   _/    _/    _/_/_/       _/_/_/     _/    _/    _/          _/_/_/_/     * *\n") ///
-	.append(
-			"* *  _/    _/    _/  _/            _/    _/    _/    _/          _/    _/      * *\n") ///
-	.append(
-			"* * _/_/_/_/    _/     _/    _/_/_/     _/_/_/_/    _/_/_/_/    _/    _/  "
-					+ VERSION + " * *\n") ///
-	.append(
-			"----------------------------------------------------------------------------------\n") ///
-	.append(
-			"* *                      Unbounded-Thread Reachability via                     * *\n") ///
-	.append(
-			"* *                   Symbolic Execution and Loop Acceleration                 * *\n")	///
-	.append(
-			"* *                         Thomas Wahl's Research Group                       * *\n") ///
-	.append(
-			"* *                    Northeastern University, United States                  * *\n") ///
-	.append("* *                                         Build Time: ").append(
-	__DATE__).append(" @ ").append(__TIME__).append(" * *\n") ///
-	.append(
-			"----------------------------------------------------------------------------------\n");
+			"-----------------------------------------------------------\n");
 	return info;
 }

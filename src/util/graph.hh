@@ -21,9 +21,9 @@ extern vertex FINAL_V;
 extern vertex INITL_SCC;
 extern vertex FINAL_SCC;
 
-typedef unordered_map<vertex, deque<vertex>> adj_list;
-typedef deque<vertex> _path;
-typedef unsigned int id_scc;
+using adj_list = unordered_map<vertex, deque<vertex>>;
+using _path = deque<vertex>;
+using id_scc = unsigned int;
 
 class Graph {
 public:

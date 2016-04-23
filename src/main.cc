@@ -2,11 +2,11 @@
  * @note        I am rewriting the URSULA on this project. I am trying to use more generic
  * 				programming techniques. This may spend some time. Not in a rush.
  *
- * @name       	: URSULA
- * 					Unbounded-thread Reachability via Symbolic execUtion and Loop Acceleration
+ * @name       	: CUTR:
+ * 					Concolic Unbounded-thread Reachability via Loop Summaries
  * @author     	: Peizun Liu
  * @version    	: v0.2
- * @copyright  	: The copy right belong to CAV group in CCIS NU
+ * @copyright  	: The copy right belong to Thomas Wahl's group in CCIS at NU, Boston, MA
  * @brief		: We present a new approach to reachability analysis for communicating
  * 				finite-state threads that formulates the analysis as a logical decision
  * 				problem. In addition to the unbounded number of running threads, the
@@ -26,11 +26,11 @@
 #include <iostream>
 
 #include "sura/fws/fws.hh"
+#include "sura/ucob.hh"
 
 #include "util/cmd.hh"
 #include "util/refs.hh"
 
-#include "sura/sura.hh"
 
 using namespace sura;
 using namespace std;
@@ -75,18 +75,15 @@ int main(const int argc, const char * const * const argv) {
 		}
 		const string& filename = cmd.arg_value(cmd_line::prob_inst_opts(),
 				"--input-file");
-		// Refs::FILE_NAME_PREFIX = filename.substr(0, filename.find_last_of("."));
 		const string& s_initl = cmd.arg_value(cmd_line::prob_inst_opts(),
 				"--initial");
 		const string& s_final = cmd.arg_value(cmd_line::prob_inst_opts(),
 				"--target");
 
-		// SMT_SOLVER = cmd.arg_value(PROB_INST_OPTS, "--smt-solver");
-
 		bool is_reachable = false;
 		const string& mode = cmd.arg_value(cmd_line::exp_mode_opts(), "--mode");
 		if (mode.compare(cmd_line::opt_mode_ldp()) == 0) { ///  logic decision algorithm
-			Sura ursula;
+			ucob ursula;
 			is_reachable = ursula.symbolic_reachability_analysis(filename,
 					s_initl, s_final);
 			cout << "logical decision analysis is done! " << "\n";

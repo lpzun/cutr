@@ -22,8 +22,12 @@ using map_expr = unordered_map<ushort, expr>;
 /// Aliasing vector<expr> as vec_expr
 using vec_expr = vector<expr>;
 
+using syst_state=global_state;
+
+using antichain = deque<syst_state>;
+
 enum class result {
-	reach = 0, unreach = 1, unknown = 2
+	yes = 0, no = 1, unknown = 2
 };
 
 class FWS {
@@ -67,9 +71,12 @@ private:
 	vec_expr path_summary(const _path& path, const deque<size_t>& permu);
 
 	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta);
-	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta, const expr &k);
-	void assemble(const vec_expr &pfx, vec_expr &phi, const vector<bool> &is_append);
-	void assemble(const vec_expr &pfx, vec_expr &phi, const shared_state &s_entr, const shared_state &s_exit,
+	void assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
+			const expr &k);
+	void assemble(const vec_expr &pfx, vec_expr &phi,
+			const vector<bool> &is_append);
+	void assemble(const vec_expr &pfx, vec_expr &phi,
+			const shared_state &s_entr, const shared_state &s_exit,
 			const vector<bool> &is_append);
 
 	vector<bool> append_marking_equation(vec_expr &pfx, const SCC &scc);
@@ -82,11 +89,21 @@ private:
 	bool solicit_for_CEGAR();
 
 	bool standard_FWS(const uint& n, const uint& z);
-	ca_locals update_counter(const ca_locals &Z, const ushort &inc);
-	ca_locals update_counter(const ca_locals &Z, const local_state &dec, const local_state &inc);
 
-	void reproduce_witness_path(const shared_ptr<global_state>& pi, const set<global_state> &R);
-	bool is_initial_state(const global_state &tau);
+	ca_locals update_counter(const ca_locals &Z, const ushort &inc);
+	ca_locals update_counter(const ca_locals &Z, const local_state &dec,
+			const local_state &inc);
+
+	deque<syst_state> step(const global_state& tau, size_p& spw);
+	bool is_maximal(const syst_state& s, const antichain& explored);
+	void maximize(const syst_state& s, antichain& worklist);
+
+	bool is_reached(const syst_state& s);
+	bool is_covered(const syst_state& s1, const syst_state& s2);
+
+	void reproduce_witness_path(const shared_ptr<syst_state>& pi,
+			const antichain& R);
+	bool is_initial_state(const syst_state& tau);
 };
 
 } /* namespace SURA */

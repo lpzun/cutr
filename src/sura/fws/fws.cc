@@ -68,13 +68,13 @@ bool FWS::fws_as_logic_decision(const vector<_path>& paths) {
 	bool is_exists_sat_path = false;
 	for (auto ipath = paths.begin(); ipath != paths.end(); ++ipath) {
 		switch (this->quotient_path_reachability(*ipath)) {
-		case result::reach:
+		case result::yes:
 			return true;
 		case result::unknown:
 			if (!is_exists_sat_path)
 				is_exists_sat_path = true;
 			break;
-		case result::unreach:
+		case result::no:
 			break;
 		}
 	}
@@ -102,8 +102,8 @@ result FWS::quotient_path_reachability(const _path& P) {
 	cout << endl;
 #endif
 
-	deque<deque<size_t>> las_level;                /// last       level
-	deque<deque<size_t>> cur_level;               /// current level
+	deque<deque<size_t>> las_level;            /// last    level
+	deque<deque<size_t>> cur_level;            /// current level
 	las_level.emplace_back(deque<size_t>());   /// initialize last level
 
 	/// run BFS to iterate over and store all of paths that belong to the
@@ -134,7 +134,7 @@ result FWS::quotient_path_reachability(const _path& P) {
 
 	/// iterate over all of the real paths that belong to the same quotient
 	/// path P
-	result is_exists_sat_path = result::unreach;
+	result is_exists_sat_path = result::no;
 	for (auto ip = las_level.begin(); ip != las_level.end(); ++ip) {
 		this->solver_P.emplace_back(nullptr); /// a pointer to a solver for P
 		const auto index = solver_P.size() - 1;  /// get the index for current P
@@ -142,13 +142,13 @@ result FWS::quotient_path_reachability(const _path& P) {
 		const auto& phi = this->path_summary(P, *ip);
 
 		switch (this->path_reachability(phi, index)) {
-		case result::reach:
-			return result::reach;
-		case result::unreach:
+		case result::yes:
+			return result::yes;
+		case result::no:
 			this->solver_P[index] = nullptr;
 			break;
 		case result::unknown:
-			if (is_exists_sat_path == result::unreach)
+			if (is_exists_sat_path == result::no)
 				is_exists_sat_path = result::unknown;
 			this->sat_P[index] = true;
 			break;
@@ -447,10 +447,10 @@ result FWS::check_sat_via_smt_solver(shared_ptr<solver>& s) {
 	case sat:   /// if   sat
 		if (this->parse_sat_solution(s->get_model())) /// if max_n or max_z is updated
 			if (this->standard_FWS(max_n, ++max_z)) /// if find out a witness
-				return result::reach;
+				return result::yes;
 		return result::unknown;
 	case unsat: /// if unsat
-		return result::unreach;
+		return result::no;
 	case unknown:
 		throw ural_rt_err("smt solver returns unknow!");
 	}
@@ -529,9 +529,9 @@ bool FWS::solicit_for_CEGAR() {
 
 				/// apply incremental solving
 				switch (check_sat_via_smt_solver(solver_P[idx])) {
-				case result::reach:
+				case result::yes:
 					return true;
-				case result::unreach:
+				case result::no:
 					sat_P[idx] = false;
 					solver_P[idx] = nullptr;
 					is_exists_sat_path = false;
@@ -558,15 +558,19 @@ bool FWS::solicit_for_CEGAR() {
  * 		true : if there is a witness path
  * 		false: otherwise
  */
-bool FWS::standard_FWS(const uint& n, const uint& z) {
-	auto spw = z;
-	queue<global_state, deque<global_state>> W; /// worklist
-	W.emplace(Refs::INITL_TS, n); /// start from the initial state with n threads
-	set<global_state> R; /// reachable global states
-	while (!W.empty()) {
-		global_state tau = W.front();
-		W.pop();
-		const ushort &shared = tau.get_share();
+bool FWS::standard_FWS(const uint& n, const uint& s) {
+	auto spw = s;       /// the upper bound of spawns that can be fired
+	antichain worklist;
+	antichain explored;
+
+	/// start from the initial state with n threads
+	worklist.emplace_back(Refs::INITL_TS, n);
+
+	while (!worklist.empty()) {
+		const auto tau = worklist.front();
+		worklist.pop_front();
+
+		const auto& shared = tau.get_share();
 		for (auto il = tau.get_locals().begin(); il != tau.get_locals().end();
 				++il) {
 			const thread_state src(shared, il->first); /// source TS
@@ -592,10 +596,10 @@ bool FWS::standard_FWS(const uint& n, const uint& z) {
 										src.get_local(), dst.get_local());
 							}
 
-							if (R.emplace(dst.get_share(), locals).second) {
-								/// recording _tau's predecessor tau for witness
-								W.emplace(dst.get_share(), locals);
-							}
+//							if (explored.emplace_back(dst.get_share(), locals).second) {
+//								/// recording _tau's predecessor tau for witness
+//								W.emplace(dst.get_share(), locals);
+//							}
 						}
 					}
 				}
@@ -606,6 +610,19 @@ bool FWS::standard_FWS(const uint& n, const uint& z) {
 		}
 	}
 	return false;
+}
+
+deque<syst_state> FWS::step(const global_state& tau, size_p& spw) {
+	deque<syst_state> images;
+	const auto& s = tau.get_share();
+	for (const auto& p : tau.get_locals()) {
+		const auto& l = p.first;
+		auto ifind = Refs::activee_TS.find(thread_state(s, l));
+		if (ifind != Refs::activee_TS.end()) {
+
+		}
+
+	}
 }
 
 /**
@@ -666,7 +683,7 @@ ca_locals FWS::update_counter(const ca_locals &Z, const local_state &dec,
  * @param R
  */
 void FWS::reproduce_witness_path(const shared_ptr<global_state>& pi,
-		const set<global_state> &R) {
+		const antichain& R) {
 	cout << *pi << endl; ///
 	if (pi == nullptr || this->is_initial_state(*pi)) {
 		cout << *pi << endl;
