@@ -22,10 +22,6 @@ using map_expr = unordered_map<ushort, expr>;
 /// Aliasing vector<expr> as vec_expr
 using vec_expr = vector<expr>;
 
-using syst_state=global_state;
-
-using antichain = deque<syst_state>;
-
 enum class result {
 	yes = 0, no = 1, unknown = 2
 };
@@ -33,7 +29,7 @@ enum class result {
 class FWS {
 public:
 	FWS(const size_t& size_P, const shared_ptr<GSCC>& p_gscc);
-	virtual ~FWS();
+	~FWS();
 
 	bool fws_as_logic_decision(const vector<_path>& paths);
 
@@ -94,7 +90,7 @@ private:
 	ca_locals update_counter(const ca_locals &Z, const local_state &dec,
 			const local_state &inc);
 
-	deque<syst_state> step(const global_state& tau, size_p& spw);
+	deque<syst_state> step(const syst_state& tau, size_p& spw);
 	bool is_maximal(const syst_state& s, const antichain& explored);
 	void maximize(const syst_state& s, antichain& worklist);
 

@@ -191,6 +191,11 @@ private:
 	shared_ptr<const global_state> pi;
 };
 
+/// rename global_state to syst_state
+using syst_state = global_state;
+/// define antichain...
+using antichain = deque<syst_state>;
+
 /**
  * @brief default constructor: initialize
  *        share  = 0
