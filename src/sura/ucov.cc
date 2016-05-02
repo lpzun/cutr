@@ -230,7 +230,8 @@ bool ucov::reachability_as_logic_decision(const adj_list& TTD,
 	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
 	cout << "Build SCC quotient paths time: "
 			<< (double(Refs::ELAPSED_TIME)) / CLOCKS_PER_SEC << endl;
-	return this->path_wise_analysis(p_gscc);
+	// return this->path_wise_analysis(p_gscc);
+	return true;
 }
 
 /**
