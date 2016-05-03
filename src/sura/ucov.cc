@@ -77,7 +77,7 @@ vector<inout> ucov::parse_input_ttd(const string& filename) {
 		while (new_in >> s1 >> l1 >> sep >> s2 >> l2) {
 			DBG_STD(
 					cout << s1 << " " << l1 << " -> " << s2 << " " << l2
-							<< "\n")
+					<< "\n")
 			if (l1 == l2) /// remove self loops and vertical transitions
 				continue;
 			if (sep == "->" || sep == "+>") {
@@ -141,7 +141,7 @@ vector<inout> ucov::parse_input_ttd(const string& filename) {
 			cout << "shared state: " << is << " ";
 			for (auto iv = s_in_out[is].first.begin();
 					iv != s_in_out[is].first.end(); ++iv)
-				cout << Refs::mapping_TS[*iv] << " ";
+			cout << Refs::mapping_TS[*iv] << " ";
 			cout << "\n";
 		}
 
@@ -150,13 +150,13 @@ vector<inout> ucov::parse_input_ttd(const string& filename) {
 			cout << "shared state: " << is << " ";
 			for (auto iv = s_in_out[is].second.begin();
 					iv != s_in_out[is].second.end(); ++iv)
-				cout << Refs::mapping_TS[*iv] << " ";
+			cout << Refs::mapping_TS[*iv] << " ";
 			cout << "\n";
 		}
 
 		cout << Refs::mapping_TS.size() << "\n";
 		for (size_t i = 0; i < Refs::mapping_TS.size(); i++)
-			cout << i << " " << Refs::mapping_TS[i] << "\n";
+		cout << i << " " << Refs::mapping_TS[i] << "\n";
 		cout << endl;
 #endif
 
@@ -224,9 +224,22 @@ bool ucov::reachability_as_logic_decision(const adj_list& TTD,
 	for (auto i = p_gscc->get_sccs().begin(); i != p_gscc->get_sccs().end();
 			++i) {
 		if (*i != nullptr)
-			cout << **i << "\n";
+		cout << **i << "\n";
 	}
 #endif
+	uint nested = 0, simple = 0;
+	for (const auto& scc : p_gscc->get_sccs()) {
+		if (scc != nullptr) {
+			if (scc->is_nested()) {
+				++nested;
+			} else {
+				++simple;
+			}
+		}
+	}
+	cout << "nested loops: " << nested << "\n";
+	cout << "simple loops: " << simple << "\n";
+
 	Refs::ELAPSED_TIME = clock() - Refs::ELAPSED_TIME;
 	cout << "Build SCC quotient paths time: "
 			<< (double(Refs::ELAPSED_TIME)) / CLOCKS_PER_SEC << endl;

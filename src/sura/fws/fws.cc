@@ -95,9 +95,9 @@ result FWS::quotient_path_reachability(const _path& P) {
 	for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc) {
 		cout << " => " << *iscc << " by ";
 		if (p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))] != nullptr)
-			for (const auto& t : *(p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(
-					iscc))]))
-				cout << t << " ";
+		for (const auto& t : *(p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(
+										iscc))]))
+		cout << t << " ";
 	}
 	cout << endl;
 #endif
@@ -190,9 +190,9 @@ result FWS::path_reachability(const vec_expr& phi, const ushort& id_P) {
 	unsigned i = 0;
 	for (auto iphi = phi.begin(); iphi != phi.end(); ++iphi, ++i) {
 		if (i < thread_state::L)
-			cout << "l" << i << *iphi << "\n";
+		cout << "l" << i << *iphi << "\n";
 		else
-			cout << "s" << i - thread_state::L << *iphi << "\n";
+		cout << "s" << i - thread_state::L << *iphi << "\n";
 	}
 #endif
 
@@ -226,7 +226,7 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
 #ifndef NDEBUG
 	cout << __func__ << "Iterator: \n";
 	for (auto ie = permu.begin(); ie != permu.end(); ++ie)
-		cout << *ie << "\n";
+	cout << *ie << "\n";
 	cout << endl;
 #endif
 
@@ -451,8 +451,9 @@ result FWS::check_sat_via_smt_solver(shared_ptr<solver>& s) {
 		return result::unknown;
 	case unsat: /// if unsat
 		return result::no;
-	case unknown:
+	default:
 		throw ural_rt_err("smt solver returns unknow!");
+
 	}
 }
 
@@ -623,6 +624,7 @@ deque<syst_state> FWS::step(const global_state& tau, size_p& spw) {
 		}
 
 	}
+	return images;
 }
 
 /**

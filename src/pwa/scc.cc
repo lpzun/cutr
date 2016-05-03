@@ -36,7 +36,7 @@ vector<deque<vertex>> GSCC::build_SCC(const size_V& V, const adj_list& Adj) {
 		cout << idx << " size= " << g.get_sccs()[idx].size() << " ";
 		for (auto iv = g.get_sccs()[idx].begin(); iv != g.get_sccs()[idx].end();
 				++iv)
-			cout << Refs::mapping_TS[*iv] << " ";
+		cout << Refs::mapping_TS[*iv] << " ";
 		cout << endl;
 	}
 #endif
@@ -77,7 +77,7 @@ void GSCC::build_GSCC(const vector<deque<vertex>>& sccs) {
 		for (auto idst = isrc->second.begin(); idst != isrc->second.end();
 				++idst) {
 			cout << Refs::mapping_TS[this->sccs[isrc->first]->get_v()] << " -> "
-					<< Refs::mapping_TS[this->sccs[*idst]->get_v()] << " ";
+			<< Refs::mapping_TS[this->sccs[*idst]->get_v()] << " ";
 			cout << isrc->first << " -> " << *idst << "\n";
 		}
 	}
@@ -87,7 +87,7 @@ void GSCC::build_GSCC(const vector<deque<vertex>>& sccs) {
 		for (size_t j = 0; j < this->trans_btwn_sccs[0].size(); ++j) {
 			if (trans_btwn_sccs[i][j] != nullptr) {
 				for (const auto &t : *(trans_btwn_sccs[i][j]))
-					cout << t << " ";
+				cout << t << " ";
 				cout << "\n";
 			}
 		}
@@ -163,7 +163,8 @@ SCC::SCC(const vertex& v) :
  */
 SCC::SCC(const vertex& v, const deque<vertex>& V) :
 		is_TRIVIAL(false), is_NESTED(false), V_size(V.size()), v(v), E() {
-	this->is_NESTED = this->is_loop_nests(this->V_size, this->build_E(V));
+	if (!is_TRIVIAL)
+		this->is_NESTED = this->is_loop_nests(this->V_size, this->build_E(V));
 }
 
 SCC::~SCC() {

@@ -62,7 +62,7 @@ inline ostream& operator<<(ostream& out, const SCC& s) {
  * 		   false: otherwise
  */
 inline bool operator==(const SCC& s1, const SCC& s2) {
-	return s1 == s2;
+	return s1.get_v() == s2.get_v();
 }
 
 /**
@@ -74,7 +74,7 @@ inline bool operator==(const SCC& s1, const SCC& s2) {
  * 		   false: otherwise
  */
 inline bool operator!=(const SCC& s1, const SCC& s2) {
-	return s1 != s2;
+	return s1.get_v() != s2.get_v();
 }
 
 /**
@@ -86,7 +86,7 @@ inline bool operator!=(const SCC& s1, const SCC& s2) {
  * 		   false: otherwise
  */
 inline bool operator<(const SCC& s1, const SCC& s2) {
-	return s1 < s2;
+	return s1.get_v() < s2.get_v();
 }
 
 /**
@@ -98,7 +98,7 @@ inline bool operator<(const SCC& s1, const SCC& s2) {
  * 		   false: otherwise
  */
 inline bool operator>(const SCC& s1, const SCC& s2) {
-	return s1 > s2;
+	return s1.get_v() > s2.get_v();
 }
 
 /// define SCC quotient graph
