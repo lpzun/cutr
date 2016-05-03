@@ -15,7 +15,7 @@
 # See an example in EXAMPLES/makefile-local-vars.                         #
 ###########################################################################
 # Override these variables (or add new ones) locally
-APP	     = ursula # the name of application
+APP	     = cutr # the name of application
 Z3DIR        = /usr/local/Z3#          
 ILIBS        = -L $(Z3DIR)/lib -lz3#                                   -lm # config your z3 lib     here
 IINCLUDE     = -I $(Z3DIR)/include/#                                       # config your z3 include here
