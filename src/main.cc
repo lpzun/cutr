@@ -30,7 +30,6 @@
 #include "util/cmd.hh"
 #include "util/refs.hh"
 
-
 using namespace sura;
 using namespace std;
 
@@ -42,76 +41,62 @@ using namespace std;
  * 		   exit code
  */
 int main(const int argc, const char * const * const argv) {
-	try {
-		cmd_line cmd;
-		try {
-			cmd.get_command_line(argc, argv);
-		} catch (cmd_line::Help) {
-			return 0;
-		}
-		Refs::OPT_PRINT_DOT = cmd.arg_bool(cmd_line::prob_inst_opts(),
-				"--ettd2dot");
-		Refs::OPT_PRINT_ADJ = cmd.arg_bool(cmd_line::prob_inst_opts(),
-				"--adj-list");
-		Refs::OPT_PRINT_PATH = cmd.arg_bool(cmd_line::exp_mode_opts(),
-				"--path");
-		Refs::IS_BWS_TREE = cmd.arg_bool(cmd_line::exp_mode_opts(),
-				"--bwstree");
-		Refs::OPT_COMPLETE = cmd.arg_bool(cmd_line::exp_mode_opts(),
-				"--complete");
-		Refs::OPT_BACKWARD = cmd.arg_bool(cmd_line::exp_mode_opts(),
-				"--backward");
-		Refs::OPT_SHARED = cmd.arg_bool(cmd_line::exp_mode_opts(), "--shared");
+    try {
+        cmd_line cmd;
+        try {
+            cmd.get_command_line(argc, argv);
+        } catch (cmd_line::Help) {
+            return 0;
+        }
+        /// problem instance
+        Refs::OPT_PRINT_ADJ = cmd.arg_bool(cmd_line::prob_inst_opts(),
+                "--adj-list");
+        Refs::OPT_PRINT_DOT = cmd.arg_bool(cmd_line::prob_inst_opts(),
+                "--ettd2dot");
+        Refs::OPT_NOT_SIMPLE = cmd.arg_bool(cmd_line::other_opts(),
+                "--nosimpl");
+        Refs::OPT_PRINT_ALL = cmd.arg_bool(cmd_line::other_opts(), "--all");
 
-		Refs::OPT_NOT_SIMPLE = cmd.arg_bool(cmd_line::other_opts(),
-				"--nosimpl");
-		Refs::OPT_PRINT_ALL = cmd.arg_bool(cmd_line::other_opts(), "--all");
-		Refs::OPT_CONSTRAINT = cmd.arg_bool(cmd_line::other_opts(), "--cstr");
+        if (cmd.arg_bool(cmd_line::other_opts(), "--cmd-line")
+                || Refs::OPT_PRINT_ALL) {
+        }
+        const string& filename = cmd.arg_value(cmd_line::prob_inst_opts(),
+                "--input-file");
+        const string& s_initl = cmd.arg_value(cmd_line::prob_inst_opts(),
+                "--initial");
+        const string& s_final = cmd.arg_value(cmd_line::prob_inst_opts(),
+                "--target");
 
-		if (cmd.arg_bool(cmd_line::other_opts(), "--cmd-line")
-				|| Refs::OPT_PRINT_ALL) {
-			// TODO do something
-		}
-		const string& filename = cmd.arg_value(cmd_line::prob_inst_opts(),
-				"--input-file");
-		const string& s_initl = cmd.arg_value(cmd_line::prob_inst_opts(),
-				"--initial");
-		const string& s_final = cmd.arg_value(cmd_line::prob_inst_opts(),
-				"--target");
+        bool is_reachable = false;
+        const string& mode = cmd.arg_value(cmd_line::exp_mode_opts(), "--mode");
+        if (mode.compare(cmd_line::opt_mode_bws()) == 0) { ///  logic decision algorithm
+            ucov checker;
+            is_reachable = checker.symbolic_reachability_analysis(filename,
+                    s_initl, s_final);
+            cout << "logical decision analysis is done! " << "\n";
+        } else if (mode.compare(cmd_line::opt_mode_fws()) == 0) { /// forward search alg
+            cout << "forward search is done! " << "\n";
+        } else {
+            throw cutr_rt_err("main: unknown mode");
+        }
 
-		bool is_reachable = false;
-		const string& mode = cmd.arg_value(cmd_line::exp_mode_opts(), "--mode");
-		if (mode.compare(cmd_line::opt_mode_ldp()) == 0) { ///  logic decision algorithm
-			ucov ursula;
-			is_reachable = ursula.symbolic_reachability_analysis(filename,
-					s_initl, s_final);
-			cout << "logical decision analysis is done! " << "\n";
-		} else if (mode.compare(cmd_line::opt_mode_fws()) == 0) { /// forward search alg
-			cout << "forward search is done! " << "\n";
-		} else if (mode.compare(cmd_line::opt_mode_con()) == 0) { /// concurrent LDP&FWS
-			cout << "forward search join ... " << "\n";
-			cout << "logical decision analysis join ... " << "\n";
-		} else {
-			throw ural_rt_err("main: unknown mode");
-		}
-
-		cout << "======================================================\n";
-		cout << " " << Refs::FINAL_TS;
-		if (is_reachable)
-			cout << " is reachable: verification failed!\n";
-		else
-			cout << " is unreachable: verification successful!\n";
-		cout << "======================================================"
-				<< endl;
-		return 0;
-	} catch (const sura_exception & e) {
-		e.what();
-	} catch (const z3::exception &e) {
-		std::cerr << e.msg() << endl;
-	} catch (const std::exception& e) {
-		std::cerr << e.what() << endl;
-	} catch (...) {
-		std::cerr << sura_exception("main: unknown exception occurred").what()
-				<< endl;
-	}
+        cout << "======================================================\n";
+        cout << " " << Refs::FINAL_TS;
+        if (is_reachable)
+            cout << " is reachable: verification failed!\n";
+        else
+            cout << " is unreachable: verification successful!\n";
+        cout << "======================================================"
+                << endl;
+        return 0;
+    } catch (const cutr_exception & e) {
+        e.what();
+    } catch (const z3::exception &e) {
+        std::cerr << e.msg() << endl;
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << endl;
+    } catch (...) {
+        std::cerr << cutr_exception("main: unknown exception occurred").what()
+                << endl;
+    }
 }

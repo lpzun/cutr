@@ -43,7 +43,7 @@ thread_state Util::create_thread_state_from_gs_str(const string& s_ts,
 		const char& delim) {
 	auto vs_ts = PPRINT::split(s_ts, delim);
 	if (vs_ts.size() != 2) {
-		throw ural_rt_err("The format of global state is wrong.");
+		throw cutr_rt_err("The format of global state is wrong.");
 	}
 	auto vs_locals = PPRINT::split(vs_ts[1], ',');
 	Refs::TARGET_THR_NUM = vs_locals.size();

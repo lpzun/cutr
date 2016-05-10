@@ -452,7 +452,7 @@ result FWS::check_sat_via_smt_solver(shared_ptr<solver>& s) {
 	case unsat: /// if unsat
 		return result::no;
 	default:
-		throw ural_rt_err("smt solver returns unknow!");
+		throw cutr_rt_err("smt solver returns unknow!");
 
 	}
 }
@@ -495,7 +495,7 @@ uint FWS::get_z3_const_uint(const expr& e) {
 		Z3_get_numeral_uint(ctx, e, &value);
 		return value;
 	} else {
-		throw ural_rt_err("get_z3_const_uint: input is not a constant");
+		throw cutr_rt_err("get_z3_const_uint: input is not a constant");
 	}
 }
 
@@ -666,7 +666,7 @@ ca_locals FWS::update_counter(const ca_locals &Z, const local_state &dec,
 		if (idec->second == 0)
 			_Z.erase(idec);
 	} else {
-		throw ural_rt_err("FWS::update_counter: local state miss");
+		throw cutr_rt_err("FWS::update_counter: local state miss");
 	}
 
 	auto iinc = _Z.find(inc);

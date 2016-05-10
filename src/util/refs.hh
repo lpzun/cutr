@@ -21,20 +21,13 @@ public:
 
 	static bool OPT_PRINT_ALL;
 	static bool OPT_PRINT_DOT;
-	static bool OPT_SIMPLIFIED;
+
 	static bool OPT_PRINT_CMD;
 	static bool OPT_NOT_SIMPLE;
-	static bool IS_BWS_TREE;
-	static bool OPT_PRINT_PATH;
-	static bool OPT_CONSTRAINT;
+
 	static bool OPT_PRINT_ADJ;
-	static bool OPT_COMPLETE;
-	static bool OPT_BACKWARD;
-	static bool OPT_SHARED;
 
 	static ushort TARGET_THR_NUM;
-
-//	static string FILE_NAME_PREFIX;
 
 	static thread_state INITL_TS;
 	static thread_state FINAL_TS;

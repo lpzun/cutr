@@ -47,7 +47,7 @@ short compare_map(const map<ushort, ushort>& m1,
 		}
 		s1_iter++, s2_iter++;
 	}
-	throw ural_rt_err("COMPARE::compare: internal");
+	throw cutr_rt_err("COMPARE::compare: internal");
 }
 
 /**
@@ -77,7 +77,7 @@ short compare_container(const T& x, const T& y) {
 			return +1;
 		++xi, ++yi;
 	}
-	throw ural_rt_err("COMPARE::compare: internal");
+	throw cutr_rt_err("COMPARE::compare: internal");
 }
 }
 

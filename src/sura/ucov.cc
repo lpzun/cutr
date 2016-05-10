@@ -44,12 +44,12 @@ bool ucov::symbolic_reachability_analysis(const string& filename,
 vector<inout> ucov::parse_input_ttd(const string& filename) {
 	vector<inout> s_in_out;
 	if (filename == "X") { // make random structure
-		throw ural_rt_err("Please assign the input file!");
+		throw cutr_rt_err("Please assign the input file!");
 	} else {
 		/// original input file before removing comments
 		ifstream org_in(filename.c_str());
 		if (!org_in.good())
-			throw ural_rt_err("Input file does not find!");
+			throw cutr_rt_err("Input file does not find!");
 
 		Parser::remove_comments(org_in, "/tmp/tmp.ttd.no_comment", "#");
 		ifstream new_in("/tmp/tmp.ttd.no_comment"); /// remove comments
@@ -111,7 +111,7 @@ vector<inout> ucov::parse_input_ttd(const string& filename) {
 					s_in_out[s2].first.emplace(dst);
 				}
 			} else {
-				throw ural_rt_err("illegal transition");
+				throw cutr_rt_err("illegal transition");
 			}
 		}
 		new_in.close();
@@ -193,7 +193,7 @@ thread_state ucov::parse_input_tss(const string& str_ts) {
 			ts = Util::create_thread_state_from_gs_str(s_ts);
 			in.close();
 		} else {
-			throw ural_rt_err("read_in_thread_state: unknown input file");
+			throw cutr_rt_err("read_in_thread_state: unknown input file");
 		}
 	}
 	return ts;

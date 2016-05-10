@@ -139,7 +139,7 @@ void GSCC::build_E_in_GSCC(const deque<vertex>& scc1, const size_t& u,
 	}
 
 	if (is_uv && is_vu)
-		throw ural_rt_err("SCC computation is wrong!");
+		throw cutr_rt_err("SCC computation is wrong!");
 	if (is_uv)
 		this->trans_btwn_sccs[u][v] = std::make_shared<deque<edge>>(UV);
 	else if (is_vu)

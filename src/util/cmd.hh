@@ -192,19 +192,14 @@ public:
 		return OTHER_OPTS;
 	}
 
-	inline static const string& opt_mode_con() {
-		static string  OPT_MODE_CON= "C";
+	inline static const string& opt_mode_bws() {
+		static string  OPT_MODE_CON= "B";
 		return OPT_MODE_CON;
 	}
 
 	inline static const string& opt_mode_fws() {
 		static string OPT_MODE_FWS = "F";
 		return OPT_MODE_FWS;
-	}
-
-	inline static const string& opt_mode_ldp() {
-		static string OPT_MODE_LDP = "L";
-		return OPT_MODE_LDP;
 	}
 
 private:
