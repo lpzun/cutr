@@ -86,10 +86,6 @@ private:
 
 	bool standard_FWS(const uint& n, const uint& z);
 
-	ca_locals update_counter(const ca_locals &Z, const ushort &inc);
-	ca_locals update_counter(const ca_locals &Z, const local_state &dec,
-			const local_state &inc);
-
 	deque<syst_state> step(const syst_state& tau, size_p& spw);
 	bool is_maximal(const syst_state& s, const antichain& explored);
 	void maximize(const syst_state& s, antichain& worklist);

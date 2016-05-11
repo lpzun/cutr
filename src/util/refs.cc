@@ -31,6 +31,9 @@ thread_state Refs::FINAL_TS;
 
 adj_list Refs::original_TTD;
 adj_list Refs::spawntra_TTD;
+adj_list Refs::reversee_TTD;
+
+map<shared_state, set<local_state>> Refs::candidate_L;
 
 vector<thread_state> Refs::mapping_TS;
 map<thread_state, id_thread_state> Refs::activee_TS;

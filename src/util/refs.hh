@@ -34,6 +34,9 @@ public:
 
 	static adj_list original_TTD;
 	static adj_list spawntra_TTD;
+    static adj_list reversee_TTD;
+
+    static map<shared_state, set<local_state>> candidate_L;
 
 	static vector<thread_state> mapping_TS;
 	static map<thread_state, id_thread_state> activee_TS;
@@ -43,6 +46,8 @@ public:
 
 	/// global variable for elapsed time
 	static clock_t ELAPSED_TIME;
+
+
 };
 } /* namespace SURA */
 

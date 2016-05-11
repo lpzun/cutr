@@ -26,7 +26,7 @@ string FWS::x_affix = "x"; /// prefix for marking equation variables
 
 /// counter variable for initial local state
 expr FWS::n_0 = ctx.int_const(
-		(n_affix + std::to_string(Refs::INITL_TS.get_local())).c_str());
+        (n_affix + std::to_string(Refs::INITL_TS.get_local())).c_str());
 
 uint FWS::max_n = 0;  /// maximal number of initial   threads in max path
 uint FWS::max_z = 0;  /// maximal number of spawn transitions in max path
@@ -45,9 +45,9 @@ expr FWS::sum_z = ctx.int_val(max_z);
  * @param p_gscc: the pointer to SCC quotient graph
  */
 FWS::FWS(const size_t& size_P, const shared_ptr<GSCC>& p_gscc) :
-		k_index(0), x_index(Transition::ID), p_gscc(p_gscc), solver_P(), sat_P(
-				vector<bool>(size_P, false)), spaw_vars(set<id_tran>()) {
-	this->solver_P.reserve(size_P);
+        k_index(0), x_index(Transition::ID), p_gscc(p_gscc), solver_P(), sat_P(
+                vector<bool>(size_P, false)), spaw_vars(set<id_tran>()) {
+    this->solver_P.reserve(size_P);
 }
 
 /**
@@ -65,23 +65,23 @@ FWS::~FWS() {
  * 		false: otherwise
  */
 bool FWS::fws_as_logic_decision(const vector<_path>& paths) {
-	bool is_exists_sat_path = false;
-	for (auto ipath = paths.begin(); ipath != paths.end(); ++ipath) {
-		switch (this->quotient_path_reachability(*ipath)) {
-		case result::yes:
-			return true;
-		case result::unknown:
-			if (!is_exists_sat_path)
-				is_exists_sat_path = true;
-			break;
-		case result::no:
-			break;
-		}
-	}
+    bool is_exists_sat_path = false;
+    for (auto ipath = paths.begin(); ipath != paths.end(); ++ipath) {
+        switch (this->quotient_path_reachability(*ipath)) {
+        case result::yes:
+            return true;
+        case result::unknown:
+            if (!is_exists_sat_path)
+                is_exists_sat_path = true;
+            break;
+        case result::no:
+            break;
+        }
+    }
 
-	if (!is_exists_sat_path)
-		return false;
-	return this->solicit_for_CEGAR();
+    if (!is_exists_sat_path)
+        return false;
+    return this->solicit_for_CEGAR();
 }
 
 /**
@@ -91,70 +91,70 @@ bool FWS::fws_as_logic_decision(const vector<_path>& paths) {
  */
 result FWS::quotient_path_reachability(const _path& P) {
 #ifndef NDEBUG
-	cout << __func__ << endl;
-	for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc) {
-		cout << " => " << *iscc << " by ";
-		if (p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))] != nullptr)
-		for (const auto& t : *(p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(
-										iscc))]))
-		cout << t << " ";
-	}
-	cout << endl;
+    cout << __func__ << endl;
+    for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc) {
+        cout << " => " << *iscc << " by ";
+        if (p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))] != nullptr)
+        for (const auto& t : *(p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(
+                                        iscc))]))
+        cout << t << " ";
+    }
+    cout << endl;
 #endif
 
-	deque<deque<size_t>> las_level;            /// last    level
-	deque<deque<size_t>> cur_level;            /// current level
-	las_level.emplace_back(deque<size_t>());   /// initialize last level
+    deque<deque<size_t>> las_level;            /// last    level
+    deque<deque<size_t>> cur_level;            /// current level
+    las_level.emplace_back(deque<size_t>());   /// initialize last level
 
-	/// run BFS to iterate over and store all of paths that belong to the
-	/// same SCC quotient path: note that we just store the indices
-	for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc) {
-		const auto p_outgoing =
-				p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))];
-		for (size_t i = 0; i < p_outgoing->size(); ++i) {
-			for (auto p = las_level.begin(); p != las_level.end(); ++p) {
-				auto np = *p;
-				np.emplace_back(i);
-				cur_level.emplace_back(np);
-			}
-		}
-		las_level.clear();
-		cur_level.swap(las_level);
-	}
+    /// run BFS to iterate over and store all of paths that belong to the
+    /// same SCC quotient path: note that we just store the indices
+    for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc) {
+        const auto p_outgoing =
+                p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))];
+        for (size_t i = 0; i < p_outgoing->size(); ++i) {
+            for (auto p = las_level.begin(); p != las_level.end(); ++p) {
+                auto np = *p;
+                np.emplace_back(i);
+                cur_level.emplace_back(np);
+            }
+        }
+        las_level.clear();
+        cur_level.swap(las_level);
+    }
 
 #ifndef NDEBUG
-	cout << __func__ << " Iterator: \n";
-	for (auto ip = las_level.begin(); ip != las_level.end(); ++ip) {
+    cout << __func__ << " Iterator: \n";
+    for (auto ip = las_level.begin(); ip != las_level.end(); ++ip) {
 //		for (auto ie = ip->begin(); ie != ip->end(); ++ie) {
 //			cout << *ie << "\n";
 //		}
-		cout << "size " << ip->size() << "\n";
-	}
+        cout << "size " << ip->size() << "\n";
+    }
 #endif
 
-	/// iterate over all of the real paths that belong to the same quotient
-	/// path P
-	result is_exists_sat_path = result::no;
-	for (auto ip = las_level.begin(); ip != las_level.end(); ++ip) {
-		this->solver_P.emplace_back(nullptr); /// a pointer to a solver for P
-		const auto index = solver_P.size() - 1;  /// get the index for current P
-		this->sat_P[index] = false;
-		const auto& phi = this->path_summary(P, *ip);
+    /// iterate over all of the real paths that belong to the same quotient
+    /// path P
+    result is_exists_sat_path = result::no;
+    for (auto ip = las_level.begin(); ip != las_level.end(); ++ip) {
+        this->solver_P.emplace_back(nullptr); /// a pointer to a solver for P
+        const auto index = solver_P.size() - 1;  /// get the index for current P
+        this->sat_P[index] = false;
+        const auto& phi = this->path_summary(P, *ip);
 
-		switch (this->path_reachability(phi, index)) {
-		case result::yes:
-			return result::yes;
-		case result::no:
-			this->solver_P[index] = nullptr;
-			break;
-		case result::unknown:
-			if (is_exists_sat_path == result::no)
-				is_exists_sat_path = result::unknown;
-			this->sat_P[index] = true;
-			break;
-		}
-	}
-	return is_exists_sat_path;
+        switch (this->path_reachability(phi, index)) {
+        case result::yes:
+            return result::yes;
+        case result::no:
+            this->solver_P[index] = nullptr;
+            break;
+        case result::unknown:
+            if (is_exists_sat_path == result::no)
+                is_exists_sat_path = result::unknown;
+            this->sat_P[index] = true;
+            break;
+        }
+    }
+    return is_exists_sat_path;
 }
 
 /**
@@ -166,37 +166,37 @@ result FWS::quotient_path_reachability(const _path& P) {
  * 		false: otherwise
  */
 result FWS::path_reachability(const vec_expr& phi, const ushort& id_P) {
-	if (solver_P[id_P] == nullptr)
-		solver_P[id_P] = std::make_shared<solver>(
-				(tactic(ctx, "simplify") & tactic(ctx, "qe")
-						& tactic(ctx, "smt")).mk_solver());
+    if (solver_P[id_P] == nullptr)
+        solver_P[id_P] = std::make_shared<solver>(
+                (tactic(ctx, "simplify") & tactic(ctx, "qe")
+                        & tactic(ctx, "smt")).mk_solver());
 
-	/// add k_i >= 0
-	for (auto idx = 0; idx < k_index; ++idx)
-		solver_P[id_P]->add(
-				ctx.int_const((k_affix + std::to_string(idx)).c_str()) >= 0);
+    /// add k_i >= 0
+    for (auto idx = 0; idx < k_index; ++idx)
+        solver_P[id_P]->add(
+                ctx.int_const((k_affix + std::to_string(idx)).c_str()) >= 0);
 
-	/// add x_i >= 0
-	for (size_t idx = 0; idx < x_index; ++idx)
-		solver_P[id_P]->add(
-				ctx.int_const((x_affix + std::to_string(idx)).c_str()) >= 0);
+    /// add x_i >= 0
+    for (size_t idx = 0; idx < x_index; ++idx)
+        solver_P[id_P]->add(
+                ctx.int_const((x_affix + std::to_string(idx)).c_str()) >= 0);
 
-	/// add constraints
-	for (auto iphi = phi.begin(); iphi != phi.end(); ++iphi)
-		solver_P[id_P]->add(*iphi);
+    /// add constraints
+    for (auto iphi = phi.begin(); iphi != phi.end(); ++iphi)
+        solver_P[id_P]->add(*iphi);
 
 #ifndef NDEBUG
-	cout << __func__ << " " << phi.size() << "\n";
-	unsigned i = 0;
-	for (auto iphi = phi.begin(); iphi != phi.end(); ++iphi, ++i) {
-		if (i < thread_state::L)
-		cout << "l" << i << *iphi << "\n";
-		else
-		cout << "s" << i - thread_state::L << *iphi << "\n";
-	}
+    cout << __func__ << " " << phi.size() << "\n";
+    unsigned i = 0;
+    for (auto iphi = phi.begin(); iphi != phi.end(); ++iphi, ++i) {
+        if (i < thread_state::L)
+        cout << "l" << i << *iphi << "\n";
+        else
+        cout << "s" << i - thread_state::L << *iphi << "\n";
+    }
 #endif
 
-	return this->check_sat_via_smt_solver(solver_P[id_P]);
+    return this->check_sat_via_smt_solver(solver_P[id_P]);
 }
 
 /**
@@ -206,96 +206,96 @@ result FWS::path_reachability(const vec_expr& phi, const ushort& id_P) {
  * @return
  */
 vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
-	/// pfx: The vector of expressions: store prefix formula
-	/// 	 Range [0, l) store constraints for local states
-	///		 Range [l, l+s) store constraints for shared states
-	vec_expr pfx(thread_state::L + thread_state::S, ctx.int_val(0));
-	pfx[Refs::INITL_TS.get_local()] = n_0;
+    /// pfx: The vector of expressions: store prefix formula
+    /// 	 Range [0, l) store constraints for local states
+    ///		 Range [l, l+s) store constraints for shared states
+    vec_expr pfx(thread_state::L + thread_state::S, ctx.int_val(0));
+    pfx[Refs::INITL_TS.get_local()] = n_0;
 
-	/// phi: The vector of expressions: store path summary constraints
-	/// 	 Range [0, l) store constraints for local states
-	///		 Range [l, l+s) store constraints for shared states
-	vec_expr phi(thread_state::L + thread_state::S, ctx.bool_val(true));
-	phi[Refs::INITL_TS.get_local()] = n_0 > 1; /// constraint n_0 > 1
+    /// phi: The vector of expressions: store path summary constraints
+    /// 	 Range [0, l) store constraints for local states
+    ///		 Range [l, l+s) store constraints for shared states
+    vec_expr phi(thread_state::L + thread_state::S, ctx.bool_val(true));
+    phi[Refs::INITL_TS.get_local()] = n_0 > 1; /// constraint n_0 > 1
 
-	/// reset spawn expression
-	sum_z = ctx.int_val(0);
-	con_z = 0;
-	this->k_index = 0;
+    /// reset spawn expression
+    sum_z = ctx.int_val(0);
+    con_z = 0;
+    this->k_index = 0;
 
 #ifndef NDEBUG
-	cout << __func__ << "Iterator: \n";
-	for (auto ie = permu.begin(); ie != permu.end(); ++ie)
-	cout << *ie << "\n";
-	cout << endl;
+    cout << __func__ << "Iterator: \n";
+    for (auto ie = permu.begin(); ie != permu.end(); ++ie)
+    cout << *ie << "\n";
+    cout << endl;
 #endif
 
-	deque<edge> infix;
-	/// transitions from last SCC to current SCC: incoming
-	shared_ptr<deque<edge>> p_incoming(nullptr);
-	auto ipos = permu.begin();
-	for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc, ++ipos) { /// iterate over P
-		/// pointer to current SCC
-		auto p_scc = p_gscc->get_sccs()[*iscc];
-		/// transitions from current SCC to the next SCC: outgoing
-		auto p_outgoing =
-				p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))];
+    deque<edge> infix;
+    /// transitions from last SCC to current SCC: incoming
+    shared_ptr<deque<edge>> p_incoming(nullptr);
+    auto ipos = permu.begin();
+    for (auto iscc = P.begin(); std::next(iscc) != P.end(); ++iscc, ++ipos) { /// iterate over P
+        /// pointer to current SCC
+        auto p_scc = p_gscc->get_sccs()[*iscc];
+        /// transitions from current SCC to the next SCC: outgoing
+        auto p_outgoing =
+                p_gscc->get_trans_btwn_sccs()[*iscc][*(std::next(iscc))];
 
-		if (p_scc->is_trivial() == false) { /// if current SCC is non-trivial
-			/// CASE 1: assemble to <pfx> and <phi> the arithmetic for infix
-			this->assemble(pfx, phi, Ufun::compute_delta(infix));
-			infix.clear(); /// clear all edges in the last infix
+        if (p_scc->is_trivial() == false) { /// if current SCC is non-trivial
+            /// CASE 1: assemble to <pfx> and <phi> the arithmetic for infix
+            this->assemble(pfx, phi, Ufun::compute_delta(infix));
+            infix.clear(); /// clear all edges in the last infix
 
-			/// define entry point
-			auto en(INITL_V);
-			if (p_incoming != nullptr)
-				en = (p_incoming->begin() + *(std::prev(ipos)))->get_dst();
+            /// define entry point
+            auto en(INITL_V);
+            if (p_incoming != nullptr)
+                en = (p_incoming->begin() + *(std::prev(ipos)))->get_dst();
 
-			/// define exit  point
-			auto ex = (p_outgoing->begin() + *(ipos))->get_src();
+            /// define exit  point
+            auto ex = (p_outgoing->begin() + *(ipos))->get_src();
 
-			if (p_scc->is_nested() == false) { /// simple loop
-				/// extract the "half" cycle from entry point to exit point
-				auto en_to_ex = Ufun::extract_trans_enter_to_exit(
-						p_scc->get_E(), en, ex);
-				infix.insert(infix.end(), en_to_ex.begin(), en_to_ex.end());
+            if (p_scc->is_nested() == false) { /// simple loop
+                /// extract the "half" cycle from entry point to exit point
+                auto en_to_ex = Ufun::extract_trans_enter_to_exit(
+                        p_scc->get_E(), en, ex);
+                infix.insert(infix.end(), en_to_ex.begin(), en_to_ex.end());
 
-				/// CASE 2: assemble to <pfx> and <phi> the arithmetic for
-				///         simple loop
-				this->assemble(pfx, phi, Ufun::compute_delta(p_scc->get_E()),
-						ctx.int_const(
-								(k_affix + std::to_string(k_index++)).c_str()));
-			} else { /// nested loop
-				/// CASE 3: assemble to <pfx> and <phi> the arithmetic for
-				///         loop nests
-				/// compute thread state equation: C_S and C_L constraints
-				auto is_append = this->append_marking_equation(pfx, *p_scc);
-				/// assemble C_L constraints
-				this->assemble(pfx, phi, is_append);
-				/// assemble C_S constraints
-				this->assemble(pfx, phi, Refs::mapping_TS[en].get_share(),
-						Refs::mapping_TS[ex].get_share(), is_append);
-			}
-		}
-		/// append the ipos^th transition between current SCC and its successor
-		infix.emplace_back((p_outgoing->begin() + *(ipos))->get_src(),
-				(p_outgoing->begin() + *(ipos))->get_dst());
-		p_incoming = std::move(p_outgoing);
-	}
-	if (infix.size() > 0) {
-		/// assemble the suffix: the last straight segment
-		auto ifx_d = Ufun::compute_delta(infix);
-		this->assemble(pfx, phi, ifx_d);
+                /// CASE 2: assemble to <pfx> and <phi> the arithmetic for
+                ///         simple loop
+                this->assemble(pfx, phi, Ufun::compute_delta(p_scc->get_E()),
+                        ctx.int_const(
+                                (k_affix + std::to_string(k_index++)).c_str()));
+            } else { /// nested loop
+                /// CASE 3: assemble to <pfx> and <phi> the arithmetic for
+                ///         loop nests
+                /// compute thread state equation: C_S and C_L constraints
+                auto is_append = this->append_marking_equation(pfx, *p_scc);
+                /// assemble C_L constraints
+                this->assemble(pfx, phi, is_append);
+                /// assemble C_S constraints
+                this->assemble(pfx, phi, Refs::mapping_TS[en].get_share(),
+                        Refs::mapping_TS[ex].get_share(), is_append);
+            }
+        }
+        /// append the ipos^th transition between current SCC and its successor
+        infix.emplace_back((p_outgoing->begin() + *(ipos))->get_src(),
+                (p_outgoing->begin() + *(ipos))->get_dst());
+        p_incoming = std::move(p_outgoing);
+    }
+    if (infix.size() > 0) {
+        /// assemble the suffix: the last straight segment
+        auto ifx_d = Ufun::compute_delta(infix);
+        this->assemble(pfx, phi, ifx_d);
 
-		/// n_f >= 1
-		phi[Refs::FINAL_TS.get_local()] = phi[Refs::FINAL_TS.get_local()]
-				&& (pfx[Refs::FINAL_TS.get_local()]
-						+ ifx_d[Refs::FINAL_TS.get_local()] >= 1);
-	}
+        /// n_f >= 1
+        phi[Refs::FINAL_TS.get_local()] = phi[Refs::FINAL_TS.get_local()]
+                && (pfx[Refs::FINAL_TS.get_local()]
+                        + ifx_d[Refs::FINAL_TS.get_local()] >= 1);
+    }
 
-	/// build spawn expression to summarize spawn transitions
-	sum_z = sum_z + ctx.int_val(con_z);
-	return phi;
+    /// build spawn expression to summarize spawn transitions
+    sum_z = sum_z + ctx.int_val(con_z);
+    return phi;
 }
 
 /**
@@ -308,14 +308,14 @@ vec_expr FWS::path_summary(const _path& P, const deque<size_t>& permu) {
  * @param delta: the delta for prefix path
  */
 void FWS::assemble(vec_expr &pfx, vec_expr &phi, const delta &delta) {
-	auto sum = 0;
-	for (auto id = delta.begin(); id != delta.end(); id++) {
-		phi[id->first] = phi[id->first] && (pfx[id->first] + id->second >= 0);
-		pfx[id->first] = pfx[id->first] + id->second;
-		sum += id->second;
-	}
-	if (sum > 0)
-		con_z = con_z + sum;
+    auto sum = 0;
+    for (auto id = delta.begin(); id != delta.end(); id++) {
+        phi[id->first] = phi[id->first] && (pfx[id->first] + id->second >= 0);
+        pfx[id->first] = pfx[id->first] + id->second;
+        sum += id->second;
+    }
+    if (sum > 0)
+        con_z = con_z + sum;
 }
 
 /**
@@ -329,19 +329,19 @@ void FWS::assemble(vec_expr &pfx, vec_expr &phi, const delta &delta) {
  * @param k    : the simple loop iterator kappa
  */
 void FWS::assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
-		const expr &k) {
+        const expr &k) {
 /// the intermediate variable used in <forall> quantifier
-	expr i = ctx.int_const("i");
-	expr r = 0 <= i && i <= k;
-	auto sum = 0;
-	for (auto id = delta.begin(); id != delta.end(); id++) {
-		expr f = implies(r, pfx[id->first] + id->second * i >= 0);
-		phi[id->first] = phi[id->first] && forall(i, f);
-		pfx[id->first] = pfx[id->first] + id->second * k;
-		sum += id->second;
-	}
-	if (sum > 0)
-		sum_z = sum_z + sum * k;
+    expr i = ctx.int_const("i");
+    expr r = 0 <= i && i <= k;
+    auto sum = 0;
+    for (auto id = delta.begin(); id != delta.end(); id++) {
+        expr f = implies(r, pfx[id->first] + id->second * i >= 0);
+        phi[id->first] = phi[id->first] && forall(i, f);
+        pfx[id->first] = pfx[id->first] + id->second * k;
+        sum += id->second;
+    }
+    if (sum > 0)
+        sum_z = sum_z + sum * k;
 }
 
 /**
@@ -354,10 +354,10 @@ void FWS::assemble(vec_expr &pfx, vec_expr &phi, const delta &delta,
  * @param is_append: mark whether the entries of C_L/C_S are updated or not
  */
 void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
-		const vector<bool> &is_append) {
-	for (auto i = 0; i < thread_state::L; ++i)
-		if (is_append[i])
-			phi[i] = phi[i] && pfx[i] >= 0;
+        const vector<bool> &is_append) {
+    for (auto i = 0; i < thread_state::L; ++i)
+        if (is_append[i])
+            phi[i] = phi[i] && pfx[i] >= 0;
 }
 
 /**
@@ -373,17 +373,17 @@ void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
  * @param is_append: mark whether the entries of C_L/C_S are updated or not
  */
 void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
-		const shared_state &s_entr, const shared_state &s_exit,
-		const vector<bool> &is_append) {
-	for (auto i = thread_state::L; i < thread_state::L + thread_state::S; ++i)
-		if (is_append[i]) {
-			if (s_entr != s_exit && i == thread_state::S + s_entr)
-				phi[i] = phi[i] && pfx[i] == -1;
-			else if (s_entr != s_exit && i == thread_state::S + s_exit)
-				phi[i] = phi[i] && pfx[i] == 1;
-			else
-				phi[i] = phi[i] && pfx[i] == 0;
-		}
+        const shared_state &s_entr, const shared_state &s_exit,
+        const vector<bool> &is_append) {
+    for (auto i = thread_state::L; i < thread_state::L + thread_state::S; ++i)
+        if (is_append[i]) {
+            if (s_entr != s_exit && i == thread_state::S + s_entr)
+                phi[i] = phi[i] && pfx[i] == -1;
+            else if (s_entr != s_exit && i == thread_state::S + s_exit)
+                phi[i] = phi[i] && pfx[i] == 1;
+            else
+                phi[i] = phi[i] && pfx[i] == 0;
+        }
 }
 
 /**
@@ -395,44 +395,44 @@ void FWS::assemble(const vec_expr &pfx, vec_expr &phi,
  * 		  to mark to which is appended marking equations
  */
 vector<bool> FWS::append_marking_equation(vec_expr &pfx, const SCC &scc) {
-	vector<bool> is_append(thread_state::L + thread_state::S, false);
+    vector<bool> is_append(thread_state::L + thread_state::S, false);
 
-	/// reset prefix for shared constraints
-	for (auto i = thread_state::L; i < thread_state::L + thread_state::S; ++i)
-		pfx[i] = ctx.int_val(0);
+    /// reset prefix for shared constraints
+    for (auto i = thread_state::L; i < thread_state::L + thread_state::S; ++i)
+        pfx[i] = ctx.int_val(0);
 
-	const auto& transitions = scc.get_E();
-	for (auto itran = transitions.begin(); itran != transitions.end();
-			++itran) {
-		/// declare C_L variables for marking equation
-		expr x = ctx.int_const(
-				(x_affix + std::to_string(itran->get_id())).c_str());
-		if (ETTD::spaw_R[itran->get_src()][itran->get_dst()]) {
-			spaw_vars.emplace(itran->get_id());
-		}
+    const auto& transitions = scc.get_E();
+    for (auto itran = transitions.begin(); itran != transitions.end();
+            ++itran) {
+        /// declare C_L variables for marking equation
+        expr x = ctx.int_const(
+                (x_affix + std::to_string(itran->get_id())).c_str());
+        if (ETTD::spaw_R[itran->get_src()][itran->get_dst()]) {
+            spaw_vars.emplace(itran->get_id());
+        }
 
-		/// define C_L constraints
-		auto delta = Ufun::compute_delta(*itran);
-		for (auto il = delta.begin(); il != delta.end(); ++il) {
-			pfx[il->first] = pfx[il->first] + x * il->second;
-			if (!is_append[il->first])
-				is_append[il->first] = true;
-		}
+        /// define C_L constraints
+        auto delta = Ufun::compute_delta(*itran);
+        for (auto il = delta.begin(); il != delta.end(); ++il) {
+            pfx[il->first] = pfx[il->first] + x * il->second;
+            if (!is_append[il->first])
+                is_append[il->first] = true;
+        }
 
-		/// define C_S constraints
-		const auto& s_src = Refs::mapping_TS[itran->get_src()].get_share(); /// shared state of      source TS
-		const auto& s_dst = Refs::mapping_TS[itran->get_dst()].get_share(); /// shared state of destination TS
-		if (s_src != s_dst) {
-			pfx[thread_state::L + s_src] = pfx[thread_state::L + s_src] - x; /// incoming - x
-			if (!is_append[thread_state::L + s_src])
-				is_append[thread_state::L + s_src] = true;
+        /// define C_S constraints
+        const auto& s_src = Refs::mapping_TS[itran->get_src()].get_share(); /// shared state of      source TS
+        const auto& s_dst = Refs::mapping_TS[itran->get_dst()].get_share(); /// shared state of destination TS
+        if (s_src != s_dst) {
+            pfx[thread_state::L + s_src] = pfx[thread_state::L + s_src] - x; /// incoming - x
+            if (!is_append[thread_state::L + s_src])
+                is_append[thread_state::L + s_src] = true;
 
-			pfx[thread_state::L + s_dst] = pfx[thread_state::L + s_dst] + x; /// outgoing + x
-			if (!is_append[thread_state::L + s_dst])
-				is_append[thread_state::L + s_dst] = true;
-		}
-	}
-	return is_append;
+            pfx[thread_state::L + s_dst] = pfx[thread_state::L + s_dst] + x; /// outgoing + x
+            if (!is_append[thread_state::L + s_dst])
+                is_append[thread_state::L + s_dst] = true;
+        }
+    }
+    return is_append;
 }
 
 /**
@@ -443,18 +443,18 @@ vector<bool> FWS::append_marking_equation(vec_expr &pfx, const SCC &scc) {
  * 		false: otherwise
  */
 result FWS::check_sat_via_smt_solver(shared_ptr<solver>& s) {
-	switch (s->check()) {
-	case sat:   /// if   sat
-		if (this->parse_sat_solution(s->get_model())) /// if max_n or max_z is updated
-			if (this->standard_FWS(max_n, ++max_z)) /// if find out a witness
-				return result::yes;
-		return result::unknown;
-	case unsat: /// if unsat
-		return result::no;
-	default:
-		throw cutr_rt_err("smt solver returns unknow!");
+    switch (s->check()) {
+    case sat:   /// if   sat
+        if (this->parse_sat_solution(s->get_model())) /// if max_n or max_z is updated
+            if (this->standard_FWS(max_n, ++max_z)) /// if find out a witness
+                return result::yes;
+        return result::unknown;
+    case unsat: /// if unsat
+        return result::no;
+    default:
+        throw cutr_rt_err("smt solver returns unknow!");
 
-	}
+    }
 }
 
 /**
@@ -465,23 +465,23 @@ result FWS::check_sat_via_smt_solver(shared_ptr<solver>& s) {
  * 		   false: otherwise
  */
 bool FWS::parse_sat_solution(const model& m) {
-	uint n = 0;
-	for (size_t i = 0; i < m.size(); i++) {
-		func_decl v = m[i];
-		assert(v.arity() == 0); /// check if contains only constants
-		if (v.name() == n_0.decl().name())
-			if (Z3_get_numeral_uint(ctx, m.get_const_interp(v), &n))
-				break;
-	}
-	auto z = get_z3_const_uint(m.eval(sum_z));
-	if (max_n < n || max_z < z) {
-		if (max_n < n) /// update max_n if necessary
-			max_n = n;
-		if (max_z < z) /// update max_z if necessary
-			max_z = z;
-		return true;  /// max_n or max_z is updated
-	}
-	return false;
+    uint n = 0;
+    for (size_t i = 0; i < m.size(); i++) {
+        func_decl v = m[i];
+        assert(v.arity() == 0); /// check if contains only constants
+        if (v.name() == n_0.decl().name())
+            if (Z3_get_numeral_uint(ctx, m.get_const_interp(v), &n))
+                break;
+    }
+    auto z = get_z3_const_uint(m.eval(sum_z));
+    if (max_n < n || max_z < z) {
+        if (max_n < n) /// update max_n if necessary
+            max_n = n;
+        if (max_z < z) /// update max_z if necessary
+            max_z = z;
+        return true;  /// max_n or max_z is updated
+    }
+    return false;
 }
 
 /**
@@ -490,13 +490,13 @@ bool FWS::parse_sat_solution(const model& m) {
  * @return e's value
  */
 uint FWS::get_z3_const_uint(const expr& e) {
-	if (e.is_const()) {
-		uint value = 0;
-		Z3_get_numeral_uint(ctx, e, &value);
-		return value;
-	} else {
-		throw cutr_rt_err("get_z3_const_uint: input is not a constant");
-	}
+    if (e.is_const()) {
+        uint value = 0;
+        Z3_get_numeral_uint(ctx, e, &value);
+        return value;
+    } else {
+        throw cutr_rt_err("get_z3_const_uint: input is not a constant");
+    }
 }
 
 /**
@@ -505,8 +505,8 @@ uint FWS::get_z3_const_uint(const expr& e) {
  * @return
  */
 bool FWS::is_spawn_variable(const string& v) {
-	return spaw_vars.find(std::stoi(v.substr(x_affix.size())))
-			!= spaw_vars.end();
+    return spaw_vars.find(std::stoi(v.substr(x_affix.size())))
+            != spaw_vars.end();
 }
 
 /**
@@ -516,37 +516,37 @@ bool FWS::is_spawn_variable(const string& v) {
  * 		false: if all of paths finally are unsatisfiable.
  */
 bool FWS::solicit_for_CEGAR() {
-	bool is_exists_sat_path = true;
-	while (is_exists_sat_path) {
-		for (size_t idx = 0; idx < sat_P.size(); ++idx) {
-			if (sat_P[idx] == true) {
-				if (!is_exists_sat_path)
-					is_exists_sat_path = true;
+    bool is_exists_sat_path = true;
+    while (is_exists_sat_path) {
+        for (size_t idx = 0; idx < sat_P.size(); ++idx) {
+            if (sat_P[idx] == true) {
+                if (!is_exists_sat_path)
+                    is_exists_sat_path = true;
 
-				/// add incremental constraints
-				solver_P[idx]->add(n_0 > ctx.int_val(max_n));
-				if (max_z > 0 && !sum_z.is_int())
-					solver_P[idx]->add(sum_z > ctx.int_val(max_z));
+                /// add incremental constraints
+                solver_P[idx]->add(n_0 > ctx.int_val(max_n));
+                if (max_z > 0 && !sum_z.is_int())
+                    solver_P[idx]->add(sum_z > ctx.int_val(max_z));
 
-				/// apply incremental solving
-				switch (check_sat_via_smt_solver(solver_P[idx])) {
-				case result::yes:
-					return true;
-				case result::no:
-					sat_P[idx] = false;
-					solver_P[idx] = nullptr;
-					is_exists_sat_path = false;
-					break;
-				case result::unknown:
-					break;
-				}
-			}
-		}
+                /// apply incremental solving
+                switch (check_sat_via_smt_solver(solver_P[idx])) {
+                case result::yes:
+                    return true;
+                case result::no:
+                    sat_P[idx] = false;
+                    solver_P[idx] = nullptr;
+                    is_exists_sat_path = false;
+                    break;
+                case result::unknown:
+                    break;
+                }
+            }
+        }
 
-		if (is_exists_sat_path == false) /// exit while loop
-			break;
-	}
-	return false;
+        if (is_exists_sat_path == false) /// exit while loop
+            break;
+    }
+    return false;
 }
 
 /**
@@ -560,123 +560,71 @@ bool FWS::solicit_for_CEGAR() {
  * 		false: otherwise
  */
 bool FWS::standard_FWS(const uint& n, const uint& s) {
-	auto spw = s;       /// the upper bound of spawns that can be fired
-	antichain worklist;
-	antichain explored;
+    auto spw = s;       /// the upper bound of spawns that can be fired
+    antichain worklist;
+    antichain explored;
 
-	/// start from the initial state with n threads
-	worklist.emplace_back(Refs::INITL_TS, n);
+    /// start from the initial state with n threads
+    worklist.emplace_back(Refs::INITL_TS, n);
 
-	while (!worklist.empty()) {
-		const auto tau = worklist.front();
-		worklist.pop_front();
+    while (!worklist.empty()) {
+        const auto tau = worklist.front();
+        worklist.pop_front();
 
-		const auto& shared = tau.get_share();
-		for (auto il = tau.get_locals().begin(); il != tau.get_locals().end();
-				++il) {
-			const thread_state src(shared, il->first); /// source TS
-			if (src != Refs::FINAL_TS) {
-				auto isrc = Refs::activee_TS.find(src); /// get the id of source TS
-				if (isrc != Refs::activee_TS.end()) {
-					auto ifind = Refs::original_TTD.find(isrc->second);
-					if (ifind != Refs::original_TTD.end()) {
-						for (auto idst = ifind->second.begin();
-								idst != ifind->second.end(); ++idst) {
-							const auto &dst = Refs::mapping_TS[*idst]; /// destination TS
-							ca_locals locals;
-							if (ETTD::spaw_R[isrc->second][*idst]) { /// if src +> dst
-								if (spw > 0) {
-									spw--;
-									locals = this->update_counter(
-											tau.get_locals(), dst.get_local());
-								} else { /// if we already spawn z threads, we can't
-									continue; /// spawn any more and have to skip it.
-								}
-							} else {
-								locals = this->update_counter(tau.get_locals(),
-										src.get_local(), dst.get_local());
-							}
+        const auto& shared = tau.get_share();
+        for (auto il = tau.get_locals().begin(); il != tau.get_locals().end();
+                ++il) {
+            const thread_state src(shared, il->first); /// source TS
+            if (src != Refs::FINAL_TS) {
+                auto isrc = Refs::activee_TS.find(src); /// get the id of source TS
+                if (isrc != Refs::activee_TS.end()) {
+                    auto ifind = Refs::original_TTD.find(isrc->second);
+                    if (ifind != Refs::original_TTD.end()) {
+                        for (auto idst = ifind->second.begin();
+                                idst != ifind->second.end(); ++idst) {
+                            const auto &dst = Refs::mapping_TS[*idst]; /// destination TS
+                            ca_locals locals;
+                            if (ETTD::spaw_R[isrc->second][*idst]) { /// if src +> dst
+                                if (spw > 0) {
+                                    spw--;
+                                    locals = Ufun::increment_counter(
+                                            tau.get_locals(), dst.get_local());
+                                } else { /// if we already spawn z threads, we can't
+                                    continue; /// spawn any more and have to skip it.
+                                }
+                            } else {
+                                locals = Ufun::update_counter(tau.get_locals(),
+                                        src.get_local(), dst.get_local());
+                            }
 
-//							if (explored.emplace_back(dst.get_share(), locals).second) {
-//								/// recording _tau's predecessor tau for witness
-//								W.emplace(dst.get_share(), locals);
-//							}
-						}
-					}
-				}
-			} else { /// if src == final
-				cout << "witness path: " << tau << endl;
-				return true;
-			}
-		}
-	}
-	return false;
+//                            if (explored.emplace_back(dst.get_share(), locals).second) {
+//                                /// recording _tau's predecessor tau for witness
+//                                //worklist.emplace(dst.get_share(), locals);
+//                            }
+                        }
+                    }
+                }
+            } else { /// if src == final
+                cout << "witness path: " << tau << endl;
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 deque<syst_state> FWS::step(const global_state& tau, size_p& spw) {
-	deque<syst_state> images;
-	const auto& s = tau.get_share();
-	for (const auto& p : tau.get_locals()) {
-		const auto& l = p.first;
-		auto ifind = Refs::activee_TS.find(thread_state(s, l));
-		if (ifind != Refs::activee_TS.end()) {
+    deque<syst_state> images;
+    const auto& s = tau.get_share();
+    for (const auto& p : tau.get_locals()) {
+        const auto& l = p.first;
+        auto ifind = Refs::activee_TS.find(thread_state(s, l));
+        if (ifind != Refs::activee_TS.end()) {
 
-		}
+        }
 
-	}
-	return images;
-}
-
-/**
- * @brief This procedure updates the counters of local states.
- * @param Z  : the part of local states
- * @param inc: local state whose counter is incremented
- * @return local states after updating counters
- */
-ca_locals FWS::update_counter(const map<ushort, ushort> &Z, const ushort &inc) {
-	auto _Z = Z;   /// local copy of Z
-
-	auto iinc = _Z.find(inc);
-	if (iinc != _Z.end()) {
-		iinc->second++;
-	} else {
-		_Z[inc] = 1;
-	}
-	return _Z;
-}
-
-/**
- * @brief This procedure updates the counters of local states.
- * @param Z  : the part of local states
- * @param dec: local state whose counter is decremented
- * @param inc: local state whose counter is incremented
- * @return local states after updating counters
- * 		representing in counter abstraction
- */
-ca_locals FWS::update_counter(const ca_locals &Z, const local_state &dec,
-		const local_state &inc) {
-	if (dec == inc) /// if dec == inc, do nothing
-		return Z;
-
-	auto _Z = Z;   /// local copy of Z
-
-	auto idec = _Z.find(dec);
-	if (idec != _Z.end()) {
-		idec->second--;
-		if (idec->second == 0)
-			_Z.erase(idec);
-	} else {
-		throw cutr_rt_err("FWS::update_counter: local state miss");
-	}
-
-	auto iinc = _Z.find(inc);
-	if (iinc != _Z.end()) {
-		iinc->second++;
-	} else {
-		_Z[inc] = 1;
-	}
-
-	return _Z;
+    }
+    return images;
 }
 
 /**
@@ -685,14 +633,14 @@ ca_locals FWS::update_counter(const ca_locals &Z, const local_state &dec,
  * @param R
  */
 void FWS::reproduce_witness_path(const shared_ptr<global_state>& pi,
-		const antichain& R) {
-	cout << *pi << endl; ///
-	if (pi == nullptr || this->is_initial_state(*pi)) {
-		cout << *pi << endl;
-		return;
-	} else {
-		// this->reproduce_witness_path(pi->get_pi(), R);
-	}
+        const antichain& R) {
+    cout << *pi << endl; ///
+    if (pi == nullptr || this->is_initial_state(*pi)) {
+        cout << *pi << endl;
+        return;
+    } else {
+        // this->reproduce_witness_path(pi->get_pi(), R);
+    }
 }
 
 /**
@@ -703,13 +651,13 @@ void FWS::reproduce_witness_path(const shared_ptr<global_state>& pi,
  * 		false: otherwise
  */
 bool FWS::is_initial_state(const global_state &tau) {
-	if (tau.get_share() == Refs::INITL_TS.get_share()) {
-		if (tau.get_locals().size() == 1) {
-			if (tau.get_locals().begin()->first == Refs::INITL_TS.get_local()
-					&& tau.get_locals().begin()->second > 0)
-				return true;
-		}
-	}
-	return false;
+    if (tau.get_share() == Refs::INITL_TS.get_share()) {
+        if (tau.get_locals().size() == 1) {
+            if (tau.get_locals().begin()->first == Refs::INITL_TS.get_local()
+                    && tau.get_locals().begin()->second > 0)
+                return true;
+        }
+    }
+    return false;
 }
 } /* namespace SURA */

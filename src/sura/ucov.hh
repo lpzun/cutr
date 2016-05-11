@@ -9,6 +9,7 @@
 #define SURA_HH_
 
 #include "fws/fws.hh"
+#include "bws/bws.hh"
 
 #include "../pwa/scc.hh"
 #include "../util/utilities.hh"
@@ -17,20 +18,20 @@ namespace sura {
 
 class ucov {
 public:
-	ucov();
-	virtual ~ucov();
+    ucov();
+    ~ucov();
 
-	bool symbolic_reachability_analysis(const string& filename,
-			const string& initl_ts, const string& final_ts);
+    bool symbolic_reachability_analysis(const string& filename,
+            const string& initl_ts, const string& final_ts);
 
 private:
-	vector<inout> parse_input_ttd(const string& filename);
-	thread_state parse_input_tss(const string& str_ts);
+    vector<inout> parse_input_ttd(const string& filename);
+    thread_state parse_input_tss(const string& str_ts);
 
-	bool reachability_as_logic_decision(const adj_list& TTD,
-			const vector<inout>& s_in_out);
+    bool reachability_as_logic_decision(const adj_list& TTD,
+            const vector<inout>& s_in_out);
 
-	bool path_wise_analysis(const shared_ptr<GSCC>& p_gscc);
+    bool path_wise_analysis(const shared_ptr<GSCC>& p_gscc);
 };
 
 } /* namespace sura */
